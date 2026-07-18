@@ -1,20 +1,8 @@
 // Mentesana — the journal editor overlay.
-// 1:1 port of #journal from the Vite prototype (index.html + src/main.js
-// openJournal / keepEntry / the quiet shelf / drafts).
-//
-// PORT NOTES (documented deviations, see README):
-// - The typewriter caret-scroll mirror is replaced by Flutter's built-in
-//   caret-keeping scroll in TextField.
-// - File attachments need a platform file picker (a plugin); this build
-//   keeps the shelf tool and answers with the prototype's quiet fallback
-//   language instead of opening a picker.
-// - Voice recording is implemented (see voice_transcription_service.dart):
-//   record first, then transcribe fully on-device via whisper.cpp — no
-//   live/streaming transcript, by design (see Feature & Design Research).
-//   The transcript is inserted into the page; the original audio is kept
-//   only if the user explicitly says so, via a short confirmation.
-// - Stored image attachments (base64 data URLs) still render as thumbnails,
-//   and audio chips render with their spoken-length names.
+// Structural screen: typography on the sea. No cards, no boxes.
+// - Title hint and body text use textPrimary/textSecondary for readability
+// - Shelf tools are bare stroke icons (48px targets)
+// - Keep button unchanged (ritual circle); on keep, fire sea ripple from its position
 
 import 'dart:async';
 import 'dart:convert';
@@ -27,17 +15,17 @@ import '_shared/services/attachment_service.dart';
 import 'analysis_engine.dart';
 import 'app_store.dart';
 import 'core/locator.dart';
-import 'journal_prompts.dart';
+import 'core/sea_manager.dart';
+import 'journal_prompts.dart'
+    show stripTags, journalPrompt, stepPrompt, hhmm, jDateLine, kSafetyText;
 import 'mood_palette.dart';
 import 'sea_icons.dart';
 import 'theme.dart';
 import 'voice_transcription_service.dart';
 
-/// What the shell passes when opening the editor (JS globals journalMode,
-/// activeEntry, freeJournalPrompt, pendingAttachments, v, a, editedWord).
 class JournalEditorConfig {
   JournalEditorConfig({
-    required this.mode, // 'mood' | 'free'
+    required this.mode,
     this.activeEntry,
     this.freePrompt,
     this.v = 0,
@@ -96,8 +84,8 @@ class _JournalEditorState extends State<JournalEditor> {
   late List<Attachment> _pending;
   bool _kept = false;
   String _journalStep = 'event';
-  bool _stepChosen = false; // placeholder switches only after the pivot
-  String? _openPanel; // null | 'tide' | 'tag'
+  bool _stepChosen = false;
+  String? _openPanel;
   String _heldText = 'held quietly';
   bool _heldSaving = false;
   Timer? _heldTimer;
@@ -126,11 +114,9 @@ class _JournalEditorState extends State<JournalEditor> {
     _bottle = TextEditingController(text: widget.config.initialBottle);
     _pending = List.of(widget.config.attachments);
     _voice = VoiceTranscriptionService();
-    // JS openJournal: if the title box is empty, prefill from the entry.
     if (_title.text.trim().isEmpty && (_activeEntry?.title ?? '').isNotEmpty) {
       _title.text = _activeEntry!.title;
     }
-    // JS: setTimeout(() => jText.focus(), reduced ? 0 : 500)
     Timer(Duration(milliseconds: widget.reduced ? 0 : 500), () {
       if (mounted) _textFocus.requestFocus();
     });
@@ -147,7 +133,7 @@ class _JournalEditorState extends State<JournalEditor> {
     _writeTimer?.cancel();
     _recTicker?.cancel();
     if (_recording) {
-      _voice.stopRecording(); // best-effort: release the mic on early close
+      _voice.stopRecording();
     }
     _voice.dispose();
     _text.dispose();
@@ -160,8 +146,6 @@ class _JournalEditorState extends State<JournalEditor> {
     _tagFocus.dispose();
     super.dispose();
   }
-
-  // ---------- prompt & header ----------
 
   String get _promptText => widget.config.mode == 'free'
       ? (widget.config.freePrompt ??
@@ -177,8 +161,6 @@ class _JournalEditorState extends State<JournalEditor> {
     if (_kept) return 'kept';
     return (_activeEntry?.text.isNotEmpty ?? false) ? 'keep changes' : 'keep';
   }
-
-  // ---------- drafts (JS saveJournalDraft / flashSavedNote) ----------
 
   void _flashSavedNote() {
     setState(() {
@@ -226,8 +208,6 @@ class _JournalEditorState extends State<JournalEditor> {
     }
   }
 
-  // ---------- writing state (JS markWriting) ----------
-
   void _markWriting() {
     if (widget.reduced) return;
     setState(() => _writing = true);
@@ -240,20 +220,17 @@ class _JournalEditorState extends State<JournalEditor> {
   void _onTextChanged() {
     _saveDraft();
     _markWriting();
-    setState(() {}); // nudge/pivot/safety/format bar all derive from value
+    setState(() {});
   }
 
   void _onFieldChanged() {
     _saveDraft();
-    setState(() {}); // tool holding states
+    setState(() {});
   }
-
-  // ---------- keep (JS keepEntry) ----------
 
   void _keepEntry() {
     if (_kept) return;
     if (_text.text.trim().isEmpty) {
-      // empty is a close, never a failure
       widget.onClose();
       return;
     }
@@ -305,20 +282,23 @@ class _JournalEditorState extends State<JournalEditor> {
           DateTime.now().millisecondsSinceEpoch + 14 * 24 * 60 * 60 * 1000;
     }
     if (_transcribing && _pendingAudioPath != null) {
-      // The recording finished but transcribing had not — let it keep
-      // running and land on this now-saved page whenever it's ready, even
-      // if this editor closes first.
       _voiceTargetEntryTs = current.ts;
       store.beginPendingTranscription(current, _pendingAudioPath!);
     } else {
       store.saveEntries();
     }
     store.clearJournalDraft();
-    // JS: subline + close after reduced ? 250 : 850 — the shell owns both.
+
+    final seaManager = locate<SeaManager>();
+    final buttonBox = context.findRenderObject() as RenderBox?;
+    if (buttonBox != null) {
+      final center = buttonBox.localToGlobal(Offset.zero) +
+          Offset(buttonBox.size.width / 2, buttonBox.size.height / 2);
+      seaManager.ripple(center);
+    }
+
     widget.onKept(current);
   }
-
-  // ---------- shelf ----------
 
   void _togglePanel(String which, FocusNode input) {
     final opening = _openPanel != which;
@@ -339,8 +319,6 @@ class _JournalEditorState extends State<JournalEditor> {
     }
   }
 
-  // ---------- attachments (pick image, compress, add) ----------
-
   Future<void> _onAttachTap() async {
     if (_pending.length >= widget.store.attachmentCap) {
       _recStatusSet(
@@ -359,24 +337,27 @@ class _JournalEditorState extends State<JournalEditor> {
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text('add an image',
-                style: MenteType.heading.copyWith(color: textPrimary)),
-            const SizedBox(height: 18),
-            _sourceOption(
-              ctx,
-              icon: SeaIcons.attach,
-              label: 'photo library',
-              source: ImageSource.gallery,
-            ),
-            const SizedBox(height: 6),
-            _sourceOption(
-              ctx,
-              icon: SeaIcons.record,
-              label: 'camera',
-              source: ImageSource.camera,
-            ),
-          ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('add an image',
+                  style: MenteType.heading.copyWith(color: textPrimary)),
+              const SizedBox(height: 18),
+              _sourceOption(
+                ctx,
+                icon: SeaIcons.attach,
+                label: 'photo library',
+                source: ImageSource.gallery,
+              ),
+              const SizedBox(height: 6),
+              _sourceOption(
+                ctx,
+                icon: SeaIcons.record,
+                label: 'camera',
+                source: ImageSource.camera,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -411,10 +392,6 @@ class _JournalEditorState extends State<JournalEditor> {
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: textDisabled),
-        ),
         child: Row(children: [
           StrokeIcon(icon, size: 17, color: textSecondary),
           const SizedBox(width: 12),
@@ -425,24 +402,17 @@ class _JournalEditorState extends State<JournalEditor> {
     );
   }
 
-  // ---------- voice notes (record first, then transcribe on-device) ----------
-
   Future<void> _onRecordTap() async {
-    if (_transcribing) return; // ignore taps while a transcription is running
+    if (_transcribing) return;
     if (_recording) {
       _recTicker?.cancel();
       final length = _recElapsed;
       setState(() => _recording = false);
       final path = await _voice.stopRecording();
       if (path == null) {
-        _recStatusSet('didn’t catch anything there — try again.', true);
+        _recStatusSet("didn't catch anything there — try again.", true);
         return;
       }
-      // Transcribing no longer blocks keeping the page — it now runs in
-      // the background, and the page can be kept right away (see
-      // _keepEntry). If this editor is still open when it finishes, the
-      // transcript is inserted live; if not, it lands on the entry
-      // directly once it has been kept (see AppStore.transcribeInBackground).
       setState(() {
         _transcribing = true;
         _pendingAudioPath = path;
@@ -455,7 +425,7 @@ class _JournalEditorState extends State<JournalEditor> {
           setState(() => _transcribing = false);
           final t = transcript.trim();
           if (t.isEmpty) {
-            _recStatusSet('didn’t catch anything there — try again.', true);
+            _recStatusSet("didn't catch anything there — try again.", true);
           } else {
             _insertTranscript(t);
             await _offerToKeepAudio(path, length);
@@ -463,9 +433,6 @@ class _JournalEditorState extends State<JournalEditor> {
           }
           return;
         }
-        // The editor is already closed. Only land the transcript if the
-        // page was actually kept in the meantime — never resurrect a
-        // discarded draft just because its transcript finished late.
         final targetTs = _voiceTargetEntryTs;
         final t = transcript.trim();
         if (targetTs != null && t.isNotEmpty) {
@@ -478,7 +445,7 @@ class _JournalEditorState extends State<JournalEditor> {
         _pendingAudioPath = null;
         if (mounted) {
           setState(() => _transcribing = false);
-          _recStatusSet('transcription didn’t work this time.', true);
+          _recStatusSet("transcription didn't work this time.", true);
         } else if (_voiceTargetEntryTs != null) {
           widget.store.failTranscription(_voiceTargetEntryTs!);
         }
@@ -503,16 +470,11 @@ class _JournalEditorState extends State<JournalEditor> {
     }
   }
 
-  /// Best-effort cleanup for a temp recording that ended up with nowhere
-  /// to land (transcription failed, or the page was closed without being
-  /// kept before the transcript arrived).
   Future<void> _deleteTempFile(String path) async {
     try {
       final f = File(path);
       if (await f.exists()) await f.delete();
-    } catch (_) {
-      // Best-effort only.
-    }
+    } catch (_) {}
   }
 
   String _fmtDuration(Duration d) {
@@ -521,9 +483,6 @@ class _JournalEditorState extends State<JournalEditor> {
     return '$m:${s.toString().padLeft(2, '0')}';
   }
 
-  /// Inserts a transcript at the caret (or the end, if there is no
-  /// selection), adding whatever spacing keeps it from running into the
-  /// text on either side — the same courtesy typing would take.
   void _insertTranscript(String transcript) {
     final sel = _text.selection;
     final value = _text.text;
@@ -545,10 +504,6 @@ class _JournalEditorState extends State<JournalEditor> {
     _saveDraft();
   }
 
-  /// The words are already on the page once transcribed; the raw audio is
-  /// only kept if the user explicitly asks for it, matching the app's
-  /// privacy stance for voice — never a silent default. Styled to match
-  /// the editor instead of a stock system dialog.
   Future<void> _offerToKeepAudio(String audioPath, Duration length) async {
     final file = File(audioPath);
     final keep = mounted
@@ -618,18 +573,12 @@ class _JournalEditorState extends State<JournalEditor> {
           });
           _saveDraft();
         }
-      } catch (_) {
-        // The transcript already landed on the page even if this fails.
-      }
+      } catch (_) {}
     }
-    // Either the audio is now copied into the attachment, or the user let
-    // it go — the temp recording file is not needed either way.
     try {
       if (await file.exists()) await file.delete();
     } catch (_) {}
   }
-
-  // ---------- format bar (JS jFormatEmphasisBtn) ----------
 
   void _emphasizeSelection() {
     final sel = _text.selection;
@@ -644,8 +593,6 @@ class _JournalEditorState extends State<JournalEditor> {
     _textFocus.requestFocus();
   }
 
-  // ---------- build ----------
-
   @override
   Widget build(BuildContext context) {
     final text = _text.text.trim();
@@ -654,198 +601,175 @@ class _JournalEditorState extends State<JournalEditor> {
     final showSafety = containsCrisisLanguage([text]);
     final sel = _text.selection;
     final showFormatBar = sel.isValid && !sel.isCollapsed;
-    final recede = _writing ? 0.34 : 1.0; // .j-writing: the rest recedes
+    final recede = _writing ? 0.34 : 1.0;
 
-    final h = DateTime.now().hour;
-    final isDay = h >= 6 && h < 18;
-    // The editor owns a complete page surface. Keeping this opaque prevents
-    // the underlying home/check-in sea from showing through when it opens.
-    final lightingColor =
-        isDay ? const Color(0xFF26323B) : const Color(0xFF111820);
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 600),
-      decoration: BoxDecoration(color: lightingColor),
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: _backlink('close', widget.onClose),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(30, 6, 30, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _animatedRecede(
-                      recede,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(_dateLine,
-                              style: MenteType.caption.copyWith(
-                                  letterSpacing: .14 * 11.5, color: textFaint)),
-                          AnimatedOpacity(
-                            duration: const Duration(milliseconds: 400),
-                            opacity: _heldSaving ? .95 : .55,
-                            child: Text(_heldText,
-                                style: GoogleFonts.alice(
-                                    fontStyle: FontStyle.italic,
-                                    fontSize: 11.5,
-                                    color: textSecondary)),
-                          ),
-                        ],
-                      ),
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _backlink('close', widget.onClose),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(30, 6, 30, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _animatedRecede(
+                    recede,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(_dateLine,
+                            style:
+                                MenteType.caption.copyWith(color: textFaint)),
+                        AnimatedOpacity(
+                          duration: const Duration(milliseconds: 400),
+                          opacity: _heldSaving ? .95 : .55,
+                          child: Text(_heldText,
+                              style: GoogleFonts.alice(
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 11.5,
+                                  color: textSecondary)),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 14),
-                    _animatedRecede(
-                      recede,
-                      Text(_promptText,
-                          style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              fontSize: 16,
-                              height: 1.48,
-                              color: textSecondary)),
-                    ),
-                    const SizedBox(height: 18),
-                    _animatedRecede(
-                      recede,
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('title',
-                              style: MenteType.eyebrow.copyWith(
-                                  letterSpacing: .22 * 10, color: textFaint)),
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 98),
-                            child: TextField(
-                              controller: _title,
-                              focusNode: _titleFocus,
-                              maxLength: 120,
-                              maxLines: null,
-                              textInputAction: TextInputAction.next,
-                              onSubmitted: (_) => _textFocus.requestFocus(),
-                              style: MenteType.title.copyWith(
-                                  // clamp(22px, 5.8vw, 24px)
-                                  height: 1.3,
-                                  color: textPrimary),
-                              cursorColor: kRiva,
-                              decoration: InputDecoration(
-                                counterText: '',
-                                isCollapsed: true,
-                                contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 6),
-                                border: InputBorder.none,
-                                hintText: 'name this page — or don’t',
-                                hintStyle: MenteType.heading
-                                    .copyWith(height: 1.3, color: textDisabled),
-                              ),
+                  ),
+                  const SizedBox(height: 14),
+                  _animatedRecede(
+                    recede,
+                    Text(_promptText,
+                        style: GoogleFonts.alice(
+                            fontStyle: FontStyle.italic,
+                            fontSize: 16,
+                            height: 1.48,
+                            color: textSecondary)),
+                  ),
+                  const SizedBox(height: 18),
+                  _animatedRecede(
+                    recede,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('title',
+                            style:
+                                MenteType.caption.copyWith(color: textFaint)),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxHeight: 98),
+                          child: TextField(
+                            controller: _title,
+                            focusNode: _titleFocus,
+                            maxLength: 120,
+                            maxLines: null,
+                            textInputAction: TextInputAction.next,
+                            onSubmitted: (_) => _textFocus.requestFocus(),
+                            style: MenteType.title.copyWith(color: textPrimary),
+                            cursorColor: kRiva,
+                            decoration: InputDecoration(
+                              counterText: '',
+                              isCollapsed: true,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 6),
+                              border: InputBorder.none,
+                              hintText: 'name this page — or don\'t',
+                              hintStyle: MenteType.heading
+                                  .copyWith(height: 1.3, color: textDisabled),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    // format bar — appears over a selection, like the web bar
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: showFormatBar
-                          ? Padding(
-                              padding: const EdgeInsets.only(top: s8),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: _FormatButton(
-                                    label: 'emphasize',
-                                    onTap: _emphasizeSelection),
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _text,
-                      focusNode: _textFocus,
-                      maxLines: null,
-                      minLines: 8,
-                      keyboardType: TextInputType.multiline,
-                      style: MenteType.heading.copyWith(
-                          // clamp(18px, 4.8vw, 20px)
-                          height: 1.62,
-                          color: textPrimary),
-                      cursorColor: kRiva,
-                      decoration: InputDecoration(
-                        isCollapsed: true,
-                        border: InputBorder.none,
-                        hintText: _stepChosen
-                            ? stepPrompt(_journalStep, _v, _a)
-                            : 'start anywhere.',
-                        hintStyle: MenteType.heading
-                            .copyWith(height: 1.62, color: textDisabled),
-                      ),
-                    ),
-                    // pivot: 'you have named a lot — add what you need next'
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      child: showPivot
-                          ? Padding(
-                              padding: const EdgeInsets.only(top: s12),
+                  ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: showFormatBar
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: s8),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
                               child: _FormatButton(
-                                label:
-                                    'you have named a lot — add what you need next',
-                                onTap: () {
-                                  setState(() {
-                                    _journalStep = 'need';
-                                    _stepChosen = true;
-                                  });
-                                  _textFocus.requestFocus();
-                                },
-                              ),
-                            )
-                          : const SizedBox.shrink(),
+                                  label: 'emphasize',
+                                  onTap: _emphasizeSelection),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _text,
+                    focusNode: _textFocus,
+                    maxLines: null,
+                    minLines: 8,
+                    keyboardType: TextInputType.multiline,
+                    style: MenteType.heading
+                        .copyWith(height: 1.62, color: textPrimary),
+                    cursorColor: kRiva,
+                    decoration: InputDecoration(
+                      isCollapsed: true,
+                      border: InputBorder.none,
+                      hintText: _stepChosen
+                          ? stepPrompt(_journalStep, _v, _a)
+                          : 'start anywhere.',
+                      hintStyle: MenteType.heading
+                          .copyWith(height: 1.62, color: textDisabled),
                     ),
-                    // safety line — shown only when the page sounds urgent
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      child: showSafety
-                          ? Container(
-                              margin: const EdgeInsets.only(top: s12),
-                              padding: const EdgeInsets.all(s12),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: textDisabled),
-                                borderRadius: BorderRadius.circular(12),
-                                color: textDisabled,
-                              ),
-                              child: Text(kSafetyText,
-                                  style: MenteType.caption.copyWith(
-                                      height: 1.55, color: textSecondary)),
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
-                ),
+                  ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 400),
+                    child: showPivot
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: s12),
+                            child: _FormatButton(
+                              label:
+                                  'you have named a lot — add what you need next',
+                              onTap: () {
+                                setState(() {
+                                  _journalStep = 'need';
+                                  _stepChosen = true;
+                                });
+                                _textFocus.requestFocus();
+                              },
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 400),
+                    child: showSafety
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: s12),
+                            child: Text(
+                              kSafetyText,
+                              style: MenteType.caption
+                                  .copyWith(height: 1.55, color: textSecondary),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ],
               ),
             ),
-            _buildShelf(),
-          ],
-        ),
+          ),
+          _buildShelf(),
+        ],
       ),
     );
   }
 
   Widget _animatedRecede(double opacity, Widget child) => AnimatedOpacity(
-      duration: const Duration(milliseconds: 700),
-      opacity: opacity,
-      child: child);
+        duration: const Duration(milliseconds: 700),
+        opacity: opacity,
+        child: child,
+      );
 
   Widget _backlink(String label, VoidCallback onTap) {
     return TextButton.icon(
       onPressed: onTap,
       icon: StrokeIcon(SeaIcons.back, size: 20, color: textSecondary),
-      label: Text(label,
-          style: MenteType.caption
-              .copyWith(letterSpacing: .18 * 11, color: textSecondary)),
+      label:
+          Text(label, style: MenteType.caption.copyWith(color: textSecondary)),
       style: TextButton.styleFrom(
         minimumSize: const Size(44, 44),
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -863,7 +787,6 @@ class _JournalEditorState extends State<JournalEditor> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // panels wait until asked for
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOut,
@@ -929,8 +852,7 @@ class _JournalEditorState extends State<JournalEditor> {
           const SizedBox(height: 7),
           Text('this page never leaves your device.',
               textAlign: TextAlign.center,
-              style: MenteType.caption
-                  .copyWith(letterSpacing: .08 * 10.5, color: textDisabled)),
+              style: MenteType.caption.copyWith(color: textDisabled)),
         ],
       ),
     );
@@ -957,9 +879,7 @@ class _JournalEditorState extends State<JournalEditor> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label,
-              style: MenteType.eyebrow
-                  .copyWith(letterSpacing: .2 * 10, color: textFaint)),
+          Text(label, style: MenteType.caption.copyWith(color: textFaint)),
           child,
         ],
       ),
@@ -1051,7 +971,6 @@ class _JournalEditorState extends State<JournalEditor> {
   }
 }
 
-/// Decode a `data:image/...;base64,` URL into a small thumbnail.
 Widget _dataUrlImage(String dataUrl, double size) {
   final comma = dataUrl.indexOf(',');
   if (comma < 0) return const SizedBox.shrink();
@@ -1077,18 +996,15 @@ class _FormatButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(11),
-      child: Container(
+      child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(11),
-          border: Border.all(color: textDisabled),
-          color: textDisabled,
-        ),
         child: Text(label,
-            style: TextStyle(
+            style: GoogleFonts.alice(
                 fontStyle: FontStyle.italic,
                 fontSize: 12.5,
-                color: textSecondary)),
+                color: textSecondary,
+                decoration: TextDecoration.underline,
+                decorationColor: ivory(.35))),
       ),
     );
   }

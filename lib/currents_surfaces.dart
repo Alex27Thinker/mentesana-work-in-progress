@@ -42,8 +42,8 @@ Widget _pill(String label, VoidCallback onTap, {bool primary = false}) {
   );
 }
 
-Widget _capsLabel(String text, Color color) => Text(text,
-    style: MenteType.caption.copyWith(color: color));
+Widget _capsLabel(String text, Color color) =>
+    Text(text, style: MenteType.caption.copyWith(color: color));
 
 // ────────────────────────── the undertow ───────────────────────────────
 
@@ -610,8 +610,8 @@ class _AlmanacCardState extends State<AlmanacCard>
                               const Spacer(),
                               if (showable)
                                 Text(_expanded ? 'fold' : 'unfold',
-                                    style: MenteType.eyebrow.copyWith(
-                                        letterSpacing: .72, color: textFaint)),
+                                    style: MenteType.caption
+                                        .copyWith(color: textFaint)),
                             ],
                           ),
                           const SizedBox(height: 7),
@@ -748,7 +748,6 @@ class _TideReturnsCardState extends State<TideReturnsCard> {
       child: Container(
         margin: const EdgeInsets.only(top: s12),
         padding: const EdgeInsets.all(s16),
-        
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -880,7 +879,6 @@ class _AnchorCardState extends State<AnchorCard> {
       child: Container(
         margin: const EdgeInsets.only(top: s12),
         padding: const EdgeInsets.all(s16),
-        
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

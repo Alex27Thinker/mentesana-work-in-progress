@@ -14,10 +14,10 @@ import 'sea_icons.dart';
 import 'theme.dart';
 
 /// Month-nav chevrons (verbatim path data from index.html).
-const _chevronLeft = SeaIconData(
-    ['M15 5c-3.3 1.8-5.6 4.1-6.9 7 1.3 2.9 3.6 5.2 6.9 7']);
-const _chevronRight = SeaIconData(
-    ['M9 5c3.3 1.8 5.6 4.1 6.9 7-1.3 2.9-3.6 5.2-6.9 7']);
+const _chevronLeft =
+    SeaIconData(['M15 5c-3.3 1.8-5.6 4.1-6.9 7 1.3 2.9 3.6 5.2 6.9 7']);
+const _chevronRight =
+    SeaIconData(['M9 5c3.3 1.8 5.6 4.1 6.9 7-1.3 2.9-3.6 5.2-6.9 7']);
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({
@@ -293,8 +293,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 Text(
                   '$day',
                   style: MenteType.caption.copyWith(
-                    fontSize:
-                        isSelected ? 15 : (isToday ? 14 : 13),
+                    fontSize: isSelected ? 15 : (isToday ? 14 : 13),
                     color: isToday ? kOro : textSecondary,
                     decoration: isSelected ? TextDecoration.underline : null,
                     decorationColor:
@@ -331,7 +330,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: Wrap(
           children: cells
               .map(
-                (c) => SizedBox(width: (MediaQuery.of(context).size.width - 44) / 7, child: c),
+                (c) => SizedBox(
+                    width: (MediaQuery.of(context).size.width - 44) / 7,
+                    child: c),
               )
               .toList(),
         ),
@@ -370,9 +371,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
         final avgA =
             d.es.fold<double>(0, (s, e) => s + (e.a ?? 0)) / d.es.length;
         final seaColor = kSea.bilerp(avgV, avgA);
-        final colH = (minColH +
-                (d.es.length / maxEntries) * (maxColH - minColH))
-            .roundToDouble();
+        final colH =
+            (minColH + (d.es.length / maxEntries) * (maxColH - minColH))
+                .roundToDouble();
         bar = Container(
           height: colH,
           width: double.infinity,
@@ -417,7 +418,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 Text(
                   '${d.date.day}',
                   style: MenteType.caption.copyWith(
-                    color: _sameDay(d.date, _focus) ? textPrimary : textSecondary,
+                    color:
+                        _sameDay(d.date, _focus) ? textPrimary : textSecondary,
                     decoration: _sameDay(d.date, _focus)
                         ? TextDecoration.underline
                         : null,
@@ -442,27 +444,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
     ];
     if (hasAny) {
       widgets.add(
-      Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: Center(
-          child: Text(
-            'seven days of sea — each column holds the weather that day carried',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.alice(
-              fontStyle: FontStyle.italic,
-              fontSize: 12,
-              color: textFaint,
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Center(
+            child: Text(
+              'seven days of sea — each column holds the weather that day carried',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.alice(
+                fontStyle: FontStyle.italic,
+                fontSize: 12,
+                color: textFaint,
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
     }
 
     // No card wrappers on detail rows; plain left-aligned text rows.
     final detailRows = dayData.where((d) => d.es.isNotEmpty).map((d) {
-      final words =
-          d.es.map((e) => e.word ?? 'journal').join(' · ');
+      final words = d.es.map((e) => e.word ?? 'journal').join(' · ');
       return Padding(
         padding: const EdgeInsets.only(bottom: s8),
         child: GestureDetector(
@@ -560,8 +561,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       gradient: LinearGradient(
                         stops: [for (final s in stops) s.$1],
                         colors: [
-                          for (final s in stops)
-                            s.$2.withValues(alpha: .4),
+                          for (final s in stops) s.$2.withValues(alpha: .4),
                         ],
                       ),
                     ),

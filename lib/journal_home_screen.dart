@@ -105,8 +105,12 @@ class _JournalHomeScreenState extends State<JournalHomeScreen> {
     final store = widget.store;
     final entries = store.entries;
     final draft = store.readJournalDraft();
-    final recent =
-        entries.where((e) => e.text.isNotEmpty).toList().reversed.take(3).toList();
+    final recent = entries
+        .where((e) => e.text.isNotEmpty)
+        .toList()
+        .reversed
+        .take(3)
+        .toList();
 
     JournalEntry? lastEntry;
     for (final e in entries) {
@@ -637,7 +641,8 @@ class _JournalHomeScreenState extends State<JournalHomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(meta, style: MenteType.caption.copyWith(color: textFaint)),
+                  Text(meta,
+                      style: MenteType.caption.copyWith(color: textFaint)),
                   if (e.pendingTranscription)
                     Text(
                       'transcribing voice note…',
@@ -675,7 +680,8 @@ class _JournalHomeScreenState extends State<JournalHomeScreen> {
     );
   }
 
-  Widget _tideBlock({required String title, required String body, String? note}) {
+  Widget _tideBlock(
+      {required String title, required String body, String? note}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: s8),
       child: Column(
@@ -709,21 +715,21 @@ class _JournalHomeScreenState extends State<JournalHomeScreen> {
   // ---------------------------------------------------------------------
 
   Widget _sectionLabel(String label) => Padding(
-    padding: const EdgeInsets.only(top: s4, bottom: s4),
-    child: Text(
-      label,
-      style: MenteType.caption.copyWith(color: textFaint),
-    ),
-  );
+        padding: const EdgeInsets.only(top: s4, bottom: s4),
+        child: Text(
+          label,
+          style: MenteType.caption.copyWith(color: textFaint),
+        ),
+      );
 
   Widget _hair() => const Padding(
-    padding: EdgeInsets.symmetric(vertical: s12),
-    child: SizedBox(
-      height: 0.5,
-      width: double.infinity,
-      child: ColoredBox(color: Color(0x14F2EEE6)),
-    ),
-  );
+        padding: EdgeInsets.symmetric(vertical: s12),
+        child: SizedBox(
+          height: 0.5,
+          width: double.infinity,
+          child: ColoredBox(color: Color(0x14F2EEE6)),
+        ),
+      );
 
   Widget _textLink(
     String label, {
