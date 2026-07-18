@@ -1,5 +1,7 @@
 // Mentesana — the calendar (month / week / day of kept weather).
-// 1:1 port of #screen-calendar + renderCalendar from the Vite prototype.
+// Structural screen: left-aligned, bare typography on the sea.
+// No tile grid, no segmented pill, no counter. Days as bare numerals
+// with a soft mood-tinted radial glow where entries were kept.
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,10 +14,10 @@ import 'sea_icons.dart';
 import 'theme.dart';
 
 /// Month-nav chevrons (verbatim path data from index.html).
-const _chevronLeft =
-    SeaIconData(['M15 5c-3.3 1.8-5.6 4.1-6.9 7 1.3 2.9 3.6 5.2 6.9 7']);
-const _chevronRight =
-    SeaIconData(['M9 5c3.3 1.8 5.6 4.1 6.9 7-1.3 2.9-3.6 5.2-6.9 7']);
+const _chevronLeft = SeaIconData(
+    ['M15 5c-3.3 1.8-5.6 4.1-6.9 7 1.3 2.9 3.6 5.2 6.9 7']);
+const _chevronRight = SeaIconData(
+    ['M9 5c3.3 1.8 5.6 4.1 6.9 7-1.3 2.9-3.6 5.2-6.9 7']);
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({
@@ -34,8 +36,16 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  String _view = 'month'; // JS calendarView
-  DateTime _focus = DateTime.now(); // JS calendarFocus
+  String _view = 'month';
+  DateTime _focus = DateTime.now();
+
+  final ScrollController _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
 
   bool _sameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
@@ -49,7 +59,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Color _entryColor(JournalEntry e) {
-    if (e.v == null || e.a == null) return kRiva;
+    if (e.v == null || e.a == null) {
+      return kRiva;
+    }
     return kSea.bilerp(e.v!, e.a!)[0];
   }
 
@@ -68,245 +80,268 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
+    // No counter displayed per charter; only computed if needed for
+    // internal logic. Entries are fetched on demand; total is for
+    // the week view which needs to know max entries.
+    return SafeArea(
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _head(),
+              const SizedBox(height: s4),
+              Expanded(
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: 1),
+                  duration: const Duration(milliseconds: 600),
+                  curve: kExhale,
+                  builder: (context, t, child) {
+                    return Opacity(
+                      opacity: t,
+                      child: Transform.translate(
+                        offset: Offset(0, 16 * (1 - t)),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: ListView(
+                    controller: _scroll,
+                    padding: const EdgeInsets.fromLTRB(22, 0, 22, 28),
+                    children: [
+                      _navRow(now),
+                      const SizedBox(height: s16),
+                      _viewSwitch(),
+                      const SizedBox(height: s20),
+                      if (_view == 'month')
+                        ..._monthView(now)
+                      else if (_view == 'week')
+                        ..._weekView()
+                      else
+                        ..._dayView(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Head — left-aligned, back + title.
+  // ---------------------------------------------------------------------
+
+  Widget _head() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(s24, s16, s24, s8),
+      child: Row(
+        children: [
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: widget.onBack,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: s4, vertical: s8),
+              child: StrokeIcon(
+                SeaIcons.back,
+                size: 18,
+                color: textSecondary,
+                strokeWidth: 1.65,
+              ),
+            ),
+          ),
+          const SizedBox(width: s12),
+          Text(
+            'calendar',
+            style: MenteType.title.copyWith(color: textSecondary, fontSize: 20),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Nav row (chevrons + header name, no counter).
+  // ---------------------------------------------------------------------
+
+  Widget _navRow(DateTime now) {
     final headerName = _view == 'day'
         ? '${kDowsLong[_focus.weekday % 7]}, ${kMonthsLong[_focus.month - 1]} ${_focus.day}'
         : _view == 'week'
             ? 'this week'
             : '${kMonthsLong[_focus.month - 1]} ${_focus.year}';
-    final total = widget.store.entries.where((e) {
-      final d = e.date;
-      return d.month == _focus.month && d.year == _focus.year;
-    }).length;
-
-    final moodVA = widget.store.currentMoodVA();
-    final bgTint = moodVA == null ? null : seaTint(moodVA.$1, moodVA.$2);
-    final bgBase = bgTint ?? kIvory;
-
-    return Stack(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Positioned.fill(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  bgBase.withValues(alpha: .04),
-                  Colors.transparent,
-                ],
-              ),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => _shift(-1),
+          child: Padding(
+            padding: const EdgeInsets.all(s8),
+            child: StrokeIcon(
+              _chevronLeft,
+              size: 18,
+              color: textSecondary,
+              strokeWidth: 1.65,
             ),
           ),
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ScreenHeader(
-              title: 'calendar',
-              onBack: widget.onBack,
-              backLabel: 'journal',
+        Text(
+          headerName,
+          style: MenteType.heading.copyWith(color: textPrimary),
+        ),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => _shift(1),
+          child: Padding(
+            padding: const EdgeInsets.all(s8),
+            child: StrokeIcon(
+              _chevronRight,
+              size: 18,
+              color: textSecondary,
+              strokeWidth: 1.65,
             ),
-            const WaveDivider(),
-            Expanded(
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0, end: 1),
-                duration: const Duration(milliseconds: 600),
-                curve: kExhale,
-                builder: (context, t, child) {
-                  return Opacity(
-                    opacity: t,
-                    child: Transform.translate(
-                      offset: Offset(0, 16 * (1 - t)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _navButton(
-                            _chevronLeft, () => _shift(-1), 'Previous month'),
-                        Column(
-                          children: [
-                            Text(headerName,
-                                style: MenteType.heading
-                                    .copyWith(color: textPrimary)),
-                            const SizedBox(height: 2),
-                            Text('$total kept',
-                                style: MenteType.caption.copyWith(
-                                    letterSpacing: .12 * 10.5,
-                                    color: textFaint)),
-                          ],
-                        ),
-                        _navButton(
-                            _chevronRight, () => _shift(1), 'Next month'),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    _viewSwitch(),
-                    const SizedBox(height: 18),
-                    if (_view == 'month')
-                      ..._monthView(now)
-                    else if (_view == 'week')
-                      ..._weekView()
-                    else
-                      ..._dayView(),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _navButton(SeaIconData icon, VoidCallback onTap, String semantic) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(22),
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: textDisabled),
-        ),
-        child: Center(child: StrokeIcon(icon, size: 18, color: textSecondary)),
-      ),
-    );
-  }
+  // ---------------------------------------------------------------------
+  // View switcher — three plain text links, no segmented pill.
+  // ---------------------------------------------------------------------
 
   Widget _viewSwitch() {
-    Widget seg(String label) {
+    Widget link(String label) {
       final active = _view == label;
-      return Expanded(
-        child: InkWell(
-          onTap: () => setState(() => _view = label),
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: active ? kRiva : Colors.transparent,
-            ),
-            child: Center(
-              child: Text(label,
-                  style: MenteType.caption.copyWith(
-                      letterSpacing: .08 * 11.5,
-                      color: active ? const Color(0xFF10141E) : ivory(.6))),
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => setState(() => _view = label),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: s8, vertical: s4),
+          child: Text(
+            label,
+            style: GoogleFonts.alice(
+              fontStyle: FontStyle.italic,
+              fontSize: 14,
+              color: active ? textPrimary : textFaint,
+              decoration: active ? TextDecoration.underline : null,
+              decorationColor: ivory(.4),
             ),
           ),
         ),
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.all(s4),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: textDisabled),
-      ),
-      child: Row(children: [seg('month'), seg('week'), seg('day')]),
-    );
+    return Row(children: [
+      link('month'),
+      link('week'),
+      link('day'),
+    ]);
   }
 
-  // ---------- month ----------
+  // ---------------------------------------------------------------------
+  // Month view — 7-column bare numerals.
+  // ---------------------------------------------------------------------
 
   List<Widget> _monthView(DateTime now) {
     final year = _focus.year, month = _focus.month;
     final first = DateTime(year, month);
-    final days = DateTime(year, month + 1, 0).day;
-    final leading = first.weekday % 7; // JS getDay(): Sunday = 0
+    final cellCount = DateTime(year, month + 1, 0).day;
+    final leading = first.weekday % 7;
     final cells = <Widget>[];
     for (var i = 0; i < leading; i++) {
       cells.add(const SizedBox());
     }
-    for (var day = 1; day <= days; day++) {
+    for (var day = 1; day <= cellCount; day++) {
       final date = DateTime(year, month, day);
       final es = _entriesFor(date);
       final isToday = _sameDay(date, now);
+      final isSelected = _sameDay(date, _focus);
       final tint = es.isNotEmpty ? _entryColor(es.first) : null;
-      cells.add(InkWell(
-        onTap: () => setState(() {
-          _focus = date;
-          _view = 'day';
-        }),
-        borderRadius: BorderRadius.circular(12),
-        child: BreathingCard(
-          tint: tint,
-          fill: es.isNotEmpty ? .08 : .03,
-          border: es.isNotEmpty ? .12 : .06,
-          radius: BorderRadius.circular(12),
-          intensity: .4,
+      cells.add(
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => setState(() {
+            _focus = date;
+            _view = 'day';
+          }),
           child: Container(
-            constraints: const BoxConstraints(minHeight: 40),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: isToday
-                  ? [
-                      BoxShadow(
-                          color: kOro.withValues(alpha: .65), spreadRadius: 1)
-                    ]
-                  : null,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            constraints: const BoxConstraints(minHeight: 40, minWidth: 40),
+            alignment: Alignment.center,
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                Text('$day',
-                    style: MenteType.caption.copyWith(color: textSecondary)),
-                if (es.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: s4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (final e in es.take(3))
-                          Container(
-                            width: 4,
-                            height: 4,
-                            margin: const EdgeInsets.symmetric(horizontal: 1),
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle, color: _entryColor(e)),
-                          ),
-                      ],
+                // Mood-tinted glow behind the numeral.
+                if (tint != null)
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          tint.withValues(alpha: .22),
+                          tint.withValues(alpha: 0),
+                        ],
+                        stops: const [0, 1],
+                      ),
                     ),
                   ),
+                Text(
+                  '$day',
+                  style: MenteType.caption.copyWith(
+                    fontSize:
+                        isSelected ? 15 : (isToday ? 14 : 13),
+                    color: isToday ? kOro : textSecondary,
+                    decoration: isSelected ? TextDecoration.underline : null,
+                    decorationColor:
+                        isSelected ? ivory(.35) : Colors.transparent,
+                  ),
+                ),
               ],
             ),
           ),
         ),
-      ));
+      );
     }
+
     return [
+      // 7-bare day-of-week initials.
       Row(
         children: [
-          for (final d in const ['s', 'm', 't', 'w', 't', 'f', 's'])
+          for (final d in const ['m', 't', 'w', 't', 'f', 's', 's'])
             Expanded(
               child: Center(
-                child: Text(d,
-                    style: MenteType.caption
-                        .copyWith(letterSpacing: .18 * 10.5, color: textFaint)),
+                child: Text(
+                  d,
+                  style: MenteType.caption.copyWith(color: textFaint),
+                ),
               ),
             ),
         ],
       ),
-      const SizedBox(height: 10),
-      GridView.count(
-        crossAxisCount: 7,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 6,
-        crossAxisSpacing: 6,
-        children: cells,
+      const SizedBox(height: s8),
+      // Numerals grid — built as wrap so there's no fixed-tile-box cell
+      // per the charter. 7 columns via SizedBox width factions.
+      SizedBox(
+        width: double.infinity,
+        child: Wrap(
+          children: cells
+              .map(
+                (c) => SizedBox(width: (MediaQuery.of(context).size.width - 44) / 7, child: c),
+              )
+              .toList(),
+        ),
       ),
     ];
   }
 
-  // ---------- week ----------
+  // ---------------------------------------------------------------------
+  // Week view — bare mood columns + entries underneath.
+  // ---------------------------------------------------------------------
 
   List<Widget> _weekView() {
     final start = _focus.subtract(Duration(days: _focus.weekday % 7));
@@ -319,51 +354,47 @@ class _CalendarScreenState extends State<CalendarScreen> {
     for (final d in dayData) {
       if (d.es.length > maxEntries) maxEntries = d.es.length;
     }
-    const minColH = 18.0, maxColH = 72.0;
+    const minColH = 4.0, maxColH = 64.0;
 
     Widget column(({DateTime date, List<JournalEntry> es}) d) {
       final dow = kDowsShort[d.date.weekday % 7].substring(0, 1);
-      Widget water;
+      Widget bar;
       if (d.es.isEmpty) {
-        water = Container(
+        bar = SizedBox(
           height: minColH,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(10), bottom: Radius.circular(6)),
-            border: Border.all(color: textDisabled),
-          ),
+          width: double.infinity,
         );
       } else {
-        // dominant mood: average valence/arousal of the day's entries
         final avgV =
             d.es.fold<double>(0, (s, e) => s + (e.v ?? 0)) / d.es.length;
         final avgA =
             d.es.fold<double>(0, (s, e) => s + (e.a ?? 0)) / d.es.length;
         final seaColor = kSea.bilerp(avgV, avgA);
-        final skyColor = kSky.bilerp(avgV, avgA);
-        final colH =
-            (minColH + (d.es.length / maxEntries) * (maxColH - minColH))
-                .roundToDouble();
-        water = Container(
+        final colH = (minColH +
+                (d.es.length / maxEntries) * (maxColH - minColH))
+            .roundToDouble();
+        bar = Container(
           height: colH,
+          width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(10), bottom: Radius.circular(6)),
+            borderRadius: BorderRadius.vertical(
+              top: const Radius.circular(5),
+              bottom: const Radius.circular(4),
+            ),
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              stops: const [0, .6, 1],
               colors: [
-                skyColor[0].withValues(alpha: .72),
-                seaColor[0].withValues(alpha: .88),
-                seaColor[1].withValues(alpha: .95),
+                seaColor[0].withValues(alpha: .58),
+                seaColor[1].withValues(alpha: .82),
               ],
             ),
           ),
         );
       }
       return Expanded(
-        child: InkWell(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () => setState(() {
             _focus = d.date;
             _view = 'day';
@@ -373,16 +404,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(dow,
-                    style: MenteType.eyebrow
-                        .copyWith(letterSpacing: .14 * 10, color: textFaint)),
+                Text(
+                  dow,
+                  style: MenteType.caption.copyWith(color: textFaint),
+                ),
                 const SizedBox(height: 6),
                 ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 42),
-                    child: water),
+                  constraints: const BoxConstraints(maxWidth: 42),
+                  child: bar,
+                ),
                 const SizedBox(height: 6),
-                Text('${d.date.day}',
-                    style: MenteType.caption.copyWith(color: textSecondary)),
+                Text(
+                  '${d.date.day}',
+                  style: MenteType.caption.copyWith(
+                    color: _sameDay(d.date, _focus) ? textPrimary : textSecondary,
+                    decoration: _sameDay(d.date, _focus)
+                        ? TextDecoration.underline
+                        : null,
+                    decorationColor: ivory(.35),
+                  ),
+                ),
               ],
             ),
           ),
@@ -390,42 +431,73 @@ class _CalendarScreenState extends State<CalendarScreen> {
       );
     }
 
+    final widgets = <Widget>[
+      SizedBox(
+        height: 120,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: dayData.map(column).toList(),
+        ),
+      ),
+    ];
+    if (hasAny) {
+      widgets.add(
+      Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Center(
+          child: Text(
+            'seven days of sea — each column holds the weather that day carried',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.alice(
+              fontStyle: FontStyle.italic,
+              fontSize: 12,
+              color: textFaint,
+            ),
+          ),
+        ),
+      ),
+    );
+    }
+
+    // No card wrappers on detail rows; plain left-aligned text rows.
     final detailRows = dayData.where((d) => d.es.isNotEmpty).map((d) {
-      final words = d.es.map((e) => e.word ?? 'journal').join(' \u00b7 ');
+      final words =
+          d.es.map((e) => e.word ?? 'journal').join(' · ');
       return Padding(
         padding: const EdgeInsets.only(bottom: s8),
-        child: InkWell(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () => setState(() {
             _focus = d.date;
             _view = 'day';
           }),
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s12),
-            // #6/#7: the day row wears that day's dominant weather.
-            decoration: seaCard(
-                tint: _entryColor(d.es.first),
-                border: .12,
-                radius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: s8),
             child: Row(
               children: [
                 SizedBox(
                   width: 56,
-                  child: Text('${kDowsShort[d.date.weekday % 7]} ${d.date.day}',
-                      style: MenteType.caption.copyWith(color: textFaint)),
+                  child: Text(
+                    '${kDowsShort[d.date.weekday % 7]} ${d.date.day}',
+                    style: MenteType.caption.copyWith(color: textFaint),
+                  ),
                 ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${d.es.length} page${d.es.length == 1 ? '' : 's'}',
-                          style: MenteType.caption.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: textSecondary)),
-                      Text(words,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: MenteType.caption.copyWith(color: textFaint)),
+                      Text(
+                        '${d.es.length} page${d.es.length == 1 ? '' : 's'}',
+                        style: MenteType.caption.copyWith(
+                          color: textSecondary,
+                        ),
+                      ),
+                      Text(
+                        words,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: MenteType.caption.copyWith(color: textFaint),
+                      ),
                     ],
                   ),
                 ),
@@ -435,52 +507,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ),
       );
     }).toList();
+    widgets.addAll(detailRows);
 
-    return [
-      SizedBox(
-        height: 120,
-        child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: dayData.map(column).toList()),
-      ),
-      if (hasAny) ...[
-        const SizedBox(height: 10),
-        Center(
-          child: Text(
-              'seven days of sea — each column holds the weather that day carried',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.alice(
-                  fontStyle: FontStyle.italic,
-                  fontSize: 11.5,
-                  color: textFaint)),
-        ),
-      ],
-      const SizedBox(height: 14),
-      if (detailRows.isEmpty)
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.only(top: s8),
-            child: Text('This week has room for you.',
-                style: GoogleFonts.alice(
-                    fontStyle: FontStyle.italic,
-                    fontSize: 13.5,
-                    color: textFaint)),
-          ),
-        )
-      else
-        ...detailRows,
-    ];
+    return widgets;
   }
 
-  // ---------- day ----------
+  // ---------------------------------------------------------------------
+  // Day view.
+  // ---------------------------------------------------------------------
 
   List<Widget> _dayView() {
     final es = _entriesFor(_focus);
     final widgets = <Widget>[];
     if (es.isNotEmpty) {
-      // mood ribbon: a soft gradient band connecting the day's mood dots,
-      // coloured by each entry's sea colour — the day's emotional weather
-      // as a shifting hue strip
       final sorted = es.toList()..sort((a, b) => a.ts.compareTo(b.ts));
       List<(double, Color)> stops;
       if (sorted.length == 1) {
@@ -489,137 +528,162 @@ class _CalendarScreenState extends State<CalendarScreen> {
       } else {
         stops = [
           for (final e in sorted)
-            ((e.date.hour * 60 + e.date.minute) / 1440, _entryColor(e)),
+            (
+              (e.date.hour * 60 + e.date.minute) / 1440,
+              _entryColor(e),
+            ),
         ];
       }
-      widgets.add(SizedBox(
-        height: 52,
-        child: LayoutBuilder(
-          builder: (context, box) => Stack(
-            children: [
-              Positioned(
-                left: 0,
-                right: 0,
-                top: 18,
-                child: Container(height: 2, color: textDisabled),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                top: 14,
-                child: Container(
-                  height: 10,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    gradient: LinearGradient(
-                      stops: [for (final s in stops) s.$1],
-                      colors: [
-                        for (final s in stops) s.$2.withValues(alpha: .4)
-                      ],
-                    ),
+      widgets.add(
+        SizedBox(
+          height: 52,
+          child: LayoutBuilder(
+            builder: (context, box) => Stack(
+              children: [
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: 18,
+                  child: Container(
+                    height: 2,
+                    color: ivory(.12),
                   ),
                 ),
-              ),
-              for (final e in sorted)
                 Positioned(
-                  left: ((e.date.hour * 60 + e.date.minute) / 1440) *
-                      (box.maxWidth - 13),
-                  top: 12.5,
-                  child: GestureDetector(
-                    onTap: () => widget.onOpenEntry(e),
-                    child: Container(
-                      width: 13,
-                      height: 13,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _entryColor(e),
-                        border: Border.all(
-                            color: const Color(0xFF2D3D43), width: 2),
+                  left: 0,
+                  right: 0,
+                  top: 14,
+                  child: Container(
+                    height: 10,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      gradient: LinearGradient(
+                        stops: [for (final s in stops) s.$1],
+                        colors: [
+                          for (final s in stops)
+                            s.$2.withValues(alpha: .4),
+                        ],
                       ),
                     ),
                   ),
                 ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
+                for (final e in sorted)
+                  Positioned(
+                    left: ((e.date.hour * 60 + e.date.minute) / 1440) *
+                            (box.maxWidth - 13) -
+                        2,
+                    top: 12.5,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => widget.onOpenEntry(e),
+                      child: Container(
+                        width: 13,
+                        height: 13,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _entryColor(e).withValues(alpha: .4),
+                        ),
+                      ),
+                    ),
+                  ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      for (final l in const ['12am', 'noon', '12pm'])
+                        Text(
+                          l,
+                          style: MenteType.caption.copyWith(color: textFaint),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      widgets.add(const SizedBox(height: s16));
+    }
+    widgets.add(
+      Text(
+        'pages from this day',
+        style: MenteType.caption.copyWith(color: textFaint),
+      ),
+    );
+    widgets.add(const SizedBox(height: s8));
+    if (es.isEmpty) {
+      widgets.add(
+        Text(
+          'no pages from this day — not every day needs one.',
+          style: GoogleFonts.alice(
+            fontStyle: FontStyle.italic,
+            fontSize: 13,
+            color: textFaint,
+          ),
+        ),
+      );
+    } else {
+      for (final e in es) {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: s8),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => widget.onOpenEntry(e),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: s8),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final l in const ['12am', 'noon', '12am'])
-                      Text(l,
-                          style: MenteType.eyebrow.copyWith(color: textFaint)),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, right: 10),
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _entryColor(e).withValues(alpha: .7),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            formatTime12(e.date),
+                            style: MenteType.caption.copyWith(color: textFaint),
+                          ),
+                          Text(
+                            e.word ?? 'journal',
+                            style: MenteType.heading.copyWith(
+                              color: textPrimary,
+                            ),
+                          ),
+                          Text(
+                            e.text.isNotEmpty
+                                ? e.text
+                                : 'a weather kept without words.',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: MenteType.caption.copyWith(
+                              height: 1.5,
+                              color: textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ));
-      widgets.add(const SizedBox(height: 16));
-    }
-    widgets.add(Text('pages from this day',
-        style: MenteType.eyebrow
-            .copyWith(letterSpacing: .22 * 10, color: textFaint)));
-    widgets.add(const SizedBox(height: 8));
-    if (es.isEmpty) {
-      widgets.add(Text('No pages from this day — not every day needs one.',
-          style: GoogleFonts.alice(
-              fontStyle: FontStyle.italic, fontSize: 13.5, color: textFaint)));
-    } else {
-      for (final e in es) {
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(bottom: s8),
-          child: InkWell(
-            onTap: () => widget.onOpenEntry(e),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: s12, vertical: s12),
-              // #6/#7: each page row wears its own kept weather.
-              decoration: seaCard(
-                  tint:
-                      (e.v != null && e.a != null) ? seaTint(e.v!, e.a!) : null,
-                  border: .12,
-                  radius: BorderRadius.circular(12)),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5, right: 10),
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle, color: _entryColor(e)),
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(formatTime12(e.date),
-                            style:
-                                MenteType.caption.copyWith(color: textFaint)),
-                        Text(e.word ?? 'journal',
-                            style: MenteType.bodySerif
-                                .copyWith(color: textPrimary)),
-                        Text(
-                            e.text.isNotEmpty
-                                ? e.text
-                                : 'A weather kept without words.',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: MenteType.caption
-                                .copyWith(height: 1.5, color: textFaint)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
-        ));
+        );
       }
     }
     return widgets;
