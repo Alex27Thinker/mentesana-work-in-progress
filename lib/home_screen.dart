@@ -12,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'app_store.dart';
 import 'mood_palette.dart';
+import 'theme.dart';
 
 /// CSS `--nav-clearance` (92px + safe area; the shell adds the safe area).
 const kNavClearance = 92.0;
@@ -219,15 +220,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   behavior: HitTestBehavior.opaque,
                   onTap: widget.onWrite,
                   child: Padding(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(s8),
                     child: Text(
                       today != null
                           ? 'write another page'
                           : 'a page, without a weather',
-                      style: TextStyle(
-                        fontSize: 10.5,
+                      style: MenteType.caption.copyWith(
                         letterSpacing: 1.05,
-                        color: ivory(.7),
+                        color: textSecondary,
                         shadows: kHomeShadow,
                       ),
                     ),
@@ -275,42 +275,40 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(dow,
-                style: TextStyle(
-                    fontSize: 10.5,
+                style: MenteType.caption.copyWith(
                     letterSpacing: 2.3,
-                    color: ivory(.45),
+                    color: textFaint,
                     shadows: kHomeShadow)),
             Text('${now.day}',
                 style: _serif.copyWith(
-                    fontSize: 30, color: ivory(.7), shadows: kHomeShadow)),
+                    fontSize: 30, color: textSecondary, shadows: kHomeShadow)),
           ],
         ),
         const Spacer(),
         Padding(
-          padding: const EdgeInsets.only(top: 4),
+          padding: const EdgeInsets.only(top: s4),
           child: Row(children: [
             Container(
               width: 7,
               height: 7,
               decoration:
-                  BoxDecoration(shape: BoxShape.circle, color: ivory(.45)),
+                  BoxDecoration(shape: BoxShape.circle, color: textFaint),
             ),
             const SizedBox(width: 7),
             Text('mentesana',
                 style: _serif.copyWith(
                     fontSize: 12,
                     letterSpacing: 1.9,
-                    color: ivory(.45),
+                    color: textFaint,
                     shadows: kHomeShadow)),
             const SizedBox(width: 4),
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: widget.onSettings,
               child: Padding(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(s8),
                 child: Text('⋯',
-                    style: TextStyle(
-                        fontSize: 15, color: ivory(.45), height: 1)),
+                    style: MenteType.bodySerif.copyWith( color: textFaint, height: 1)),
               ),
             ),
           ]),
@@ -329,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             style: _serif.copyWith(
                 fontStyle: FontStyle.italic,
                 fontSize: 14.5,
-                color: ivory(.7),
+                color: textSecondary,
                 shadows: kHomeShadow)),
         const SizedBox(height: 6),
         Text(today.word ?? '',
@@ -345,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             style: _serif.copyWith(
                 fontStyle: FontStyle.italic,
                 fontSize: 13,
-                color: ivory(.7),
+                color: textSecondary,
                 shadows: kHomeShadow)),
       ]);
     } else {
@@ -355,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             style: _serif.copyWith(
                 fontStyle: FontStyle.italic,
                 fontSize: 14.5,
-                color: ivory(.7),
+                color: textSecondary,
                 shadows: kHomeShadow)),
         const SizedBox(height: 6),
         ConstrainedBox(
@@ -374,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             style: _serif.copyWith(
                 fontStyle: FontStyle.italic,
                 fontSize: 13,
-                color: ivory(.7),
+                color: textSecondary,
                 shadows: kHomeShadow)),
       ]);
     }
@@ -485,12 +483,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     color: kIvory)),
                             if (today != null)
                               Padding(
-                                padding: const EdgeInsets.only(top: 2),
+                                padding: const EdgeInsets.only(top: s4),
                                 child: Text('again',
-                                    style: TextStyle(
-                                        fontSize: 10,
+                                    style: MenteType.eyebrow.copyWith(
                                         letterSpacing: .9,
-                                        color: ivory(.7))),
+                                        color: textSecondary)),
                               ),
                           ],
                         ),
@@ -570,21 +567,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           children: [
             Text(label,
                 style: _serif.copyWith(
-                    fontSize: 16.5, color: ivory(.7), shadows: kHomeShadow)),
+                    fontSize: 16.5, color: textSecondary, shadows: kHomeShadow)),
             const Spacer(),
             Opacity(
               opacity: .75,
               child: Text(sotto,
-                  style: const TextStyle(
-                      fontSize: 10.5,
+                  style: MenteType.caption.copyWith(
                       letterSpacing: .5,
                       color: Color(0xFF99A3B3),
                       shadows: kHomeShadow)),
             ),
             const SizedBox(width: 8),
             Text('›',
-                style: TextStyle(
-                    fontSize: 15, color: ivory(.4), shadows: kHomeShadow)),
+                style: MenteType.bodySerif.copyWith( color: textFaint, shadows: kHomeShadow)),
           ],
         ),
       ),
@@ -602,7 +597,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ? 'one month ago'
             : '$months months ago';
     return Container(
-      padding: const EdgeInsets.only(top: 14),
+      padding: const EdgeInsets.only(top: s12),
       decoration: const BoxDecoration(
         border:
             Border(top: BorderSide(color: Color.fromRGBO(242, 238, 230, .14))),
@@ -611,10 +606,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('on this day',
-              style: TextStyle(
-                  fontSize: 9.5,
+              style: MenteType.eyebrow.copyWith(
                   letterSpacing: .76,
-                  color: ivory(.45),
+                  color: textFaint,
                   shadows: kHomeShadow)),
           const SizedBox(height: 5),
           Text.rich(
@@ -632,7 +626,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 fontStyle: FontStyle.italic,
                 fontSize: 13.5,
                 height: 1.55,
-                color: ivory(.7),
+                color: textSecondary,
                 shadows: kHomeShadow),
           ),
         ],

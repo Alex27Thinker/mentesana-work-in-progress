@@ -13,6 +13,7 @@ import 'analysis_engine.dart';
 import 'app_store.dart';
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
+import 'theme.dart';
 
 class InsightScreen extends StatefulWidget {
   const InsightScreen({
@@ -214,16 +215,14 @@ class _InsightScreenState extends State<InsightScreen>
                   final shimmer = .55 + t * .35;
                   return Text(
                       'your week \u00b7 a reflection from what you kept',
-                      style: TextStyle(
-                          fontSize: 10.5,
+                      style: MenteType.caption.copyWith(
                           letterSpacing: .18 * 10.5,
                           color: kOro.withValues(alpha: shimmer)));
                 },
               ),
               const SizedBox(height: 16),
               Text('a small surface from this week',
-                  style: TextStyle(
-                      fontSize: 10,
+                  style: MenteType.eyebrow.copyWith(
                       letterSpacing: .22 * 10,
                       color: kOro.withValues(alpha: .75))),
               const SizedBox(height: 8),
@@ -248,8 +247,7 @@ class _InsightScreenState extends State<InsightScreen>
                     child: Transform.scale(
                       scale: scale,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 18),
+                        padding: const EdgeInsets.symmetric(horizontal: s16, vertical: s16),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(22),
                           border: Border.all(
@@ -267,9 +265,7 @@ class _InsightScreenState extends State<InsightScreen>
                             thin
                                 ? 'Not enough weather for a pattern yet'
                                 : stripTags(insight.headline),
-                            style: GoogleFonts.alice(
-                                fontSize: 26,
-                                height: 1.25,
+                            style: MenteType.title.copyWith(height: 1.25,
                                 color: tint)),
                       ),
                     ),
@@ -281,16 +277,14 @@ class _InsightScreenState extends State<InsightScreen>
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 9, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: s8, vertical: s4),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border:
                           Border.all(color: kOro.withValues(alpha: .4)),
                     ),
                     child: Text('deeper reflection',
-                        style: TextStyle(
-                            fontSize: 9.5,
+                        style: MenteType.eyebrow.copyWith(
                             letterSpacing: .16 * 9.5,
                             color: kOro.withValues(alpha: .85))),
                   ),
@@ -302,7 +296,7 @@ class _InsightScreenState extends State<InsightScreen>
                 // Calm crisis panel: a deeper indigo gradient with serif
                 // text — never red, never alarmed, never mood-tinted.
                 Container(
-                  padding: const EdgeInsets.all(18),
+                  padding: const EdgeInsets.all(s16),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     gradient: LinearGradient(
@@ -317,10 +311,8 @@ class _InsightScreenState extends State<InsightScreen>
                         color: kSea.uc[0].withValues(alpha: .20)),
                   ),
                   child: Text(insight.crisisMessage!,
-                      style: GoogleFonts.alice(
-                          fontSize: 14,
-                          height: 1.6,
-                          color: ivory(.88))),
+                      style: MenteType.bodySerif.copyWith(height: 1.6,
+                          color: textPrimary)),
                 ),
               ],
               const SizedBox(height: 14),
@@ -342,14 +334,13 @@ class _InsightScreenState extends State<InsightScreen>
                   style: GoogleFonts.alice(
                       fontStyle: FontStyle.italic,
                       fontSize: 14,
-                      color: ivory(.6))),
+                      color: textSecondary)),
               if (lastFour.isNotEmpty) ...[
                 const SizedBox(height: 22),
                 Text('pages underneath',
-                    style: TextStyle(
-                        fontSize: 10,
+                    style: MenteType.eyebrow.copyWith(
                         letterSpacing: .22 * 10,
-                        color: ivory(.4))),
+                        color: textFaint)),
                 const SizedBox(height: 8),
                 for (final e in lastFour) _sourceRow(e),
               ],
@@ -360,7 +351,7 @@ class _InsightScreenState extends State<InsightScreen>
                       fontStyle: FontStyle.italic,
                       fontSize: 11.5,
                       height: 1.5,
-                      color: ivory(.42))),
+                      color: textFaint)),
               if (!thin) _experimentInvite(store),
             ],
           ),
@@ -397,12 +388,12 @@ class _InsightScreenState extends State<InsightScreen>
         radius: BorderRadius.circular(14),
         intensity: .6,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(s16),
           child: Text.rich(
             TextSpan(
                 children: richTextSpans(
               text,
-              TextStyle(fontSize: 14, height: 1.62, color: ivory(.78)),
+              MenteType.bodySerif.copyWith( height: 1.62, color: textSecondary),
               GoogleFonts.alice(
                   fontStyle: FontStyle.italic,
                   fontSize: 14,
@@ -425,7 +416,7 @@ class _InsightScreenState extends State<InsightScreen>
     final draft = PromptEngine(store.entries).suggestExperiment();
     if (draft == null) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(top: 22),
+      padding: const EdgeInsets.only(top: s24),
       child: InkWell(
         onTap: () {
           store.startTideExperiment(draft);
@@ -434,35 +425,34 @@ class _InsightScreenState extends State<InsightScreen>
             SnackBar(
               backgroundColor: const Color(0xFF1C2A2E),
               content: Text('a small thing to try is waiting in Tide Lab.',
-                  style: TextStyle(color: ivory(.85))),
+                  style: TextStyle(color: textSecondary)),
             ),
           );
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.all(s16),
           decoration: seaCard(border: .18, radius: BorderRadius.circular(12)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('if you would like to try a small thing',
-                  style: TextStyle(
-                      fontSize: 10,
+                  style: MenteType.eyebrow.copyWith(
                       letterSpacing: 1.8,
                       color: kRiva.withValues(alpha: .8))),
               const SizedBox(height: 8),
               Text(draft.title,
-                  style: GoogleFonts.alice(fontSize: 17, color: ivory(.9))),
+                  style: MenteType.heading.copyWith(color: textPrimary)),
               const SizedBox(height: 6),
               Text(draft.action,
                   style:
-                      TextStyle(fontSize: 13, height: 1.5, color: ivory(.7))),
+                      MenteType.bodySerif.copyWith( height: 1.5, color: textSecondary)),
               const SizedBox(height: 8),
               Text('only to notice — no goal, nothing to keep up.',
                   style: GoogleFonts.alice(
                       fontStyle: FontStyle.italic,
                       fontSize: 11.5,
-                      color: ivory(.5))),
+                      color: textFaint)),
             ],
           ),
         ),
@@ -472,12 +462,12 @@ class _InsightScreenState extends State<InsightScreen>
 
   Widget _para(String html) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: s8),
       child: Text.rich(
         TextSpan(
             children: richTextSpans(
           html,
-          TextStyle(fontSize: 14, height: 1.62, color: ivory(.78)),
+          MenteType.bodySerif.copyWith( height: 1.62, color: textSecondary),
           GoogleFonts.alice(
               fontStyle: FontStyle.italic,
               fontSize: 14,
@@ -496,7 +486,7 @@ class _InsightScreenState extends State<InsightScreen>
         ? e.title
         : ((e.word ?? '').isNotEmpty ? e.word! : 'a kept page');
     return Padding(
-      padding: const EdgeInsets.only(bottom: 7),
+      padding: const EdgeInsets.only(bottom: s8),
       // Each source row wears its own kept weather and breathes on the
       // shared kBreath rhythm, so the "pages underneath" feel alive (#6/#7).
       child: BreathingCard(
@@ -508,9 +498,9 @@ class _InsightScreenState extends State<InsightScreen>
           borderRadius: BorderRadius.circular(11),
           child: Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+                const EdgeInsets.symmetric(horizontal: s12, vertical: s12),
             child: Text('$label \u00b7 $title',
-                style: TextStyle(fontSize: 12.5, color: ivory(.7))),
+                style: MenteType.caption.copyWith( color: textSecondary)),
           ),
         ),
       ),

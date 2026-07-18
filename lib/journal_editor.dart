@@ -367,7 +367,7 @@ class _JournalEditorState extends State<JournalEditor> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text('add an image', style: TextStyle(fontSize: 16, color: ivory(.92))),
+            Text('add an image', style: MenteType.heading.copyWith( color: textPrimary)),
             const SizedBox(height: 18),
             _sourceOption(
               ctx,
@@ -411,15 +411,15 @@ class _JournalEditorState extends State<JournalEditor> {
       borderRadius: BorderRadius.circular(12),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: ivory(.15)),
+          border: Border.all(color: textDisabled),
         ),
         child: Row(children: [
-          StrokeIcon(icon, size: 17, color: ivory(.7)),
+          StrokeIcon(icon, size: 17, color: textSecondary),
           const SizedBox(width: 12),
-          Text(label, style: TextStyle(fontSize: 14, color: ivory(.85))),
+          Text(label, style: MenteType.bodySerif.copyWith( color: textSecondary)),
         ]),
       ),
     );
@@ -559,7 +559,7 @@ class _JournalEditorState extends State<JournalEditor> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
               child: Padding(
-                padding: const EdgeInsets.all(22),
+                padding: const EdgeInsets.all(s24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -568,13 +568,12 @@ class _JournalEditorState extends State<JournalEditor> {
                         style: GoogleFonts.alice(
                             fontStyle: FontStyle.italic,
                             fontSize: 17,
-                            color: ivory(.92))),
+                            color: textPrimary)),
                     const SizedBox(height: 10),
                     Text(
                       'the words are already on the page. you can also keep '
                       'the original audio as an attachment, or let it go.',
-                      style: TextStyle(
-                          fontSize: 13.5, height: 1.5, color: ivory(.68)),
+                      style: MenteType.bodySerif.copyWith( height: 1.5, color: textSecondary),
                     ),
                     const SizedBox(height: 18),
                     Row(
@@ -583,7 +582,7 @@ class _JournalEditorState extends State<JournalEditor> {
                         TextButton(
                           onPressed: () => Navigator.pop(ctx, false),
                           child: Text('just the words',
-                              style: TextStyle(color: ivory(.6))),
+                              style: TextStyle(color: textSecondary)),
                         ),
                         const SizedBox(width: 6),
                         TextButton(
@@ -686,10 +685,9 @@ class _JournalEditorState extends State<JournalEditor> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(_dateLine,
-                              style: TextStyle(
-                                  fontSize: 11.5,
+                              style: MenteType.caption.copyWith(
                                   letterSpacing: .14 * 11.5,
-                                  color: ivory(.42))),
+                                  color: textFaint)),
                           AnimatedOpacity(
                             duration: const Duration(milliseconds: 400),
                             opacity: _heldSaving ? .95 : .55,
@@ -697,7 +695,7 @@ class _JournalEditorState extends State<JournalEditor> {
                                 style: GoogleFonts.alice(
                                     fontStyle: FontStyle.italic,
                                     fontSize: 11.5,
-                                    color: ivory(.6))),
+                                    color: textSecondary)),
                           ),
                         ],
                       ),
@@ -710,7 +708,7 @@ class _JournalEditorState extends State<JournalEditor> {
                               fontStyle: FontStyle.italic,
                               fontSize: 16,
                               height: 1.48,
-                              color: ivory(.78))),
+                              color: textSecondary)),
                     ),
                     const SizedBox(height: 18),
                     _animatedRecede(
@@ -719,10 +717,9 @@ class _JournalEditorState extends State<JournalEditor> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('title',
-                              style: TextStyle(
-                                  fontSize: 10,
+                              style: MenteType.eyebrow.copyWith(
                                   letterSpacing: .22 * 10,
-                                  color: ivory(.4))),
+                                  color: textFaint)),
                           ConstrainedBox(
                             constraints: const BoxConstraints(maxHeight: 98),
                             child: TextField(
@@ -732,10 +729,9 @@ class _JournalEditorState extends State<JournalEditor> {
                               maxLines: null,
                               textInputAction: TextInputAction.next,
                               onSubmitted: (_) => _textFocus.requestFocus(),
-                              style: GoogleFonts.alice(
-                                  fontSize: 23, // clamp(22px, 5.8vw, 24px)
+                              style: MenteType.title.copyWith(// clamp(22px, 5.8vw, 24px)
                                   height: 1.3,
-                                  color: ivory(.92)),
+                                  color: textPrimary),
                               cursorColor: kRiva,
                               decoration: InputDecoration(
                                 counterText: '',
@@ -744,10 +740,9 @@ class _JournalEditorState extends State<JournalEditor> {
                                     const EdgeInsets.symmetric(vertical: 6),
                                 border: InputBorder.none,
                                 hintText: 'name this page — or don’t',
-                                hintStyle: TextStyle(
-                                    fontSize: 21,
+                                hintStyle: MenteType.heading.copyWith(
                                     height: 1.3,
-                                    color: ivory(.3)),
+                                    color: textDisabled),
                               ),
                             ),
                           ),
@@ -759,7 +754,7 @@ class _JournalEditorState extends State<JournalEditor> {
                       duration: const Duration(milliseconds: 250),
                       child: showFormatBar
                           ? Padding(
-                              padding: const EdgeInsets.only(top: 8),
+                              padding: const EdgeInsets.only(top: s8),
                               child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: _FormatButton(
@@ -776,10 +771,9 @@ class _JournalEditorState extends State<JournalEditor> {
                       maxLines: null,
                       minLines: 8,
                       keyboardType: TextInputType.multiline,
-                      style: GoogleFonts.alice(
-                          fontSize: 19, // clamp(18px, 4.8vw, 20px)
+                      style: MenteType.heading.copyWith(// clamp(18px, 4.8vw, 20px)
                           height: 1.62,
-                          color: ivory(.9)),
+                          color: textPrimary),
                       cursorColor: kRiva,
                       decoration: InputDecoration(
                         isCollapsed: true,
@@ -787,8 +781,7 @@ class _JournalEditorState extends State<JournalEditor> {
                         hintText: _stepChosen
                             ? stepPrompt(_journalStep, _v, _a)
                             : 'start anywhere.',
-                        hintStyle: GoogleFonts.alice(
-                            fontSize: 19, height: 1.62, color: ivory(.3)),
+                        hintStyle: MenteType.heading.copyWith(height: 1.62, color: textDisabled),
                       ),
                     ),
                     // pivot: 'you have named a lot — add what you need next'
@@ -796,7 +789,7 @@ class _JournalEditorState extends State<JournalEditor> {
                       duration: const Duration(milliseconds: 400),
                       child: showPivot
                           ? Padding(
-                              padding: const EdgeInsets.only(top: 12),
+                              padding: const EdgeInsets.only(top: s12),
                               child: _FormatButton(
                                 label:
                                     'you have named a lot — add what you need next',
@@ -816,18 +809,17 @@ class _JournalEditorState extends State<JournalEditor> {
                       duration: const Duration(milliseconds: 400),
                       child: showSafety
                           ? Container(
-                              margin: const EdgeInsets.only(top: 14),
-                              padding: const EdgeInsets.all(13),
+                              margin: const EdgeInsets.only(top: s12),
+                              padding: const EdgeInsets.all(s12),
                               decoration: BoxDecoration(
-                                border: Border.all(color: ivory(.22)),
+                                border: Border.all(color: textDisabled),
                                 borderRadius: BorderRadius.circular(12),
-                                color: ivory(.05),
+                                color: textDisabled,
                               ),
                               child: Text(kSafetyText,
-                                  style: TextStyle(
-                                      fontSize: 12.5,
+                                  style: MenteType.caption.copyWith(
                                       height: 1.55,
-                                      color: ivory(.85))),
+                                      color: textSecondary)),
                             )
                           : const SizedBox.shrink(),
                     ),
@@ -850,10 +842,9 @@ class _JournalEditorState extends State<JournalEditor> {
   Widget _backlink(String label, VoidCallback onTap) {
     return TextButton.icon(
       onPressed: onTap,
-      icon: StrokeIcon(SeaIcons.back, size: 20, color: ivory(.6)),
+      icon: StrokeIcon(SeaIcons.back, size: 20, color: textSecondary),
       label: Text(label,
-          style: TextStyle(
-              fontSize: 11, letterSpacing: .18 * 11, color: ivory(.6))),
+          style: MenteType.caption.copyWith( letterSpacing: .18 * 11, color: textSecondary)),
       style: TextButton.styleFrom(
         minimumSize: const Size(44, 44),
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -882,7 +873,7 @@ class _JournalEditorState extends State<JournalEditor> {
                       controller: _bottle,
                       focusNode: _bottleFocus,
                       maxLength: 140,
-                      style: TextStyle(fontSize: 14, color: ivory(.9)),
+                      style: MenteType.bodySerif.copyWith( color: textPrimary),
                       cursorColor: kRiva,
                       decoration: _panelInput(
                           'something you would like to meet again, later'),
@@ -896,7 +887,7 @@ class _JournalEditorState extends State<JournalEditor> {
                           focusNode: _tagFocus,
                           maxLength: 18,
                           style:
-                              TextStyle(fontSize: 14, color: ivory(.9)),
+                              MenteType.bodySerif.copyWith( color: textPrimary),
                           cursorColor: kRiva,
                           decoration: _panelInput(
                               'like work, home, or the sea'),
@@ -906,7 +897,7 @@ class _JournalEditorState extends State<JournalEditor> {
           ),
           if (_pending.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: s8),
               child: Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -929,7 +920,7 @@ class _JournalEditorState extends State<JournalEditor> {
                     style: GoogleFonts.alice(
                         fontStyle: FontStyle.italic,
                         fontSize: 11.5,
-                        color: ivory(.6))),
+                        color: textSecondary)),
               ),
               _keepButton(),
             ],
@@ -937,10 +928,9 @@ class _JournalEditorState extends State<JournalEditor> {
           const SizedBox(height: 7),
           Text('this page never leaves your device.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 10.5,
+              style: MenteType.caption.copyWith(
                   letterSpacing: .08 * 10.5,
-                  color: ivory(.34))),
+                  color: textDisabled)),
         ],
       ),
     );
@@ -950,26 +940,25 @@ class _JournalEditorState extends State<JournalEditor> {
         counterText: '',
         isDense: true,
         border: UnderlineInputBorder(
-            borderSide: BorderSide(color: ivory(.25))),
+            borderSide: BorderSide(color: textDisabled)),
         enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: ivory(.25))),
+            borderSide: BorderSide(color: textDisabled)),
         focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: kRiva)),
         hintText: hint,
-        hintStyle: TextStyle(fontSize: 14, color: ivory(.32)),
+        hintStyle: MenteType.bodySerif.copyWith( color: textDisabled),
       );
 
   Widget _shelfPanel({required String label, required Widget child}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: s8),
       constraints: const BoxConstraints(maxHeight: 92),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(label,
-              style: TextStyle(
-                  fontSize: 10, letterSpacing: .2 * 10, color: ivory(.44))),
+              style: MenteType.eyebrow.copyWith( letterSpacing: .2 * 10, color: textFaint)),
           child,
         ],
       ),
@@ -978,7 +967,7 @@ class _JournalEditorState extends State<JournalEditor> {
 
   Widget _shelfTool(SeaIconData icon, bool holding, VoidCallback onTap) {
     return Padding(
-      padding: const EdgeInsets.only(right: 6),
+      padding: const EdgeInsets.only(right: s4),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -1026,7 +1015,7 @@ class _JournalEditorState extends State<JournalEditor> {
               style: GoogleFonts.alice(
                   fontStyle: FontStyle.italic,
                   fontSize: 13.5,
-                  color: ivory(.92))),
+                  color: textPrimary)),
         ),
       ),
     );
@@ -1040,16 +1029,16 @@ class _JournalEditorState extends State<JournalEditor> {
     if (a.isImage && a.data.isNotEmpty) {
       leading = _dataUrlImage(a.data, 24);
     } else if (a.isAudio) {
-      leading = StrokeIcon(SeaIcons.record, size: 16, color: ivory(.62));
+      leading = StrokeIcon(SeaIcons.record, size: 16, color: textSecondary);
     } else {
-      leading = Text('◌', style: TextStyle(color: ivory(.6)));
+      leading = Text('◌', style: TextStyle(color: textSecondary));
     }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: s8, vertical: s4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: ivory(.16)),
-        color: ivory(.05),
+        border: Border.all(color: textDisabled),
+        color: textDisabled,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1060,7 +1049,7 @@ class _JournalEditorState extends State<JournalEditor> {
             constraints: const BoxConstraints(maxWidth: 150),
             child: Text(label,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 11.5, color: ivory(.72))),
+                style: MenteType.caption.copyWith( color: textSecondary)),
           ),
         ],
       ),
@@ -1095,17 +1084,17 @@ class _FormatButton extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(11),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(11),
-          border: Border.all(color: ivory(.22)),
-          color: ivory(.06),
+          border: Border.all(color: textDisabled),
+          color: textDisabled,
         ),
         child: Text(label,
             style: TextStyle(
                 fontStyle: FontStyle.italic,
                 fontSize: 12.5,
-                color: ivory(.8))),
+                color: textSecondary)),
       ),
     );
   }

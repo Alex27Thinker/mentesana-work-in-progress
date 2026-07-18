@@ -17,6 +17,7 @@ import 'app_store.dart';
 import 'archive_screen.dart' show formatTime12;
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
+import 'theme.dart';
 import 'sea_icons.dart';
 
 class EntryDetailScreen extends StatefulWidget {
@@ -205,25 +206,22 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(timeLine,
-                    style: TextStyle(
-                        fontSize: 11,
+                    style: MenteType.caption.copyWith(
                         letterSpacing: .14 * 11,
-                        color: ivory(.45))),
+                        color: textFaint)),
                 const SizedBox(height: 6),
                 Text(e.title.isNotEmpty ? e.title : (e.word ?? 'journal'),
-                    style: GoogleFonts.alice(
-                        fontSize: 36, height: 1.15, color: ivory(.94))),
+                    style: MenteType.display.copyWith(height: 1.15, color: textPrimary)),
                 if (e.texture.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Text(e.texture,
-                      style: TextStyle(fontSize: 12.5, color: ivory(.55))),
+                      style: MenteType.caption.copyWith( color: textFaint)),
                 ],
                 if ((e.afterWord ?? '').isNotEmpty) ...[
                   const SizedBox(height: 10),
                   Text.rich(
                     TextSpan(
-                      style: TextStyle(
-                          fontSize: 13, height: 1.55, color: ivory(.68)),
+                      style: MenteType.bodySerif.copyWith( height: 1.55, color: textSecondary),
                       children: [
                         const TextSpan(text: 'The weather began '),
                         TextSpan(
@@ -245,7 +243,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                 if (e.tag.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text('#${e.tag}',
-                      style: TextStyle(fontSize: 12.5, color: ivory(.55))),
+                      style: MenteType.caption.copyWith( color: textFaint)),
                 ],
                 _rule(),
                 _label('the page began with'),
@@ -255,7 +253,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                         fontStyle: FontStyle.italic,
                         fontSize: 14.5,
                         height: 1.5,
-                        color: ivory(.7))),
+                        color: textSecondary)),
                 _rule(),
                 _label('written'),
                 const SizedBox(height: 8),
@@ -264,8 +262,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                     TextSpan(
                         children: journalTextSpans(
                       _distance ? distanceText(e.text) : e.text,
-                      TextStyle(
-                          fontSize: 19, height: 1.75, color: ivory(.88)),
+                      MenteType.heading.copyWith( height: 1.75, color: textPrimary),
                     )),
                   ),
                   if (_distance) ...[
@@ -275,14 +272,14 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                         style: GoogleFonts.alice(
                             fontStyle: FontStyle.italic,
                             fontSize: 12,
-                            color: ivory(.5))),
+                            color: textFaint)),
                   ],
                 ] else
                   Text('This weather was kept without words.',
                       style: GoogleFonts.alice(
                           fontStyle: FontStyle.italic,
                           fontSize: 14.5,
-                          color: ivory(.55))),
+                          color: textFaint)),
                 if (e.attachments.isNotEmpty) ...[
                   _rule(),
                   _label('kept with this page'),
@@ -303,7 +300,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                           fontStyle: FontStyle.italic,
                           fontSize: 12.5,
                           height: 1.5,
-                          color: ivory(.55))),
+                          color: textFaint)),
                 ],
                 const SizedBox(height: 18),
                 Wrap(
@@ -346,7 +343,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                       style: GoogleFonts.alice(
                           fontStyle: FontStyle.italic,
                           fontSize: 12,
-                          color: ivory(.55))),
+                          color: textFaint)),
                 ],
                 if (e.versions.isNotEmpty) ...[
                   const SizedBox(height: 20),
@@ -377,8 +374,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
   }
 
   Widget _label(String text) => Text(text,
-      style: TextStyle(
-          fontSize: 10, letterSpacing: .22 * 10, color: ivory(.4)));
+      style: MenteType.eyebrow.copyWith( letterSpacing: .22 * 10, color: textFaint));
 
   Widget _attachment(Attachment a) {
     if (a.isImage && a.data.isNotEmpty) {
@@ -401,27 +397,27 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
     // plugin here, so the chip stays quiet (see README).
     final name = a.isAudio ? a.name : a.name;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s8),
       decoration: seaCard(border: .16, radius: BorderRadius.circular(11)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (a.isAudio)
             Padding(
-              padding: const EdgeInsets.only(right: 7),
+              padding: const EdgeInsets.only(right: s8),
               child:
-                  StrokeIcon(SeaIcons.record, size: 15, color: ivory(.6)),
+                  StrokeIcon(SeaIcons.record, size: 15, color: textSecondary),
             )
           else
             Padding(
-              padding: const EdgeInsets.only(right: 7),
-              child: Text('\u25cc', style: TextStyle(color: ivory(.6))),
+              padding: const EdgeInsets.only(right: s8),
+              child: Text('\u25cc', style: TextStyle(color: textSecondary)),
             ),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 170),
             child: Text(name,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 11.5, color: ivory(.72))),
+                style: MenteType.caption.copyWith( color: textSecondary)),
           ),
         ],
       ),
@@ -434,7 +430,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -446,8 +442,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
               : Colors.transparent,
         ),
         child: Text(label,
-            style: TextStyle(
-                fontSize: 12,
+            style: MenteType.caption.copyWith(
                 letterSpacing: .05 * 12,
                 color:
                     primary ? kRivaLight : ivory(.68))),
@@ -474,7 +469,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
           : null,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -482,8 +477,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                   .withValues(alpha: _deleteArmed && !_deleteReady ? .28 : .55)),
         ),
         child: Text(label,
-            style: TextStyle(
-                fontSize: 12,
+            style: MenteType.caption.copyWith(
                 letterSpacing: .05 * 12,
                 color: const Color(0xFFC98A7B)
                     .withValues(alpha: _deleteArmed && !_deleteReady ? .5 : .9))),
@@ -495,25 +489,24 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
     final v = widget.entry.versions[index];
     final d = DateTime.fromMillisecondsSinceEpoch(v.editedAt);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: s8),
       child: InkWell(
         onTap: () => _restoreVersion(index),
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              const EdgeInsets.symmetric(horizontal: s12, vertical: s12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: ivory(.12)),
+            border: Border.all(color: textDisabled),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('${dMmm(d)} ${hhmm(d)}',
-                  style: TextStyle(fontSize: 12, color: ivory(.65))),
+                  style: MenteType.caption.copyWith( color: textSecondary)),
               Text('restore',
-                  style: TextStyle(
-                      fontSize: 11,
+                  style: MenteType.caption.copyWith(
                       letterSpacing: .08 * 11,
                       color: kRivaLight)),
             ],

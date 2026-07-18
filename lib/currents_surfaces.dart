@@ -17,6 +17,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_store.dart';
 import 'currents_engine.dart';
 import 'mood_palette.dart';
+import 'theme.dart';
 
 // ─────────────────────── shared small pieces ───────────────────────
 
@@ -25,7 +26,7 @@ Widget _pill(String label, VoidCallback onTap, {bool primary = false}) {
     onTap: onTap,
     borderRadius: BorderRadius.circular(16),
     child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
@@ -33,8 +34,7 @@ Widget _pill(String label, VoidCallback onTap, {bool primary = false}) {
         color: primary ? kRiva.withValues(alpha: .10) : null,
       ),
       child: Text(label,
-          style: TextStyle(
-              fontSize: 11.5,
+          style: MenteType.caption.copyWith(
               letterSpacing: .06 * 11.5,
               color: primary ? kRivaLight : ivory(.65))),
     ),
@@ -42,7 +42,7 @@ Widget _pill(String label, VoidCallback onTap, {bool primary = false}) {
 }
 
 Widget _capsLabel(String text, Color color) => Text(text,
-    style: TextStyle(fontSize: 10, letterSpacing: .22 * 10, color: color));
+    style: MenteType.eyebrow.copyWith( letterSpacing: .22 * 10, color: color));
 
 // ────────────────────────── the undertow ───────────────────────────────
 
@@ -315,7 +315,7 @@ class _UndertowSurfaceState extends State<UndertowSurface>
         const SizedBox(height: 10),
         Text(undertowObservation(r),
             style:
-                GoogleFonts.alice(fontSize: 18, height: 1.4, color: ivory(.92))),
+                MenteType.heading.copyWith(height: 1.4, color: textPrimary)),
         if (r.phrase.isNotEmpty) ...[
           const SizedBox(height: 10),
           Text('“${r.phrase}”',
@@ -330,7 +330,7 @@ class _UndertowSurfaceState extends State<UndertowSurface>
             style: GoogleFonts.alice(
                 fontStyle: FontStyle.italic,
                 fontSize: 11.5,
-                color: ivory(.5))),
+                color: textFaint)),
         const SizedBox(height: 16),
         Row(
           children: [
@@ -356,34 +356,34 @@ class _UndertowSurfaceState extends State<UndertowSurface>
         _capsLabel(c.title, kRiva.withValues(alpha: .8)),
         const SizedBox(height: 10),
         Text(c.lead,
-            style: TextStyle(fontSize: 13, height: 1.55, color: ivory(.72))),
+            style: MenteType.bodySerif.copyWith( height: 1.55, color: textSecondary)),
         const SizedBox(height: 14),
         Text(prompt,
             style:
-                GoogleFonts.alice(fontSize: 16, height: 1.4, color: ivory(.9))),
+                MenteType.heading.copyWith(height: 1.4, color: textPrimary)),
         const SizedBox(height: 8),
         TextField(
           controller: _fields[_step],
           maxLines: 4,
           minLines: 2,
           autofocus: !widget.reduced,
-          style: TextStyle(fontSize: 14, height: 1.55, color: ivory(.9)),
+          style: MenteType.bodySerif.copyWith( height: 1.55, color: textPrimary),
           cursorColor: kRivaLight,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.alice(
                 fontStyle: FontStyle.italic,
                 fontSize: 13,
-                color: ivory(.35)),
+                color: textDisabled),
             filled: true,
             fillColor: tint.withValues(alpha: .07),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: ivory(.12)),
+              borderSide: BorderSide(color: textDisabled),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: ivory(.12)),
+              borderSide: BorderSide(color: textDisabled),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
@@ -435,7 +435,7 @@ class _UndertowSurfaceState extends State<UndertowSurface>
                     style: GoogleFonts.alice(
                         fontStyle: FontStyle.italic,
                         fontSize: 13.5,
-                        color: ivory(.6))),
+                        color: textSecondary)),
               ),
             ),
           ),
@@ -444,7 +444,7 @@ class _UndertowSurfaceState extends State<UndertowSurface>
         const SizedBox(height: 10),
         Text(_copy.closing,
             style:
-                GoogleFonts.alice(fontSize: 15, height: 1.5, color: ivory(.85))),
+                MenteType.bodySerif.copyWith(height: 1.5, color: textSecondary)),
         const SizedBox(height: 12),
         Align(
           alignment: Alignment.centerRight,
@@ -565,7 +565,7 @@ class _AlmanacCardState extends State<AlmanacCard>
         reading.hasData && reading.lines.isNotEmpty;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: s8),
       child: ClipRRect(
         borderRadius: kSoftCardRadius,
         child: Container(
@@ -615,10 +615,9 @@ class _AlmanacCardState extends State<AlmanacCard>
                               const Spacer(),
                               if (showable)
                                 Text(_expanded ? 'fold' : 'unfold',
-                                    style: TextStyle(
-                                        fontSize: 9,
+                                    style: MenteType.eyebrow.copyWith(
                                         letterSpacing: .72,
-                                        color: ivory(.4))),
+                                        color: textFaint)),
                             ],
                           ),
                           const SizedBox(height: 7),
@@ -626,22 +625,18 @@ class _AlmanacCardState extends State<AlmanacCard>
                             showable
                                 ? reading.leading!.text
                                 : 'still filling — the almanac learns only from your own weather, and there is not quite enough yet.',
-                            style: GoogleFonts.alice(
-                                fontSize: 14,
-                                height: 1.45,
-                                color: ivory(.88)),
+                            style: MenteType.bodySerif.copyWith(height: 1.45,
+                                color: textPrimary),
                           ),
                           if (_expanded && showable) ...[
                             const SizedBox(height: 10),
                             WaveDivider(color: tint, alpha: .3),
                             for (final l in reading.lines.skip(1))
                               Padding(
-                                padding: const EdgeInsets.only(top: 8),
+                                padding: const EdgeInsets.only(top: s8),
                                 child: Text(l.text,
-                                    style: GoogleFonts.alice(
-                                        fontSize: 13.5,
-                                        height: 1.5,
-                                        color: ivory(.78))),
+                                    style: MenteType.bodySerif.copyWith(height: 1.5,
+                                        color: textSecondary)),
                               ),
                             const SizedBox(height: 10),
                             Text(
@@ -649,7 +644,7 @@ class _AlmanacCardState extends State<AlmanacCard>
                                 style: GoogleFonts.alice(
                                     fontStyle: FontStyle.italic,
                                     fontSize: 11,
-                                    color: ivory(.45))),
+                                    color: textFaint)),
                           ],
                         ],
                       ),
@@ -758,8 +753,8 @@ class _TideReturnsCardState extends State<TideReturnsCard> {
       duration: const Duration(milliseconds: 420),
       opacity: _leaving ? 0 : 1,
       child: Container(
-        margin: const EdgeInsets.only(top: 14),
-        padding: const EdgeInsets.all(15),
+        margin: const EdgeInsets.only(top: s12),
+        padding: const EdgeInsets.all(s16),
         decoration: seaCard(border: .16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -768,13 +763,12 @@ class _TideReturnsCardState extends State<TideReturnsCard> {
                 'the tide brought this back', kRiva.withValues(alpha: .8)),
             const SizedBox(height: 8),
             Text('“${w.text}”',
-                style: GoogleFonts.alice(
-                    fontSize: 15, height: 1.45, color: ivory(.9))),
+                style: MenteType.bodySerif.copyWith(height: 1.45, color: textPrimary)),
             const SizedBox(height: 6),
             Text(
                 'has it changed while the tide held it — heavier, lighter, or done with you?',
                 style:
-                    TextStyle(fontSize: 12.5, height: 1.5, color: ivory(.65))),
+                    MenteType.caption.copyWith( height: 1.5, color: textSecondary)),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -890,8 +884,8 @@ class _AnchorCardState extends State<AnchorCard> {
       duration: const Duration(milliseconds: 420),
       opacity: _leaving ? 0 : 1,
       child: Container(
-        margin: const EdgeInsets.only(top: 14),
-        padding: const EdgeInsets.all(15),
+        margin: const EdgeInsets.only(top: s12),
+        padding: const EdgeInsets.all(s16),
         decoration: seaCard(border: .16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -904,16 +898,15 @@ class _AnchorCardState extends State<AnchorCard> {
                       fontStyle: FontStyle.italic,
                       fontSize: 12.5,
                       height: 1.5,
-                      color: ivory(.62))),
+                      color: textSecondary)),
             ],
             const SizedBox(height: 8),
             Text(body,
-                style: GoogleFonts.alice(
-                    fontSize: 16, height: 1.4, color: ivory(.9))),
+                style: MenteType.heading.copyWith(height: 1.4, color: textPrimary)),
             const SizedBox(height: 6),
             Text(note,
                 style:
-                    TextStyle(fontSize: 12, height: 1.5, color: ivory(.55))),
+                    MenteType.caption.copyWith( height: 1.5, color: textFaint)),
             const SizedBox(height: 12),
             Row(children: actions),
           ],

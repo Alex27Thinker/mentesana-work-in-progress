@@ -14,6 +14,7 @@ import 'analysis_engine.dart';
 import 'app_store.dart';
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
+import 'theme.dart';
 import 'sea_icons.dart';
 
 const _kRiva = Color(0xFF7FA89B);
@@ -378,7 +379,7 @@ class _TideLabScreenState extends State<TideLabScreen>
                           fontStyle: FontStyle.italic,
                           fontSize: 11.5,
                           height: 1.55,
-                          color: ivory(.4)),
+                          color: textFaint),
                     ),
                   ],
                 ),
@@ -396,7 +397,7 @@ class _TideLabScreenState extends State<TideLabScreen>
         trailing: IconButton(
           onPressed: _showMethod,
           tooltip: 'How Tide Lab works',
-          icon: StrokeIcon(SeaIcons.about, size: 18, color: ivory(.5)),
+          icon: StrokeIcon(SeaIcons.about, size: 18, color: textFaint),
         ),
       );
 
@@ -409,14 +410,13 @@ class _TideLabScreenState extends State<TideLabScreen>
               settingUp
                   ? 'Try one small thing for a week.'
                   : 'This week’s small tide.',
-              style: GoogleFonts.alice(
-                  fontSize: 29, height: 1.15, color: ivory(.96))),
+              style: MenteType.display.copyWith(height: 1.15, color: textPrimary)),
           const SizedBox(height: 10),
           Text(
             settingUp
                 ? 'Each day, tap whether it happened. Your usual check-ins do the measuring — at the end, Mentesana shows whether your weather felt any different on the days you did it.'
                 : 'Tap once a day. Your usual check-ins quietly hold the rest.',
-            style: TextStyle(fontSize: 13.5, height: 1.6, color: ivory(.62)),
+            style: MenteType.bodySerif.copyWith( height: 1.6, color: textSecondary),
           ),
         ],
       );
@@ -439,8 +439,7 @@ class _TideLabScreenState extends State<TideLabScreen>
           const SizedBox(height: 14),
           if (!_writingOwn) ...[
             Text(chosenAction,
-                style: GoogleFonts.alice(
-                    fontSize: 21, height: 1.35, color: ivory(.94))),
+                style: MenteType.heading.copyWith(height: 1.35, color: textPrimary)),
             const SizedBox(height: 16),
             _label('or try'),
             const SizedBox(height: 4),
@@ -465,15 +464,15 @@ class _TideLabScreenState extends State<TideLabScreen>
               controller: _ownAction,
               maxLines: 2,
               autofocus: true,
-              style: GoogleFonts.alice(fontSize: 18, color: ivory(.92)),
+              style: MenteType.heading.copyWith(color: textPrimary),
               decoration: InputDecoration(
                 hintText: 'one small thing, in your words…',
                 hintStyle: GoogleFonts.alice(
                     fontStyle: FontStyle.italic,
                     fontSize: 16,
-                    color: ivory(.35)),
+                    color: textDisabled),
                 enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: ivory(.16))),
+                    borderSide: BorderSide(color: textDisabled)),
                 focusedBorder: const UnderlineInputBorder(
                     borderSide: BorderSide(color: _kRiva)),
               ),
@@ -503,7 +502,7 @@ class _TideLabScreenState extends State<TideLabScreen>
               style: GoogleFonts.alice(
                   fontStyle: FontStyle.italic,
                   fontSize: 11.5,
-                  color: ivory(.42))),
+                  color: textFaint)),
         ],
       ),
     );
@@ -531,12 +530,11 @@ class _TideLabScreenState extends State<TideLabScreen>
             _breathingDot(_kRiva),
             const SizedBox(width: 8),
             Text(daysLeft == 0 ? 'ready to look back' : '$daysLeft days left',
-                style: TextStyle(fontSize: 10.5, color: ivory(.45))),
+                style: MenteType.caption.copyWith( color: textFaint)),
           ]),
           const SizedBox(height: 14),
           Text(experiment.action,
-              style: GoogleFonts.alice(
-                  fontSize: 21, height: 1.35, color: ivory(.94))),
+              style: MenteType.heading.copyWith(height: 1.35, color: textPrimary)),
           const SizedBox(height: 22),
           _weekTides(experiment),
           const SizedBox(height: 6),
@@ -545,12 +543,12 @@ class _TideLabScreenState extends State<TideLabScreen>
             children: [
               _legendDot(_kRiva, filled: true),
               const SizedBox(width: 5),
-              Text('did it', style: TextStyle(fontSize: 10, color: ivory(.5))),
+              Text('did it', style: MenteType.eyebrow.copyWith( color: textFaint)),
               const SizedBox(width: 16),
               _legendDot(ivory(.5), filled: false),
               const SizedBox(width: 5),
               Text('colour · that day’s weather',
-                  style: TextStyle(fontSize: 10, color: ivory(.5))),
+                  style: MenteType.eyebrow.copyWith( color: textFaint)),
             ],
           ),
           const SizedBox(height: 18),
@@ -574,7 +572,7 @@ class _TideLabScreenState extends State<TideLabScreen>
                   style: GoogleFonts.alice(
                       fontStyle: FontStyle.italic,
                       fontSize: 13,
-                      color: ivory(.58))),
+                      color: textFaint)),
             ),
           if (experiment.observations.length >= 5 || daysLeft == 0) ...[
             const SizedBox(height: 16),
@@ -640,7 +638,7 @@ class _TideLabScreenState extends State<TideLabScreen>
   Widget _completedCard(TideExperiment experiment) {
     final stats = _stats(experiment);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: s8),
       child: _glass(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,17 +646,17 @@ class _TideLabScreenState extends State<TideLabScreen>
             _eyebrow(experiment.title),
             const SizedBox(height: 9),
             Text('What the week seemed to hold',
-                style: GoogleFonts.alice(fontSize: 20, color: ivory(.9))),
+                style: MenteType.heading.copyWith(color: textPrimary)),
             const SizedBox(height: 8),
             Text(stats.narrative,
-                style: TextStyle(fontSize: 13, height: 1.55, color: ivory(.68))),
+                style: MenteType.bodySerif.copyWith( height: 1.55, color: textSecondary)),
             if (stats.grounded) ...[
               const SizedBox(height: 16),
               Row(children: [
-                Text('calmer', style: TextStyle(fontSize: 9.5, color: ivory(.4))),
+                Text('calmer', style: MenteType.eyebrow.copyWith( color: textFaint)),
                 const Spacer(),
                 Text('more awake',
-                    style: TextStyle(fontSize: 9.5, color: ivory(.4))),
+                    style: MenteType.eyebrow.copyWith( color: textFaint)),
               ]),
               const SizedBox(height: 6),
               SizedBox(
@@ -683,12 +681,12 @@ class _TideLabScreenState extends State<TideLabScreen>
                   _legendDot(_kRiva, filled: true),
                   const SizedBox(width: 5),
                   Text('days with it',
-                      style: TextStyle(fontSize: 10, color: ivory(.5))),
+                      style: MenteType.eyebrow.copyWith( color: textFaint)),
                   const SizedBox(width: 16),
                   _legendDot(ivory(.5), filled: false),
                   const SizedBox(width: 5),
                   Text('your usual days',
-                      style: TextStyle(fontSize: 10, color: ivory(.5))),
+                      style: MenteType.eyebrow.copyWith( color: textFaint)),
                 ],
               ),
             ],
@@ -759,10 +757,10 @@ class _TideLabScreenState extends State<TideLabScreen>
       );
 
   Widget _glass({required Widget child}) => Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(s16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: ivory(.13)),
+          border: Border.all(color: textDisabled),
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -773,13 +771,12 @@ class _TideLabScreenState extends State<TideLabScreen>
       );
 
   Widget _eyebrow(String text, {Color? color}) => Text(text.toUpperCase(),
-      style: TextStyle(
-          fontSize: 9.5,
+      style: MenteType.eyebrow.copyWith(
           letterSpacing: 1.8,
           color: color ?? ivory(.42)));
 
   Widget _label(String text) => Text(text.toUpperCase(),
-      style: TextStyle(fontSize: 9, letterSpacing: 1.65, color: ivory(.4)));
+      style: MenteType.eyebrow.copyWith( letterSpacing: 1.65, color: textFaint));
 
   Widget _primaryButton(String label, VoidCallback onTap) => SizedBox(
         width: double.infinity,
@@ -795,7 +792,7 @@ class _TideLabScreenState extends State<TideLabScreen>
               color: _kRiva.withValues(alpha: .14),
             ),
             child: Text(label,
-                style: GoogleFonts.alice(fontSize: 15, color: _kRivaBright)),
+                style: MenteType.bodySerif.copyWith(color: _kRivaBright)),
           ),
         ),
       );
@@ -812,11 +809,11 @@ class _TideLabScreenState extends State<TideLabScreen>
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Text('How Tide Lab works',
-                style: GoogleFonts.alice(fontSize: 23, color: ivory(.94))),
+                style: MenteType.title.copyWith(color: textPrimary)),
             const SizedBox(height: 14),
             Text(
               'Pick one small daily habit. Each day, tap whether it happened — that is all. Your ordinary check-ins are the measurement, and at the end Mentesana compares your weather on habit days with your usual recent days. It can notice a lean; it cannot prove a cause, and it never turns your days into scores.',
-              style: TextStyle(fontSize: 13.5, height: 1.65, color: ivory(.68)),
+              style: MenteType.bodySerif.copyWith( height: 1.65, color: textSecondary),
             ),
           ]),
         ),

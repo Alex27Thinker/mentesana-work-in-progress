@@ -9,6 +9,7 @@ import 'app_store.dart';
 import 'currents_surfaces.dart';
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
+import 'theme.dart';
 import 'sea_icons.dart';
 
 /// Header calendar icon (verbatim path data from index.html).
@@ -182,7 +183,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
           title: 'journal',
           onBack: widget.onBack,
           trailing: Padding(
-            padding: const EdgeInsets.only(right: 6),
+            padding: const EdgeInsets.only(right: s4),
             child: Semantics(
               button: true,
               label: 'Open calendar',
@@ -194,7 +195,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                   height: 44,
                   child: Center(
                       child: StrokeIcon(_calendarIcon,
-                          size: 20, color: ivory(.6))),
+                          size: 20, color: textSecondary)),
                 ),
               ),
             ),
@@ -227,8 +228,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                   return Opacity(
                     opacity: opacity,
                     child: Text(journalGreeting(store),
-                        style: GoogleFonts.alice(
-                            fontSize: 24, height: 1.2, color: ivory(.93))),
+                        style: MenteType.title.copyWith(height: 1.2, color: textPrimary)),
                   );
                 },
               ),
@@ -239,10 +239,9 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                 _continuityCard(latestToday, todayPages.length),
               const WaveDivider(height: 16, alpha: .10),
               Text('today',
-                  style: TextStyle(
-                      fontSize: 10,
+                  style: MenteType.eyebrow.copyWith(
                       letterSpacing: .22 * 10,
-                      color: ivory(.42))),
+                      color: textFaint)),
               const SizedBox(height: 10),
               _todayCard(),
               const SizedBox(height: 12),
@@ -254,10 +253,9 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
               if (draft != null) ...[
                 const WaveDivider(height: 14, alpha: .10),
                 Text('unfinished',
-                    style: TextStyle(
-                        fontSize: 10,
+                    style: MenteType.eyebrow.copyWith(
                         letterSpacing: .22 * 10,
-                        color: ivory(.42))),
+                        color: textFaint)),
                 const SizedBox(height: 8),
                 _draftCard(draft),
                 const SizedBox(height: 6),
@@ -265,23 +263,22 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                     style: GoogleFonts.alice(
                         fontStyle: FontStyle.italic,
                         fontSize: 11.5,
-                        color: ivory(.45))),
+                        color: textFaint)),
               ],
               const WaveDivider(height: 18, alpha: .10),
               Text('recent pages',
-                  style: TextStyle(
-                      fontSize: 10,
+                  style: MenteType.eyebrow.copyWith(
                       letterSpacing: .22 * 10,
-                      color: ivory(.42))),
+                      color: textFaint)),
               const SizedBox(height: 10),
               if (recent.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsets.only(top: s4),
                   child: Text('A blank page is still a place to arrive.',
                       style: TextStyle(
                           fontStyle: FontStyle.italic,
                           fontSize: 13,
-                          color: ivory(.5))),
+                          color: textFaint)),
                 )
               else
                 for (final e in recent) _recentRow(e),
@@ -289,7 +286,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                 const SizedBox(height: 4),
                 Text(
                     '$attachmentCount recent attachment${attachmentCount == 1 ? '' : 's'} kept with your pages.',
-                    style: TextStyle(fontSize: 11, color: ivory(.45))),
+                    style: MenteType.caption.copyWith( color: textFaint)),
               ],
               const SizedBox(height: 12),
               Center(
@@ -297,17 +294,15 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                   onTap: widget.onAllPages,
                   borderRadius: BorderRadius.circular(18),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: s16, vertical: s8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: ivory(.16)),
+                      border: Border.all(color: textDisabled),
                     ),
                     child: Text('all pages in the archive',
-                        style: TextStyle(
-                            fontSize: 11.5,
+                        style: MenteType.caption.copyWith(
                             letterSpacing: .08 * 11.5,
-                            color: ivory(.65))),
+                            color: textSecondary)),
                   ),
                 ),
               ),
@@ -340,22 +335,21 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
             ? lastEntry.title
             : lastEntry.word;
     return Container(
-      margin: const EdgeInsets.only(top: 14),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(top: s12),
+      padding: const EdgeInsets.all(s16),
       decoration: _cardBox(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('welcome back.',
-              style: TextStyle(
-                  fontSize: 12.5,
+              style: MenteType.caption.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: ivory(.85))),
+                  color: textSecondary)),
           const SizedBox(height: 6),
           Text.rich(
             TextSpan(
               style:
-                  TextStyle(fontSize: 13, height: 1.6, color: ivory(.68)),
+                  MenteType.bodySerif.copyWith( height: 1.6, color: textSecondary),
               children: [
                 const TextSpan(text: 'The sea kept your place'),
                 if (middleOf != null && middleOf.isNotEmpty) ...[
@@ -365,7 +359,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                       style: GoogleFonts.alice(
                           fontStyle: FontStyle.italic,
                           fontSize: 13,
-                          color: ivory(.8))),
+                          color: textSecondary)),
                 ],
                 const TextSpan(
                     text:
@@ -385,27 +379,24 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
             ? titleFromPage(latestToday.text)
             : 'a page from today';
     return Container(
-      margin: const EdgeInsets.only(top: 14),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(top: s12),
+      padding: const EdgeInsets.all(s16),
       decoration: _cardBox(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
               'today, so far \u00b7 $count page${count == 1 ? '' : 's'}',
-              style: TextStyle(
-                  fontSize: 10,
+              style: MenteType.eyebrow.copyWith(
                   letterSpacing: .18 * 10,
-                  color: ivory(.45))),
+                  color: textFaint)),
           const SizedBox(height: 6),
           Text(title,
-              style: GoogleFonts.alice(
-                  fontSize: 18, height: 1.25, color: ivory(.9))),
+              style: MenteType.heading.copyWith(height: 1.25, color: textPrimary)),
           if (latestToday.pendingTranscription) ...[
             const SizedBox(height: 3),
             Text('a voice note is still transcribing in the background…',
-                style: TextStyle(
-                    fontSize: 10.5,
+                style: MenteType.caption.copyWith(
                     fontStyle: FontStyle.italic,
                     color: kRivaLight.withValues(alpha: .85))),
           ],
@@ -413,8 +404,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
           Text(latestToday.text,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.alice(
-                  fontSize: 14, height: 1.55, color: ivory(.75))),
+              style: MenteType.bodySerif.copyWith(height: 1.55, color: textSecondary)),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -439,7 +429,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
           curve: kExhale,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(s16),
           decoration: const BoxDecoration(),
           child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -449,19 +439,18 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                   style: GoogleFonts.alice(
                       fontStyle: FontStyle.italic,
                       fontSize: 13.5,
-                      color: ivory(.6))),
+                      color: textSecondary)),
             ),
             TextButton(
               onPressed: () => setState(() {
                 store.setPromptDismissed(false);
               }),
               child: Text('show it again',
-                  style: TextStyle(
-                      fontSize: 11,
+                  style: MenteType.caption.copyWith(
                       letterSpacing: .06 * 11,
                       decoration: TextDecoration.underline,
                       decorationColor: ivory(.35),
-                      color: ivory(.6))),
+                      color: textSecondary)),
             ),
           ],
         ),
@@ -476,7 +465,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: kExhale,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(s16),
         decoration: const BoxDecoration(),
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -485,8 +474,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('a page for today',
-                  style: GoogleFonts.alice(
-                      fontSize: 16, color: ivory(.92))),
+                  style: MenteType.heading.copyWith(color: textPrimary)),
               Semantics(
                 button: true,
                 label: 'Try another angle',
@@ -500,7 +488,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                     height: 40,
                     child: Center(
                         child: StrokeIcon(_refreshIcon,
-                            size: 17, color: ivory(.55))),
+                            size: 17, color: textFaint)),
                   ),
                 ),
               ),
@@ -511,7 +499,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
             TextSpan(
                 children: richTextSpans(
               prompt,
-              TextStyle(fontSize: 14.5, height: 1.6, color: ivory(.78)),
+              MenteType.bodySerif.copyWith( height: 1.6, color: textSecondary),
               TextStyle(
                   fontStyle: FontStyle.italic,
                   fontSize: 14.5,
@@ -528,13 +516,11 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                   widget.store.setPromptDismissed(true);
                 }),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 4, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: s4, vertical: s8),
                   child: Text('not today',
-                      style: TextStyle(
-                          fontSize: 11,
+                      style: MenteType.caption.copyWith(
                           letterSpacing: .08 * 11,
-                          color: ivory(.45))),
+                          color: textFaint)),
                 ),
               ),
               Semantics(
@@ -576,7 +562,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
           curve: kExhale,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(s16),
           decoration: _cardBox(),
           child: Row(
           children: [
@@ -585,19 +571,17 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('prompt library',
-                      style: TextStyle(
-                          fontSize: 13,
+                      style: MenteType.bodySerif.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: ivory(.85))),
+                          color: textSecondary)),
                   const SizedBox(height: 3),
                   Text('questions to help you find where to begin.',
-                      style: TextStyle(
-                          fontSize: 11.5, color: ivory(.5))),
+                      style: MenteType.caption.copyWith( color: textFaint)),
                 ],
               ),
             ),
             Text('\u2192',
-                style: TextStyle(fontSize: 16, color: ivory(.5))),
+                style: MenteType.heading.copyWith( color: textFaint)),
           ],
         ),
       ),
@@ -612,22 +596,20 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: kExhale,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(s16),
         decoration: _cardBox(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('unfinished page',
-                style: TextStyle(
-                    fontSize: 12.5,
+                style: MenteType.caption.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: ivory(.85))),
+                    color: textSecondary)),
             const SizedBox(height: 4),
             Text(draft.text,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.alice(
-                    fontSize: 14, height: 1.55, color: ivory(.75))),
+                style: MenteType.bodySerif.copyWith(height: 1.55, color: textSecondary)),
           ],
         ),
       ),
@@ -645,14 +627,14 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
             ? titleFromPage(e.text)
             : ((e.word ?? '').isNotEmpty ? e.word! : 'journal');
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: s8),
       child: InkWell(
         onTap: () => widget.onOpenEntry(e),
         borderRadius: BorderRadius.circular(14),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
           curve: kExhale,
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(s12),
           decoration: _cardBox(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,34 +644,30 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
                 children: [
                   Text(meta,
                       style:
-                          TextStyle(fontSize: 10.5, color: ivory(.42))),
+                          MenteType.caption.copyWith( color: textFaint)),
                   if (e.pendingTranscription)
                     Text('transcribing voice note…',
-                        style: TextStyle(
-                            fontSize: 9.5,
+                        style: MenteType.eyebrow.copyWith(
                             fontStyle: FontStyle.italic,
                             color: kRivaLight
                                 .withValues(alpha: .85)))
                   else if (kept > 0)
                     Text('$kept kept with it',
-                        style: const TextStyle(
-                            fontSize: 9.5,
+                        style: MenteType.eyebrow.copyWith(
                             letterSpacing: .6,
                             color: kRiva)),
                 ],
               ),
               const SizedBox(height: 4),
               Text(title,
-                  style: TextStyle(
-                      fontSize: 13.5,
+                  style: MenteType.bodySerif.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: ivory(.88))),
+                      color: textPrimary)),
               const SizedBox(height: 3),
               Text(e.text,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.alice(
-                      fontSize: 13.5, height: 1.55, color: ivory(.75))),
+                  style: MenteType.bodySerif.copyWith(height: 1.55, color: textSecondary)),
             ],
           ),
         ),
@@ -702,28 +680,27 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
       curve: kExhale,
-      margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(top: s16),
+      padding: const EdgeInsets.all(s16),
       decoration: _cardBox(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title,
-              style: TextStyle(
-                  fontSize: 12.5,
+              style: MenteType.caption.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: ivory(.85))),
+                  color: textSecondary)),
           const SizedBox(height: 6),
           Text(body,
               style: GoogleFonts.alice(
                   fontStyle: FontStyle.italic,
                   fontSize: 14,
                   height: 1.55,
-                  color: ivory(.78))),
+                  color: textSecondary)),
           if (note != null) ...[
             const SizedBox(height: 6),
             Text(note,
-                style: TextStyle(fontSize: 10.5, color: ivory(.45))),
+                style: MenteType.caption.copyWith( color: textFaint)),
           ],
         ],
       ),
@@ -745,7 +722,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
       borderRadius: BorderRadius.circular(14),
       child: Container(
         padding:
-            const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+            const EdgeInsets.symmetric(horizontal: s12, vertical: s8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
@@ -757,8 +734,7 @@ class _JournalHomeScreenState extends State<JournalHomeScreen>
               : Colors.transparent,
         ),
         child: Text(label,
-            style: TextStyle(
-                fontSize: 12,
+            style: MenteType.caption.copyWith(
                 letterSpacing: .04 * 12,
                 color: primary
                     ? kRivaLight

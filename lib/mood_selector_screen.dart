@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'mood_palette.dart';
+import 'theme.dart';
 import 'sea_icons.dart';
 import 'sea_painter.dart';
 
@@ -597,11 +598,11 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                 behavior: HitTestBehavior.opaque,
                 onTap: _reset,
                 child: Padding(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(s8),
                   child: StrokeIcon(
                     SeaIcons.replay,
                     size: 15,
-                    color: ivory(.32),
+                    color: textDisabled,
                     strokeWidth: 1.3,
                   ),
                 ),
@@ -657,7 +658,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                                 height: 38,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: ivory(.3)),
+                                  border: Border.all(color: textDisabled),
                                 ),
                               ),
                             ),
@@ -703,8 +704,8 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                     height: 10,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: ivory(.4)),
-                      color: ivory(.12),
+                      border: Border.all(color: textFaint),
+                      color: textDisabled,
                     ),
                   ),
                 ),
@@ -731,7 +732,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                           height: 130,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: ivory(.5)),
+                            border: Border.all(color: textFaint),
                           ),
                         ),
                       ),
@@ -782,10 +783,9 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                     // caption
                     Text(
                       _caption,
-                      style: TextStyle(
-                        fontSize: 13,
+                      style: MenteType.bodySerif.copyWith(
                         letterSpacing: 3.6,
-                        color: ivory(.7),
+                        color: textSecondary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -806,12 +806,12 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                             counterText: '',
                             hintText: 'your word',
                             hintStyle:
-                                _serif.copyWith(fontSize: 28, color: ivory(.45)),
+                                _serif.copyWith(fontSize: 28, color: textFaint),
                             enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: ivory(.45)),
+                              borderSide: BorderSide(color: textFaint),
                             ),
                             focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: ivory(.45)),
+                              borderSide: BorderSide(color: textFaint),
                             ),
                           ),
                           onSubmitted: (_) => _submitOwnWord(),
@@ -819,7 +819,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                       )
                     else if (_editing)
                       Padding(
-                        padding: const EdgeInsets.only(top: 10),
+                        padding: const EdgeInsets.only(top: s8),
                         child: Wrap(
                           alignment: WrapAlignment.center,
                           crossAxisAlignment: WrapCrossAlignment.center,
@@ -839,7 +839,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                           duration: Duration(milliseconds: _reduced ? 0 : 500),
                           child: Container(
                             key: ValueKey(_shownWord),
-                            padding: const EdgeInsets.only(bottom: 1),
+                            padding: const EdgeInsets.only(bottom: s4),
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(
@@ -876,7 +876,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                     // felt phrase — tap cycles nearby interpretations
                     if (!_editing && !_typing)
                       Padding(
-                        padding: const EdgeInsets.only(top: 3),
+                        padding: const EdgeInsets.only(top: s4),
                         child: GestureDetector(
                           onTap: _locked
                               ? null
@@ -886,11 +886,10 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                             child: Text(
                               '${felt[_feltIndex % felt.length]} \u00b7',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 11,
+                              style: MenteType.caption.copyWith(
                                 height: 1.45,
                                 letterSpacing: .33,
-                                color: ivory(.7),
+                                color: textSecondary,
                               ),
                             ),
                           ),
@@ -902,15 +901,14 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                       duration: const Duration(milliseconds: 900),
                       opacity: _kept ? 1 : 0,
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 2),
+                        padding: const EdgeInsets.only(top: s4),
                         child: Text(
                           widget.journaledSubline
                               ? 'Added to your archive, with your words.'
                               : 'Added to your archive.',
-                          style: TextStyle(
-                            fontSize: 12.5,
+                          style: MenteType.caption.copyWith(
                             letterSpacing: .25,
-                            color: ivory(.7),
+                            color: textSecondary,
                           ),
                         ),
                       ),
@@ -919,14 +917,14 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                     // say more — the door into the journal
                     if (_kept && widget.onSayMore != null)
                       Padding(
-                        padding: const EdgeInsets.only(top: 6),
+                        padding: const EdgeInsets.only(top: s4),
                         child: GestureDetector(
                           onTap: widget.onSayMore,
                           child: Text(
                             'say more',
                             style: _serifItalic.copyWith(
                               fontSize: 13.5,
-                              color: ivory(.75),
+                              color: textSecondary,
                               decoration: TextDecoration.underline,
                               decorationColor: ivory(.4),
                             ),
@@ -936,7 +934,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
 
                     // keep
                     Padding(
-                      padding: const EdgeInsets.only(top: 16),
+                      padding: const EdgeInsets.only(top: s16),
                       child: _keepButton(),
                     ),
                   ],
@@ -960,10 +958,9 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
     final label = IgnorePointer(
       child: Text(
         text.toUpperCase(),
-        style: TextStyle(
-          fontSize: 11,
+        style: MenteType.caption.copyWith(
           letterSpacing: 3.5,
-          color: ivory(.34),
+          color: textDisabled,
         ),
       ),
     );
@@ -984,11 +981,11 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
       child: Container(
         padding: const EdgeInsets.fromLTRB(3, 8, 3, 8),
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: ivory(.28))),
+          border: Border(bottom: BorderSide(color: textDisabled)),
         ),
         child: Text(
           w,
-          style: _serifItalic.copyWith(fontSize: 16.5, color: ivory(.7)),
+          style: _serifItalic.copyWith(fontSize: 16.5, color: textSecondary),
         ),
       ),
     );
@@ -1006,7 +1003,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
         padding: const EdgeInsets.fromLTRB(3, 8, 3, 8),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: ivory(.28), style: BorderStyle.solid),
+            bottom: BorderSide(color: textDisabled, style: BorderStyle.solid),
           ),
         ),
         child: Row(
@@ -1014,17 +1011,15 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
           children: [
             Text(
               '+ ',
-              style: TextStyle(
-                fontSize: 10.5,
-                color: ivory(.45),
+              style: MenteType.caption.copyWith(
+                color: textFaint,
               ),
             ),
             Text(
               'your own word',
-              style: TextStyle(
-                fontSize: 10.5,
+              style: MenteType.caption.copyWith(
                 letterSpacing: 1.47,
-                color: ivory(.45),
+                color: textFaint,
               ),
             ),
           ],
