@@ -30,6 +30,7 @@ import 'core/locator.dart';
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
 import 'sea_icons.dart';
+import 'theme.dart';
 import 'voice_transcription_service.dart';
 
 /// What the shell passes when opening the editor (JS globals journalMode,
