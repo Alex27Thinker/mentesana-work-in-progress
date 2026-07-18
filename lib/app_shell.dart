@@ -483,8 +483,8 @@ class _MentesanaShellState extends State<MentesanaShell>
           child: Stack(
             children: [
               const Positioned.fill(child: ColoredBox(color: kInkDeep)),
-              // The living sea, behind Home (settings and check-in bring their own
-              // full backgrounds).
+              // The living sea, behind Home at full intensity. The check-in
+              // screen carries its own inner sea field (the one the dot rides).
               if (screen == AppScreen.home)
                 Positioned.fill(
                   child: RepaintBoundary(
@@ -499,7 +499,7 @@ class _MentesanaShellState extends State<MentesanaShell>
                 ),
               // Deeper screens still sit in the same sea, just quieter and dimmer
               // with depth — continuity instead of a flat backdrop swap.
-              if (depth > 0 && screen != AppScreen.settings)
+              if (depth > 0)
                 Positioned.fill(
                   child: RepaintBoundary(
                     child: Opacity(
