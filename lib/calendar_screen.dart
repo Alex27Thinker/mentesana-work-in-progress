@@ -8,14 +8,14 @@ import 'app_store.dart';
 import 'archive_screen.dart' show formatTime12;
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
-import 'theme.dart';
 import 'sea_icons.dart';
+import 'theme.dart';
 
 /// Month-nav chevrons (verbatim path data from index.html).
-const _chevronLeft = SeaIconData(
-    ['M15 5c-3.3 1.8-5.6 4.1-6.9 7 1.3 2.9 3.6 5.2 6.9 7']);
-const _chevronRight = SeaIconData(
-    ['M9 5c3.3 1.8 5.6 4.1 6.9 7-1.3 2.9-3.6 5.2-6.9 7']);
+const _chevronLeft =
+    SeaIconData(['M15 5c-3.3 1.8-5.6 4.1-6.9 7 1.3 2.9 3.6 5.2 6.9 7']);
+const _chevronRight =
+    SeaIconData(['M9 5c3.3 1.8 5.6 4.1 6.9 7-1.3 2.9-3.6 5.2-6.9 7']);
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({
@@ -60,7 +60,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       } else if (_view == 'day') {
         _focus = _focus.add(Duration(days: dir));
       } else {
-        _focus = DateTime(_focus.year, _focus.month + dir, 1);
+        _focus = DateTime(_focus.year, _focus.month + dir);
       }
     });
   }
@@ -127,43 +127,44 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _navButton(_chevronLeft, () => _shift(-1),
-                            'Previous month'),
+                        _navButton(
+                            _chevronLeft, () => _shift(-1), 'Previous month'),
                         Column(
                           children: [
                             Text(headerName,
-                          style: MenteType.heading.copyWith(color: textPrimary)),
-                      const SizedBox(height: 2),
-                      Text('$total kept',
-                          style: MenteType.caption.copyWith(
-                              letterSpacing: .12 * 10.5,
-                              color: textFaint)),
-                    ],
-                  ),
-                  _navButton(_chevronRight, () => _shift(1), 'Next month'),
-                ],
+                                style: MenteType.heading
+                                    .copyWith(color: textPrimary)),
+                            const SizedBox(height: 2),
+                            Text('$total kept',
+                                style: MenteType.caption.copyWith(
+                                    letterSpacing: .12 * 10.5,
+                                    color: textFaint)),
+                          ],
+                        ),
+                        _navButton(
+                            _chevronRight, () => _shift(1), 'Next month'),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    _viewSwitch(),
+                    const SizedBox(height: 18),
+                    if (_view == 'month')
+                      ..._monthView(now)
+                    else if (_view == 'week')
+                      ..._weekView()
+                    else
+                      ..._dayView(),
+                  ],
+                ),
               ),
-              const SizedBox(height: 14),
-              _viewSwitch(),
-              const SizedBox(height: 18),
-              if (_view == 'month')
-                ..._monthView(now)
-              else if (_view == 'week')
-                ..._weekView()
-              else
-                ..._dayView(),
-            ],
-          ),
+            ),
+          ],
         ),
-      ),
       ],
-    ),
-    ],
-  );
-}
+    );
+  }
 
-  Widget _navButton(
-      SeaIconData icon, VoidCallback onTap, String semantic) {
+  Widget _navButton(SeaIconData icon, VoidCallback onTap, String semantic) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(22),
@@ -174,8 +175,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           shape: BoxShape.circle,
           border: Border.all(color: textDisabled),
         ),
-        child: Center(
-            child: StrokeIcon(icon, size: 18, color: textSecondary)),
+        child: Center(child: StrokeIcon(icon, size: 18, color: textSecondary)),
       ),
     );
   }
@@ -197,9 +197,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               child: Text(label,
                   style: MenteType.caption.copyWith(
                       letterSpacing: .08 * 11.5,
-                      color: active
-                          ? const Color(0xFF10141E)
-                          : ivory(.6))),
+                      color: active ? const Color(0xFF10141E) : ivory(.6))),
             ),
           ),
         ),
@@ -220,7 +218,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   List<Widget> _monthView(DateTime now) {
     final year = _focus.year, month = _focus.month;
-    final first = DateTime(year, month, 1);
+    final first = DateTime(year, month);
     final days = DateTime(year, month + 1, 0).day;
     final leading = first.weekday % 7; // JS getDay(): Sunday = 0
     final cells = <Widget>[];
@@ -251,9 +249,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               boxShadow: isToday
                   ? [
                       BoxShadow(
-                          color: kOro.withValues(alpha: .65),
-                          spreadRadius: 1,
-                          blurRadius: 0)
+                          color: kOro.withValues(alpha: .65), spreadRadius: 1)
                     ]
                   : null,
             ),
@@ -261,7 +257,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('$day',
-                    style: MenteType.caption.copyWith( color: textSecondary)),
+                    style: MenteType.caption.copyWith(color: textSecondary)),
                 if (es.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: s4),
@@ -274,8 +270,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             height: 4,
                             margin: const EdgeInsets.symmetric(horizontal: 1),
                             decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: _entryColor(e)),
+                                shape: BoxShape.circle, color: _entryColor(e)),
                           ),
                       ],
                     ),
@@ -293,9 +288,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             Expanded(
               child: Center(
                 child: Text(d,
-                    style: MenteType.caption.copyWith(
-                        letterSpacing: .18 * 10.5,
-                        color: textFaint)),
+                    style: MenteType.caption
+                        .copyWith(letterSpacing: .18 * 10.5, color: textFaint)),
               ),
             ),
         ],
@@ -317,8 +311,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   List<Widget> _weekView() {
     final start = _focus.subtract(Duration(days: _focus.weekday % 7));
     final dayData = List.generate(7, (i) {
-      final date =
-          DateTime(start.year, start.month, start.day + i);
+      final date = DateTime(start.year, start.month, start.day + i);
       return (date: date, es: _entriesFor(date));
     });
     final hasAny = dayData.any((d) => d.es.isNotEmpty);
@@ -348,9 +341,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
             d.es.fold<double>(0, (s, e) => s + (e.a ?? 0)) / d.es.length;
         final seaColor = kSea.bilerp(avgV, avgA);
         final skyColor = kSky.bilerp(avgV, avgA);
-        final colH = (minColH +
-                (d.es.length / maxEntries) * (maxColH - minColH))
-            .roundToDouble();
+        final colH =
+            (minColH + (d.es.length / maxEntries) * (maxColH - minColH))
+                .roundToDouble();
         water = Container(
           height: colH,
           decoration: BoxDecoration(
@@ -381,17 +374,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(dow,
-                    style: MenteType.eyebrow.copyWith(
-                        letterSpacing: .14 * 10,
-                        color: textFaint)),
+                    style: MenteType.eyebrow
+                        .copyWith(letterSpacing: .14 * 10, color: textFaint)),
                 const SizedBox(height: 6),
                 ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 42),
                     child: water),
                 const SizedBox(height: 6),
                 Text('${d.date.day}',
-                    style:
-                        MenteType.caption.copyWith( color: textSecondary)),
+                    style: MenteType.caption.copyWith(color: textSecondary)),
               ],
             ),
           ),
@@ -400,8 +391,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
 
     final detailRows = dayData.where((d) => d.es.isNotEmpty).map((d) {
-      final words =
-          d.es.map((e) => e.word ?? 'journal').join(' \u00b7 ');
+      final words = d.es.map((e) => e.word ?? 'journal').join(' \u00b7 ');
       return Padding(
         padding: const EdgeInsets.only(bottom: s8),
         child: InkWell(
@@ -421,23 +411,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
               children: [
                 SizedBox(
                   width: 56,
-                  child: Text(
-                      '${kDowsShort[d.date.weekday % 7]} ${d.date.day}',
-                      style: MenteType.caption.copyWith( color: textFaint)),
+                  child: Text('${kDowsShort[d.date.weekday % 7]} ${d.date.day}',
+                      style: MenteType.caption.copyWith(color: textFaint)),
                 ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                          '${d.es.length} page${d.es.length == 1 ? '' : 's'}',
+                      Text('${d.es.length} page${d.es.length == 1 ? '' : 's'}',
                           style: MenteType.caption.copyWith(
                               fontWeight: FontWeight.w600,
                               color: textSecondary)),
                       Text(words,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: MenteType.caption.copyWith( color: textFaint)),
+                          style: MenteType.caption.copyWith(color: textFaint)),
                     ],
                   ),
                 ),
@@ -501,10 +489,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       } else {
         stops = [
           for (final e in sorted)
-            (
-              (e.date.hour * 60 + e.date.minute) / 1440,
-              _entryColor(e)
-            ),
+            ((e.date.hour * 60 + e.date.minute) / 1440, _entryColor(e)),
         ];
       }
       widgets.add(SizedBox(
@@ -538,7 +523,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               for (final e in sorted)
                 Positioned(
                   left: ((e.date.hour * 60 + e.date.minute) / 1440) *
-                          (box.maxWidth - 13),
+                      (box.maxWidth - 13),
                   top: 12.5,
                   child: GestureDetector(
                     onTap: () => widget.onOpenEntry(e),
@@ -563,7 +548,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   children: [
                     for (final l in const ['12am', 'noon', '12am'])
                       Text(l,
-                          style: MenteType.eyebrow.copyWith( color: textFaint)),
+                          style: MenteType.eyebrow.copyWith(color: textFaint)),
                   ],
                 ),
               ),
@@ -574,14 +559,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
       widgets.add(const SizedBox(height: 16));
     }
     widgets.add(Text('pages from this day',
-        style: MenteType.eyebrow.copyWith( letterSpacing: .22 * 10, color: textFaint)));
+        style: MenteType.eyebrow
+            .copyWith(letterSpacing: .22 * 10, color: textFaint)));
     widgets.add(const SizedBox(height: 8));
     if (es.isEmpty) {
       widgets.add(Text('No pages from this day — not every day needs one.',
           style: GoogleFonts.alice(
-              fontStyle: FontStyle.italic,
-              fontSize: 13.5,
-              color: textFaint)));
+              fontStyle: FontStyle.italic, fontSize: 13.5, color: textFaint)));
     } else {
       for (final e in es) {
         widgets.add(Padding(
@@ -590,12 +574,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
             onTap: () => widget.onOpenEntry(e),
             borderRadius: BorderRadius.circular(12),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s12),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: s12, vertical: s12),
               // #6/#7: each page row wears its own kept weather.
               decoration: seaCard(
-                  tint: (e.v != null && e.a != null)
-                      ? seaTint(e.v!, e.a!)
-                      : null,
+                  tint:
+                      (e.v != null && e.a != null) ? seaTint(e.v!, e.a!) : null,
                   border: .12,
                   radius: BorderRadius.circular(12)),
               child: Row(
@@ -607,8 +591,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _entryColor(e)),
+                          shape: BoxShape.circle, color: _entryColor(e)),
                     ),
                   ),
                   Expanded(
@@ -616,18 +599,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(formatTime12(e.date),
-                            style: MenteType.caption.copyWith( color: textFaint)),
+                            style:
+                                MenteType.caption.copyWith(color: textFaint)),
                         Text(e.word ?? 'journal',
-                            style: MenteType.bodySerif.copyWith(color: textPrimary)),
+                            style: MenteType.bodySerif
+                                .copyWith(color: textPrimary)),
                         Text(
                             e.text.isNotEmpty
                                 ? e.text
                                 : 'A weather kept without words.',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: MenteType.caption.copyWith(
-                                height: 1.5,
-                                color: textFaint)),
+                            style: MenteType.caption
+                                .copyWith(height: 1.5, color: textFaint)),
                       ],
                     ),
                   ),
@@ -641,4 +625,3 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return widgets;
   }
 }
-

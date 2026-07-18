@@ -115,8 +115,8 @@ class _StaggeredFadeInState extends State<StaggeredFadeIn>
   @override
   void initState() {
     super.initState();
-    final total =
-        widget.itemDuration + widget.staggerDelay * (widget.children.length - 1);
+    final total = widget.itemDuration +
+        widget.staggerDelay * (widget.children.length - 1);
     _ctrl = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: total),
@@ -153,8 +153,7 @@ class _StaggeredFadeInState extends State<StaggeredFadeIn>
         return AnimatedBuilder(
           animation: _ctrl,
           builder: (context, child) {
-            final localT =
-                ((_ctrl.value - itemStart) / range).clamp(0.0, 1.0);
+            final localT = ((_ctrl.value - itemStart) / range).clamp(0.0, 1.0);
             final eased = kExhale.transform(localT);
             return Opacity(
               opacity: eased,
@@ -248,8 +247,7 @@ class SeaTransition extends PageRouteBuilder<void> {
   SeaTransition({required Widget page})
       : super(
           pageBuilder: (context, animation, secondaryAnimation) => page,
-          transitionsBuilder:
-              (context, animation, secondaryAnimation, child) {
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return SlideTransition(
               position: Tween<Offset>(
                 begin: const Offset(0, 0.06),

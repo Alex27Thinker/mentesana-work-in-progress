@@ -257,8 +257,7 @@ String titleFromPage(String? text) {
       .trim();
   if (clean.isEmpty) return '';
   final words = clean.split(' ');
-  final joined =
-      words.take(9).join(' ') + (words.length > 9 ? '…' : '');
+  final joined = words.take(9).join(' ') + (words.length > 9 ? '…' : '');
   return joined.length > 84 ? joined.substring(0, 84) : joined;
 }
 
@@ -732,8 +731,7 @@ class AppStore extends ChangeNotifier {
       }
     }
     if (entriesMigrated) {
-      _repo.entriesJson =
-          jsonEncode(entries.map((e) => e.toJson()).toList());
+      _repo.entriesJson = jsonEncode(entries.map((e) => e.toJson()).toList());
     }
     welcomed = _repo.welcomed;
     onboardingPreferences = _repo.onboardingPreferences;
@@ -872,15 +870,13 @@ class AppStore extends ChangeNotifier {
 
   /// 'not now' on an anchor invite — quiet for a few days, never punished.
   void quietAnchorInvites({int days = 3}) {
-    anchorQuietUntil =
-        DateTime.now().millisecondsSinceEpoch + days * 86400000;
+    anchorQuietUntil = DateTime.now().millisecondsSinceEpoch + days * 86400000;
     _repo.anchorQuietUntil = anchorQuietUntil;
     notifyListeners();
   }
 
   void _saveAnchors() {
-    _repo.anchorsJson =
-        jsonEncode(anchors.map((a) => a.toJson()).toList());
+    _repo.anchorsJson = jsonEncode(anchors.map((a) => a.toJson()).toList());
     notifyListeners();
   }
 
@@ -913,9 +909,8 @@ class AppStore extends ChangeNotifier {
     final add = addition.trim();
     if (add.isEmpty) return;
     e.text = e.text.trim().isEmpty ? add : '${e.text.trimRight()}\n\n$add';
-    e.wordCount = e.text.trim().isEmpty
-        ? 0
-        : e.text.trim().split(RegExp(r'\s+')).length;
+    e.wordCount =
+        e.text.trim().isEmpty ? 0 : e.text.trim().split(RegExp(r'\s+')).length;
     saveEntries();
   }
 
@@ -924,8 +919,7 @@ class AppStore extends ChangeNotifier {
 
   // ---------- entries ----------
   void saveEntries() {
-    _repo.entriesJson =
-        jsonEncode(entries.map((e) => e.toJson()).toList());
+    _repo.entriesJson = jsonEncode(entries.map((e) => e.toJson()).toList());
     notifyListeners();
   }
 
@@ -989,8 +983,7 @@ class AppStore extends ChangeNotifier {
     if (entries.isNotEmpty) {
       final matches = entries.where((e) {
         final d = e.date;
-        return d.day == now.day &&
-            (d.month != now.month || d.year != now.year);
+        return d.day == now.day && (d.month != now.month || d.year != now.year);
       }).toList();
       return matches.isNotEmpty ? matches.last : null;
     }
@@ -1180,7 +1173,9 @@ class AppStore extends ChangeNotifier {
 
   void startTideExperiment(TideExperiment experiment) {
     final active = activeTideExperiment;
-    if (active != null) active.completedAt = DateTime.now().millisecondsSinceEpoch;
+    if (active != null) {
+      active.completedAt = DateTime.now().millisecondsSinceEpoch;
+    }
     tideExperiments.add(experiment);
     _saveTideExperiments();
   }
@@ -1195,7 +1190,9 @@ class AppStore extends ChangeNotifier {
     final now = DateTime.now();
     experiment.observations.removeWhere((observation) {
       final day = DateTime.fromMillisecondsSinceEpoch(observation.ts);
-      return day.year == now.year && day.month == now.month && day.day == now.day;
+      return day.year == now.year &&
+          day.month == now.month &&
+          day.day == now.day;
     });
     experiment.observations.add(TideObservation(
       ts: now.millisecondsSinceEpoch,
@@ -1368,14 +1365,26 @@ class AppStore extends ChangeNotifier {
   static String _todaysDismissKey() {
     // JS `new Date().toDateString()`, e.g. "Thu Jul 16 2026".
     const dows = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
     final d = DateTime.now();
     final dd = d.day.toString().padLeft(2, '0');
     return '${dows[d.weekday % 7]} ${months[d.month - 1]} $dd ${d.year}';
   }
 
-  bool isPromptDismissedToday() =>
-      _repo.promptDismissed == _todaysDismissKey();
+  bool isPromptDismissedToday() => _repo.promptDismissed == _todaysDismissKey();
 
   void setPromptDismissed(bool dismissed) {
     if (dismissed) {
@@ -1558,13 +1567,15 @@ List<JournalEntry> demoDays() {
   }
 
   return [
-    mk(1, 8, .3, .35, 'restless', 'Slept badly. Coffee helped less than usual.'),
+    mk(1, 8, .3, .35, 'restless',
+        'Slept badly. Coffee helped less than usual.'),
     mk(1, 20, .55, -.35, 'content',
         'Long walk after the library. The draft is finally moving.'),
     mk(2, 22, -.5, .5, 'frustrated',
         'Deadline moved again. Wrote until it stopped buzzing.'),
     mk(3, 21, -.2, -.55, 'tired', ''),
-    mk(4, 7, .2, .55, 'alive', 'Morning swim. Cold enough to reset everything.'),
+    mk(4, 7, .2, .55, 'alive',
+        'Morning swim. Cold enough to reset everything.'),
     mk(4, 19, -.15, -.25, 'tender',
         'Long day, in the end. Called it early, made tea.'),
     mk(5, 21, 0, 0, 'steady', ''),

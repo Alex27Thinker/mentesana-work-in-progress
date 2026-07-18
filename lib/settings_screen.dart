@@ -65,18 +65,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool get _day => store.effectiveRoom == 'day';
 
   // Ink in the day room, ivory in the night room.
-  Color _tx(double o) =>
-      _day ? Color.fromRGBO(27, 42, 56, o) : ivory(o);
+  Color _tx(double o) => _day ? Color.fromRGBO(27, 42, 56, o) : ivory(o);
 
   // Text colours that snap to the four opacity tokens, respecting day/night.
   Color get _tPrimary => _day ? const Color(0xFF1B2A38) : textPrimary;
   Color get _tSecondary =>
       _day ? const Color.fromRGBO(27, 42, 56, .65) : textSecondary;
-  Color get _tFaint =>
-      _day ? const Color.fromRGBO(27, 42, 56, .42) : textFaint;
+  Color get _tFaint => _day ? const Color.fromRGBO(27, 42, 56, .42) : textFaint;
 
-  TextStyle get _serif =>
-      GoogleFonts.alice(color: _tPrimary, fontSize: 15);
+  TextStyle get _serif => GoogleFonts.alice(color: _tPrimary, fontSize: 15);
 
   @override
   void dispose() {
@@ -154,8 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(width: s8),
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, ctl.text),
-                    child: const Text('done',
-                        style: TextStyle(color: _riva)),
+                    child: const Text('done', style: TextStyle(color: _riva)),
                   ),
                 ],
               ),
@@ -230,9 +226,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             );
                           },
-                          child: _section == null
-                              ? _menu()
-                              : _detail(_section!),
+                          child:
+                              _section == null ? _menu() : _detail(_section!),
                         ),
                       ),
                     ),
@@ -267,7 +262,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const kBottomNavPad = 92.0;
 
   Widget _head() {
-    final title = _section == null ? store.t('settings') : _sectionTitle(_section!);
+    final title =
+        _section == null ? store.t('settings') : _sectionTitle(_section!);
     return Padding(
       padding: const EdgeInsets.fromLTRB(s24, s24, s24, s12),
       child: Center(
@@ -337,7 +333,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           child: Row(
             children: [
-              StrokeIcon(icon, size: 19, color: _riva, strokeWidth: 1.45),
+              StrokeIcon(icon, color: _riva),
               const SizedBox(width: s12),
               Expanded(
                 child: Column(
@@ -346,8 +342,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Text(title, style: _serif.copyWith(color: _tPrimary)),
                     const SizedBox(height: s4),
                     Text(sub,
-                        style: MenteType.eyebrow.copyWith(
-                            letterSpacing: .45, color: _tFaint)),
+                        style: MenteType.eyebrow
+                            .copyWith(letterSpacing: .45, color: _tFaint)),
                   ],
                 ),
               ),
@@ -400,20 +396,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     switch (section) {
       case 'notifications':
         return _sectionColumn('notifications', [
-          _row('daily reminder', sub: 'a quiet nudge, once a day',
+          _row('daily reminder',
+              sub: 'a quiet nudge, once a day',
               trailing: _toggle(store.reminderOn,
                   () => store.setReminder(!store.reminderOn))),
           _row('time',
               trailing: _timeField(_remTimeCtl, (v) {
                 store.setReminderTime(v);
               })),
-          _row('weekly reflection', sub: 'a gentle nudge each Sunday',
+          _row('weekly reflection',
+              sub: 'a gentle nudge each Sunday',
               trailing: _toggle(store.weeklyReminderOn, () {
-            store.setWeeklyReminder(!store.weeklyReminderOn);
-            _showToast(store.weeklyReminderOn
-                ? 'weekly reflection on.'
-                : 'weekly reflection off.');
-          })),
+                store.setWeeklyReminder(!store.weeklyReminderOn);
+                _showToast(store.weeklyReminderOn
+                    ? 'weekly reflection on.'
+                    : 'weekly reflection off.');
+              })),
           _row('day',
               trailing: _select(
                 const [
@@ -428,12 +426,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 store.weeklyReminderDay,
                 (i) => store.setWeeklyReminderDay(i),
               )),
-          _row('quiet hours', sub: 'no reminders during these times',
+          _row('quiet hours',
+              sub: 'no reminders during these times',
               trailing: _toggle(store.quietHoursOn, () {
-            store.setQuietHours(!store.quietHoursOn);
-            _showToast(
-                store.quietHoursOn ? 'quiet hours on.' : 'quiet hours off.');
-          })),
+                store.setQuietHours(!store.quietHoursOn);
+                _showToast(store.quietHoursOn
+                    ? 'quiet hours on.'
+                    : 'quiet hours off.');
+              })),
           if (store.quietHoursOn) ...[
             _row('from',
                 trailing: _timeField(_qStartCtl, store.setQuietHoursStart)),
@@ -446,7 +446,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       case 'appearance':
         return _sectionColumn('appearance', [
-          _row('reading rooms', sub: 'archive & letters, lit for day or night',
+          _row('reading rooms',
+              sub: 'archive & letters, lit for day or night',
               trailing: _segment(
                 const [('night', 'night'), ('day', 'day')],
                 store.room,
@@ -455,20 +456,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _row('auto day / night',
               sub: 'follow the time of day automatically',
               trailing: _toggle(store.autoRoomOn, () {
-            store.setAutoRoom(!store.autoRoomOn);
-            _showToast(store.autoRoomOn
-                ? 'rooms will follow the time of day.'
-                : 'manual room selection.');
-          })),
+                store.setAutoRoom(!store.autoRoomOn);
+                _showToast(store.autoRoomOn
+                    ? 'rooms will follow the time of day.'
+                    : 'manual room selection.');
+              })),
           _row('let the pages follow the weather',
               sub: 'a quiet tint from your latest check-in',
               trailing: _toggle(store.moodAtmosphereOn, () {
-            store.setMoodAtmosphere(!store.moodAtmosphereOn);
-            _showToast(store.moodAtmosphereOn
-                ? 'pages will follow the weather.'
-                : 'pages are resting in neutral light.');
-          })),
-          _row('text size', sub: 'reading comfort',
+                store.setMoodAtmosphere(!store.moodAtmosphereOn);
+                _showToast(store.moodAtmosphereOn
+                    ? 'pages will follow the weather.'
+                    : 'pages are resting in neutral light.');
+              })),
+          _row('text size',
+              sub: 'reading comfort',
               trailing: _segment(
                 const [
                   ('small', 'small'),
@@ -478,24 +480,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 store.textSize,
                 store.setTextSize,
               )),
-          _row('reduced motion', sub: 'calmer transitions, less animation',
+          _row('reduced motion',
+              sub: 'calmer transitions, less animation',
               trailing: _toggle(store.reducedMotionOn, () {
-            store.setReducedMotion(!store.reducedMotionOn);
-            _showToast(store.reducedMotionOn
-                ? 'motion calmed.'
-                : 'full motion restored.');
-          })),
+                store.setReducedMotion(!store.reducedMotionOn);
+                _showToast(store.reducedMotionOn
+                    ? 'motion calmed.'
+                    : 'full motion restored.');
+              })),
           _note(
               'the sea keeps its own light, always — this only changes the rooms you read in.'),
         ]);
 
       case 'account':
         return _sectionColumn('account', [
-          _row('your name', sub: 'used in greetings',
+          _row('your name',
+              sub: 'used in greetings',
               trailing: _textInput(_nameCtl, 'your name', 24, (v) {
-            store.setProfileName(v);
-          })),
-          _row('language', sub: 'interface language',
+                store.setProfileName(v);
+              })),
+          _row('language',
+              sub: 'interface language',
               trailing: _segment(
                 const [('en', 'English'), ('it', 'Italiano')],
                 store.language,
@@ -512,22 +517,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       case 'privacy':
         return _sectionColumn('privacy', [
-          _row('lock this journal', sub: 'ask for a pin when opening',
+          _row('lock this journal',
+              sub: 'ask for a pin when opening',
               trailing: _toggle(store.pinLockOn, () {
-            final turningOn = !store.pinLockOn;
-            store.setPinLock(turningOn);
-            if (turningOn) {
-              _showToast(store.pinCode.length == 4
-                  ? 'journal locked.'
-                  : 'set a 4-digit pin to finish.');
-            } else {
-              _showToast('journal unlocked.');
-            }
-          })),
-          _row('pin',
-              trailing: _pinInput()),
+                final turningOn = !store.pinLockOn;
+                store.setPinLock(turningOn);
+                if (turningOn) {
+                  _showToast(store.pinCode.length == 4
+                      ? 'journal locked.'
+                      : 'set a 4-digit pin to finish.');
+                } else {
+                  _showToast('journal unlocked.');
+                }
+              })),
+          _row('pin', trailing: _pinInput()),
           if (store.pinLockOn)
-            _row('auto-lock', sub: 'lock after a period of inactivity',
+            _row('auto-lock',
+                sub: 'lock after a period of inactivity',
                 trailing: _select(
                   const [
                     'never',
@@ -536,8 +542,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     '2 minutes',
                     '5 minutes'
                   ],
-                  const [0, 30, 60, 120, 300].indexWhere(
-                      (value) => value == store.autoLockSeconds),
+                  const [0, 30, 60, 120, 300]
+                      .indexWhere((value) => value == store.autoLockSeconds),
                   (i) => store.setAutoLock(const [0, 30, 60, 120, 300][i]),
                 )),
           _row('biometric unlock', sub: 'coming later', muted: true),
@@ -566,8 +572,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Stack(children: [
                   Container(color: _tx(.1)),
                   FractionallySizedBox(
-                      widthFactor: pct / 100,
-                      child: Container(color: _riva)),
+                      widthFactor: pct / 100, child: Container(color: _riva)),
                 ]),
               ),
             ),
@@ -642,7 +647,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       case 'journal':
         return _sectionColumn('journal preferences', [
-          _row('default prompt style', sub: 'how pages begin',
+          _row('default prompt style',
+              sub: 'how pages begin',
               trailing: _segment(
                 const [
                   ('question', 'question'),
@@ -655,28 +661,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _showToast('default prompt style saved.');
                 },
               )),
-          _row('tide line default', sub: 'let a line return to you later',
+          _row('tide line default',
+              sub: 'let a line return to you later',
               trailing: _toggle(store.tideLineDefault, () {
-            store.setTideLineDefault(!store.tideLineDefault);
-            _showToast(store.tideLineDefault
-                ? 'tide lines on by default.'
-                : 'tide lines off by default.');
-          })),
+                store.setTideLineDefault(!store.tideLineDefault);
+                _showToast(store.tideLineDefault
+                    ? 'tide lines on by default.'
+                    : 'tide lines off by default.');
+              })),
           _row('currents beneath your pages',
               sub: 'a gentle observation after some pages',
               trailing: _toggle(store.currentsOn, () {
-            store.setCurrentsOn(!store.currentsOn);
-            _showToast(store.currentsOn
-                ? 'the water will speak up — gently, and rarely.'
-                : 'pages will rest exactly as they are.');
-          })),
-          _row('the almanac', sub: 'your own weather patterns, on home',
+                store.setCurrentsOn(!store.currentsOn);
+                _showToast(store.currentsOn
+                    ? 'the water will speak up — gently, and rarely.'
+                    : 'pages will rest exactly as they are.');
+              })),
+          _row('the almanac',
+              sub: 'your own weather patterns, on home',
               trailing: _toggle(store.almanacOn, () {
-            store.setAlmanacOn(!store.almanacOn);
-            _showToast(store.almanacOn
-                ? 'the almanac is open.'
-                : 'the almanac is closed.');
-          })),
+                store.setAlmanacOn(!store.almanacOn);
+                _showToast(store.almanacOn
+                    ? 'the almanac is open.'
+                    : 'the almanac is closed.');
+              })),
           _row('attachment limit', sub: '${store.attachmentCap} per page'),
         ]);
 
@@ -685,11 +693,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _row('AI-enhanced insights & prompts',
               sub: 'opt in to richer, personalized reflections',
               trailing: _toggle(store.aiEnabled, () {
-            store.setAiEnabled(!store.aiEnabled);
-            _showToast(store.aiEnabled
-                ? 'deeper reflection on — the sea will listen more closely.'
-                : 'deeper reflection off — the local engine remains.');
-          })),
+                store.setAiEnabled(!store.aiEnabled);
+                _showToast(store.aiEnabled
+                    ? 'deeper reflection on — the sea will listen more closely.'
+                    : 'deeper reflection off — the local engine remains.');
+              })),
           if (store.aiEnabled)
             _privacyNote(
                 "When enabled, a summary of your recent journal entries and mood data is sent through Mentesana's own server to generate richer reflections — there's no key to enter and nothing else to set up. The local analysis engine always runs first and remains the default. You can turn this off at any time — your pages stay on this device regardless."),
@@ -701,8 +709,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.only(bottom: s8),
             child: Text(
                 'mentesana keeps the weather, not the score. one honest word at a time, a place to write past it, and a letter each sunday that never counts.',
-                style: MenteType.bodySerif.copyWith(
-                    fontStyle: FontStyle.italic, color: _tSecondary)),
+                style: MenteType.bodySerif
+                    .copyWith(fontStyle: FontStyle.italic, color: _tSecondary)),
           ),
           _subLink('crisis & support resources', 'crisis'),
           if (_aboutOpen == 'crisis') _aboutContent(_crisisContent()),
@@ -713,8 +721,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Padding(
             padding: const EdgeInsets.only(top: s16),
             child: Text('prototype v0.6.2 — saved-mood boot fix',
-                style: MenteType.eyebrow.copyWith(
-                    letterSpacing: 1.33, color: _tFaint)),
+                style: MenteType.eyebrow
+                    .copyWith(letterSpacing: 1.33, color: _tFaint)),
           ),
         ]);
       case 'debug':
@@ -734,8 +742,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Padding(
           padding: const EdgeInsets.only(top: s4, bottom: s8),
           child: Text(heading,
-              style: MenteType.eyebrow.copyWith(
-                  letterSpacing: .8, color: _tFaint)),
+              style: MenteType.eyebrow
+                  .copyWith(letterSpacing: .8, color: _tFaint)),
         ),
         ...rows,
       ],
@@ -762,8 +770,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: s4),
                       child: Text(sub,
-                          style: MenteType.eyebrow.copyWith(
-                              letterSpacing: .45, color: _tFaint)),
+                          style: MenteType.eyebrow
+                              .copyWith(letterSpacing: .45, color: _tFaint)),
                     ),
                 ],
               ),
@@ -787,8 +795,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: on ? const Color.fromRGBO(127, 168, 155, .32) : _tx(.06),
-          border: Border.all(
-              color: on ? _riva.withValues(alpha: .75) : _tx(.28)),
+          border:
+              Border.all(color: on ? _riva.withValues(alpha: .75) : _tx(.28)),
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 200),
@@ -870,8 +878,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           counterText: '',
           hintText: 'hh:mm',
           hintStyle: TextStyle(color: _tx(.35), fontSize: 12),
-          enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: _tx(.28))),
+          enabledBorder:
+              UnderlineInputBorder(borderSide: BorderSide(color: _tx(.28))),
           focusedBorder:
               const UnderlineInputBorder(borderSide: BorderSide(color: _riva)),
         ),
@@ -910,8 +918,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           counterText: '',
           hintText: placeholder,
           hintStyle: TextStyle(color: _tx(.35), fontSize: 12),
-          enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: _tx(.28))),
+          enabledBorder:
+              UnderlineInputBorder(borderSide: BorderSide(color: _tx(.28))),
           focusedBorder:
               const UnderlineInputBorder(borderSide: BorderSide(color: _riva)),
         ),
@@ -940,8 +948,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           counterText: '',
           hintText: '4 digits',
           hintStyle: TextStyle(color: _tx(.35), fontSize: 12),
-          enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: _tx(.28))),
+          enabledBorder:
+              UnderlineInputBorder(borderSide: BorderSide(color: _tx(.28))),
           focusedBorder:
               const UnderlineInputBorder(borderSide: BorderSide(color: _riva)),
         ),
@@ -973,15 +981,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _subLink(String label, String section) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => setState(
-          () => _aboutOpen = _aboutOpen == section ? null : section),
+      onTap: () =>
+          setState(() => _aboutOpen = _aboutOpen == section ? null : section),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: s12),
         decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: _tx(.08))),
         ),
         child: Row(children: [
-          Expanded(child: Text(label, style: _serif.copyWith(color: _tPrimary))),
+          Expanded(
+              child: Text(label, style: _serif.copyWith(color: _tPrimary))),
           Text(_aboutOpen == section ? '−' : '+',
               style: MenteType.caption.copyWith(color: _tFaint)),
         ]),
@@ -992,8 +1001,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _note(String text) => Padding(
         padding: const EdgeInsets.only(top: s12),
         child: Text(text,
-            style: MenteType.bodySerif.copyWith(
-                fontStyle: FontStyle.italic, color: _tSecondary)),
+            style: MenteType.bodySerif
+                .copyWith(fontStyle: FontStyle.italic, color: _tSecondary)),
       );
 
   Widget _privacyNote(String text) => Padding(
@@ -1047,7 +1056,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ];
 
   List<InlineSpan> _evidenceContent() => [
-        const TextSpan(text: 'Mentesana draws on three bodies of research:\n\n'),
+        const TextSpan(
+            text: 'Mentesana draws on three bodies of research:\n\n'),
         _strong('Expressive writing'),
         const TextSpan(
             text:
@@ -1067,7 +1077,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   List<InlineSpan> _licensesContent() => [
         const TextSpan(text: 'Mentesana is a prototype built with:\n\n'),
-        const TextSpan(text: '· No external JavaScript libraries (vanilla JS)\n'),
+        const TextSpan(
+            text: '· No external JavaScript libraries (vanilla JS)\n'),
         const TextSpan(text: '· No external CSS frameworks\n'),
         const TextSpan(text: '· No tracking or analytics SDKs\n'),
         const TextSpan(text: '· No cloud services or third-party APIs\n\n'),
@@ -1120,7 +1131,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             final count = CurrentsTestSeeder.clearTestData(store);
             showToast('cleared $count test entries.');
           })),
-      _note('These actions only affect synthetic test data. Never real entries.'),
+      _note(
+          'These actions only affect synthetic test data. Never real entries.'),
       const SizedBox(height: 16),
       _row('Test undertow: brooding',
           sub: 'Show UndertowSurface for the brooding fixture',
@@ -1147,7 +1159,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Find the fixture entry with matching title pattern.
     JournalEntry? entry;
     for (final e in store.entries) {
-      if (e.title.contains('[TEST]') && e.title.toLowerCase().contains(kind.toLowerCase().replaceFirst('selfcritique', 'self-critique'))) {
+      if (e.title.contains('[TEST]') &&
+          e.title.toLowerCase().contains(kind
+              .toLowerCase()
+              .replaceFirst('selfcritique', 'self-critique'))) {
         entry = e;
         break;
       }
@@ -1168,11 +1183,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // The Material ancestor satisfies InkWell requirements, and the
     // SizedBox.expand gives proper layout constraints to Positioned.fill
     // inside UndertowSurface.
-    final reduced = store.reducedMotionOn ||
-        (MediaQuery.of(context).disableAnimations);
+    final reduced =
+        store.reducedMotionOn || (MediaQuery.of(context).disableAnimations);
     showDialog<void>(
       context: context,
-      barrierDismissible: true,
       barrierColor: Colors.transparent,
       builder: (ctx) => Material(
         type: MaterialType.transparency,
@@ -1189,4 +1203,3 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
-

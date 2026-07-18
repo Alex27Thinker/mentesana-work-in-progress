@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_store.dart';
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
+import 'theme.dart';
 
 class ArchiveScreen extends StatefulWidget {
   const ArchiveScreen({
@@ -107,105 +108,97 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
               child: TextField(
                 controller: _search,
                 onChanged: (_) => setState(() {}),
-                style: TextStyle(fontSize: 13, color: ivory(.85)),
+                style: MenteType.bodySerif.copyWith(color: textSecondary),
                 cursorColor: kRiva,
                 decoration: InputDecoration(
                   isDense: true,
                   hintText: 'find a word, a page, a tag\u2026',
-                  hintStyle: TextStyle(fontSize: 13, color: ivory(.35)),
+                  hintStyle: MenteType.bodySerif.copyWith(color: textDisabled),
                   enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: ivory(.2))),
+                      borderSide: BorderSide(color: textDisabled)),
                   focusedBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(color: kRiva)),
                 ),
               ),
             ),
-        if (tags.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-            child: Wrap(
-              spacing: 7,
-              runSpacing: 7,
-              children: [for (final t in tags) _tagChip(t)],
-            ),
-          ),
-        Expanded(
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: 1),
-            duration: const Duration(milliseconds: 600),
-            curve: kExhale,
-            builder: (context, t, child) {
-              return Opacity(
-                opacity: t,
-                child: Transform.translate(
-                  offset: Offset(0, 16 * (1 - t)),
-                  child: child,
+            if (tags.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                child: Wrap(
+                  spacing: 7,
+                  runSpacing: 7,
+                  children: [for (final t in tags) _tagChip(t)],
                 ),
-              );
-            },
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
-              children: [
-                Text('${rows.length} page${rows.length == 1 ? '' : 's'}, so far',
-                    style: TextStyle(
-                        fontSize: 11,
-                        letterSpacing: .14 * 11,
-                        color: ivory(.42))),
-                if (real.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                        'a sample sea — your own days will gather here from your first keep',
-                        style: GoogleFonts.alice(
-                            fontStyle: FontStyle.italic,
-                            fontSize: 12.5,
-                            color: ivory(.5))),
-                  ),
-                if (noMatch)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 18),
-                    child: Text('nothing matches — try another word.',
-                        style: GoogleFonts.alice(
-                            fontStyle: FontStyle.italic,
-                            fontSize: 13.5,
-                            color: ivory(.55))),
-                  )
-                else
-                  for (final g in groups) _dayGroup(g.ts, g.items),
-              ],
+              ),
+            Expanded(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: const Duration(milliseconds: 600),
+                curve: kExhale,
+                builder: (context, t, child) {
+                  return Opacity(
+                    opacity: t,
+                    child: Transform.translate(
+                      offset: Offset(0, 16 * (1 - t)),
+                      child: child,
+                    ),
+                  );
+                },
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+                  children: [
+                    Text(
+                        '${rows.length} page${rows.length == 1 ? '' : 's'}, so far',
+                        style: MenteType.caption.copyWith(
+                            letterSpacing: .14 * 11, color: textFaint)),
+                    if (real.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: s8),
+                        child: Text(
+                            'a sample sea — your own days will gather here from your first keep',
+                            style: GoogleFonts.alice(
+                                fontStyle: FontStyle.italic,
+                                fontSize: 12.5,
+                                color: textFaint)),
+                      ),
+                    if (noMatch)
+                      Padding(
+                        padding: const EdgeInsets.only(top: s16),
+                        child: Text('nothing matches — try another word.',
+                            style: GoogleFonts.alice(
+                                fontStyle: FontStyle.italic,
+                                fontSize: 13.5,
+                                color: textFaint)),
+                      )
+                    else
+                      for (final g in groups) _dayGroup(g.ts, g.items),
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ],
-    ),
-    ],
-  );
-}
+    );
+  }
 
   Widget _tagChip(String tag) {
     final active = tag == _tagFilter;
     return InkWell(
-      onTap: () =>
-          setState(() => _tagFilter = _tagFilter == tag ? null : tag),
+      onTap: () => setState(() => _tagFilter = _tagFilter == tag ? null : tag),
       borderRadius: BorderRadius.circular(11),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: s8, vertical: s4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(11),
           border: Border.all(
-              color: active
-                  ? kRiva.withValues(alpha: .75)
-                  : ivory(.18)),
-          color: active
-              ? kRiva.withValues(alpha: .14)
-              : Colors.transparent,
+              color: active ? kRiva.withValues(alpha: .75) : ivory(.18)),
+          color: active ? kRiva.withValues(alpha: .14) : Colors.transparent,
         ),
         child: Text('#$tag',
-            style: TextStyle(
-                fontSize: 10,
+            style: MenteType.eyebrow.copyWith(
                 letterSpacing: .08 * 10,
-                color:
-                    active ? kRivaLight : ivory(.6))),
+                color: active ? kRivaLight : ivory(.6))),
       ),
     );
   }
@@ -213,7 +206,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
   Widget _dayGroup(int ts, List<JournalEntry> items) {
     final d = DateTime.fromMillisecondsSinceEpoch(ts);
     return Padding(
-      padding: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: s16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -222,13 +215,10 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
             child: Column(
               children: [
                 Text(kDowsShort[d.weekday % 7],
-                    style: TextStyle(
-                        fontSize: 10,
-                        letterSpacing: .16 * 10,
-                        color: ivory(.42))),
+                    style: MenteType.eyebrow
+                        .copyWith(letterSpacing: .16 * 10, color: textFaint)),
                 Text('${d.day}',
-                    style: GoogleFonts.alice(
-                        fontSize: 22, color: ivory(.82))),
+                    style: MenteType.title.copyWith(color: textSecondary)),
               ],
             ),
           ),
@@ -248,7 +238,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
     final sea = kSea.bilerp(e.v ?? 0, e.a ?? 0);
     final tint = (e.v != null && e.a != null) ? seaTint(e.v!, e.a!) : null;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: s8),
       child: InkWell(
         onTap: () => widget.onOpenEntry(e),
         borderRadius: BorderRadius.circular(12),
@@ -279,27 +269,27 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 2),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(formatTime12(e.date),
-                            style: TextStyle(fontSize: 10.5, color: ivory(.4))),
+                            style:
+                                MenteType.caption.copyWith(color: textFaint)),
                         if ((e.word ?? '').isNotEmpty)
                           Text(e.word!,
-                              style: GoogleFonts.alice(
-                                  fontSize: 17, color: ivory(.92))),
+                              style: MenteType.heading
+                                  .copyWith(color: textPrimary)),
                         if (e.text.isNotEmpty)
                           Padding(
-                            padding: const EdgeInsets.only(top: 3),
+                            padding: const EdgeInsets.only(top: s4),
                             child: Text.rich(
-                              TextSpan(children: journalTextSpans(
+                              TextSpan(
+                                  children: journalTextSpans(
                                 e.text,
-                                TextStyle(
-                                    fontSize: 12.5,
-                                    height: 1.5,
-                                    color: ivory(.62)),
+                                MenteType.caption.copyWith(
+                                    height: 1.5, color: textSecondary),
                               )),
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
@@ -307,22 +297,18 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
                           ),
                         if (e.tag.isNotEmpty)
                           Padding(
-                            padding: const EdgeInsets.only(top: 4),
+                            padding: const EdgeInsets.only(top: s4),
                             child: Text(e.tag,
-                                style: const TextStyle(
-                                    fontSize: 9,
-                                    letterSpacing: .9,
-                                    color: kRiva)),
+                                style: MenteType.eyebrow
+                                    .copyWith(letterSpacing: .9, color: kRiva)),
                           ),
                         if (e.attachments.isNotEmpty)
                           Padding(
-                            padding: const EdgeInsets.only(top: 4),
+                            padding: const EdgeInsets.only(top: s4),
                             child: Text(
                                 '\u25cc ${e.attachments.length} attachment${e.attachments.length == 1 ? '' : 's'}',
-                                style: const TextStyle(
-                                    fontSize: 9,
-                                    letterSpacing: .9,
-                                    color: kRiva)),
+                                style: MenteType.eyebrow
+                                    .copyWith(letterSpacing: .9, color: kRiva)),
                           ),
                       ],
                     ),
@@ -343,4 +329,3 @@ String formatTime12(DateTime d) {
   final mm = '${d.minute}'.padLeft(2, '0');
   return '$h:$mm ${d.hour < 12 ? 'AM' : 'PM'}';
 }
-

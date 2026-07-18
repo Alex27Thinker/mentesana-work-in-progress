@@ -14,9 +14,9 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'mood_palette.dart';
-import 'theme.dart';
 import 'sea_icons.dart';
 import 'sea_painter.dart';
+import 'theme.dart';
 
 /// One kept check-in record (the archive shape from the prototype).
 class MoodEntry {
@@ -128,8 +128,8 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
   late final AnimationController _breathCtrl;
 
   final math.Random _rand = math.Random();
-  late final List<double> _foamX = List.generate(
-      60, (i) => (i + .5 + (_rand.nextDouble() - .5) * .8) / 60);
+  late final List<double> _foamX =
+      List.generate(60, (i) => (i + .5 + (_rand.nextDouble() - .5) * .8) / 60);
   late final List<int> _foamLayer = List.generate(60, (_) => _rand.nextInt(5));
 
   @override
@@ -146,8 +146,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         moveToMood(widget.revisitTarget!.$1, widget.revisitTarget!.$2,
-            duration: 1400,
-            caption: 'this is where you were — visiting');
+            duration: 1400, caption: 'this is where you were — visiting');
       });
     }
     _inputFocus.addListener(() {
@@ -224,7 +223,9 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
   void _updateWord({bool silent = false}) {
     final (w, d) = _nearestWord();
     if (_currentWord != null && w != _currentWord) {
-      if (d > _distTo(_currentWord!) - .08) return; // keep current unless clearly closer
+      if (d > _distTo(_currentWord!) - .08) {
+        return; // keep current unless clearly closer
+      }
     }
     if (_currentWord != w) {
       _currentWord = w;
@@ -297,8 +298,11 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
   }
 
   // ---------- layout ----------
-  Rect _fieldRect(Size size) => Rect.fromLTRB(_fieldInset,
-      size.height * _fieldTop, size.width - _fieldInset, size.height * _fieldBottom);
+  Rect _fieldRect(Size size) => Rect.fromLTRB(
+      _fieldInset,
+      size.height * _fieldTop,
+      size.width - _fieldInset,
+      size.height * _fieldBottom);
 
   Offset _dotCenter(Size size) {
     final f = _fieldRect(size);
@@ -415,18 +419,15 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
     // active surface, so the live field already matches.)
     final keptWord = _edited ? _editedWord! : (_currentWord ?? 'steady');
 
-    final stackBox =
-        _stackKey.currentContext!.findRenderObject()! as RenderBox;
+    final stackBox = _stackKey.currentContext!.findRenderObject()! as RenderBox;
     final size = stackBox.size;
 
     // bloom veil rises from the button, tinted with the current horizon light
     final skyNow = kSky.bilerp(v, a);
-    final keepBox =
-        _keepKey.currentContext!.findRenderObject()! as RenderBox;
-    final keepPos =
-        keepBox.localToGlobal(Offset.zero, ancestor: stackBox);
+    final keepBox = _keepKey.currentContext!.findRenderObject()! as RenderBox;
+    final keepPos = keepBox.localToGlobal(Offset.zero, ancestor: stackBox);
     _bloomTop = keepPos.dy + keepBox.size.height / 2 - 39;
-    _bloomTint = skyNow[1].withOpacity(.55);
+    _bloomTint = skyNow[1].withValues(alpha: .55);
     _bloomScale =
         (2 * hypot(size.width / 2, size.height) / 78).ceilToDouble() + 1;
 
@@ -560,7 +561,6 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
         behavior: HitTestBehavior.opaque,
         child: Stack(
           key: _stackKey,
-          clipBehavior: Clip.hardEdge,
           children: [
             // the inner water field
             Positioned.fill(
@@ -584,7 +584,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                   textAlign: TextAlign.center,
                   style: _serifItalic.copyWith(
                     fontSize: 17,
-                    color: kIvory.withOpacity(.92),
+                    color: kIvory.withValues(alpha: .92),
                   ),
                 ),
               ),
@@ -610,7 +610,11 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
             ),
 
             // axis phrases
-            _axis(top: size.height * .15, centerX: true, size: size, text: 'wide awake'),
+            _axis(
+                top: size.height * .15,
+                centerX: true,
+                size: size,
+                text: 'wide awake'),
             _axis(
               top: math.min(size.height * .58, size.height - 296),
               centerX: true,
@@ -641,7 +645,11 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                           ivory(.16),
                           ivory(.05),
                           ivory(0),
-                        ], stops: const [0, .55, .7]),
+                        ], stops: const [
+                          0,
+                          .55,
+                          .7
+                        ]),
                       ),
                       child: Stack(
                         alignment: Alignment.center,
@@ -677,7 +685,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                                 boxShadow: [
                                   BoxShadow(
                                     color: const Color(0xFF060B12)
-                                        .withOpacity(.4),
+                                        .withValues(alpha: .4),
                                     offset: const Offset(0, 1),
                                     blurRadius: 3,
                                   ),
@@ -761,8 +769,11 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                           shape: BoxShape.circle,
                           gradient: RadialGradient(colors: [
                             _bloomTint,
-                            const Color(0xFF10141E).withOpacity(.66),
-                          ], stops: const [0, .68]),
+                            const Color(0xFF10141E).withValues(alpha: .66),
+                          ], stops: const [
+                            0,
+                            .68
+                          ]),
                         ),
                       ),
                     ),
@@ -843,9 +854,8 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(
-                                  color: _locked
-                                      ? Colors.transparent
-                                      : ivory(.28),
+                                  color:
+                                      _locked ? Colors.transparent : ivory(.28),
                                 ),
                               ),
                             ),
@@ -861,7 +871,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
                                   shadows: [
                                     Shadow(
                                       color: const Color(0xFF060B12)
-                                          .withOpacity(.35),
+                                          .withValues(alpha: .35),
                                       offset: const Offset(0, 1),
                                       blurRadius: 10,
                                     ),
@@ -1003,7 +1013,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
         padding: const EdgeInsets.fromLTRB(3, 8, 3, 8),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: textDisabled, style: BorderStyle.solid),
+            bottom: BorderSide(color: textDisabled),
           ),
         ),
         child: Row(
@@ -1050,17 +1060,17 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _kept
-                    ? kOro.withOpacity(.16)
-                    : const Color(0xFF2D3D43).withOpacity(.55),
+                    ? kOro.withValues(alpha: .16)
+                    : const Color(0xFF2D3D43).withValues(alpha: .55),
                 border: Border.all(
                   color: _kept
-                      ? kOro.withOpacity(.75)
-                      : const Color(0xFFD2DEE2).withOpacity(.4),
+                      ? kOro.withValues(alpha: .75)
+                      : const Color(0xFFD2DEE2).withValues(alpha: .4),
                 ),
                 boxShadow: [
                   if (glow > 0)
                     BoxShadow(
-                      color: kOro.withOpacity(glow),
+                      color: kOro.withValues(alpha: glow),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -1083,4 +1093,3 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
     );
   }
 }
-

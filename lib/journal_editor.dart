@@ -169,9 +169,7 @@ class _JournalEditorState extends State<JournalEditor> {
       : stripTags(journalPrompt(_v, _a, widget.config.word));
 
   String get _dateLine {
-    final when = _activeEntry != null
-        ? _activeEntry!.date
-        : DateTime.now();
+    final when = _activeEntry != null ? _activeEntry!.date : DateTime.now();
     return '${jDateLine(when)} · ${hhmm(when)}';
   }
 
@@ -188,8 +186,7 @@ class _JournalEditorState extends State<JournalEditor> {
       _heldSaving = true;
     });
     _heldTimer?.cancel();
-    _heldTimer =
-        Timer(Duration(milliseconds: widget.reduced ? 450 : 900), () {
+    _heldTimer = Timer(Duration(milliseconds: widget.reduced ? 450 : 900), () {
       if (!mounted) return;
       setState(() {
         _heldText = 'held quietly';
@@ -262,14 +259,8 @@ class _JournalEditorState extends State<JournalEditor> {
     }
     setState(() => _kept = true);
     final store = widget.store;
-    final current = _activeEntry ??
-        JournalEntry(
-            ts: DateTime.now().millisecondsSinceEpoch,
-            v: null,
-            a: null,
-            word: null,
-            edited: false,
-            text: '');
+    final current =
+        _activeEntry ?? JournalEntry(ts: DateTime.now().millisecondsSinceEpoch);
     if (!store.entries.contains(current)) store.entries.add(current);
     final nextText = _text.text.trim();
     final nextTitle = _title.text.trim().isNotEmpty
@@ -310,8 +301,8 @@ class _JournalEditorState extends State<JournalEditor> {
     final tideLine = _bottle.text.trim();
     if (tideLine.isNotEmpty) {
       current.tideLine = tideLine;
-      current.tideAt = DateTime.now().millisecondsSinceEpoch +
-          14 * 24 * 60 * 60 * 1000;
+      current.tideAt =
+          DateTime.now().millisecondsSinceEpoch + 14 * 24 * 60 * 60 * 1000;
     }
     if (_transcribing && _pendingAudioPath != null) {
       // The recording finished but transcribing had not — let it keep
@@ -352,7 +343,9 @@ class _JournalEditorState extends State<JournalEditor> {
 
   Future<void> _onAttachTap() async {
     if (_pending.length >= widget.store.attachmentCap) {
-      _recStatusSet('attachment limit reached (${widget.store.attachmentCap} per page).', true);
+      _recStatusSet(
+          'attachment limit reached (${widget.store.attachmentCap} per page).',
+          true);
       return;
     }
 
@@ -367,7 +360,8 @@ class _JournalEditorState extends State<JournalEditor> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text('add an image', style: MenteType.heading.copyWith( color: textPrimary)),
+            Text('add an image',
+                style: MenteType.heading.copyWith(color: textPrimary)),
             const SizedBox(height: 18),
             _sourceOption(
               ctx,
@@ -393,19 +387,24 @@ class _JournalEditorState extends State<JournalEditor> {
     if (result == null || !mounted) return;
 
     setState(() {
-      _pending = [..._pending, Attachment(
-        name: result.name,
-        type: result.mime,
-        size: result.byteSize,
-        data: result.dataUrl,
-      )];
+      _pending = [
+        ..._pending,
+        Attachment(
+          name: result.name,
+          type: result.mime,
+          size: result.byteSize,
+          data: result.dataUrl,
+        )
+      ];
     });
     _recStatusSet('added ${result.name}.', true);
     _saveDraft();
   }
 
   Widget _sourceOption(BuildContext ctx,
-      {required SeaIconData icon, required String label, required ImageSource source}) {
+      {required SeaIconData icon,
+      required String label,
+      required ImageSource source}) {
     return InkWell(
       onTap: () => Navigator.pop(ctx, source),
       borderRadius: BorderRadius.circular(12),
@@ -419,7 +418,8 @@ class _JournalEditorState extends State<JournalEditor> {
         child: Row(children: [
           StrokeIcon(icon, size: 17, color: textSecondary),
           const SizedBox(width: 12),
-          Text(label, style: MenteType.bodySerif.copyWith( color: textSecondary)),
+          Text(label,
+              style: MenteType.bodySerif.copyWith(color: textSecondary)),
         ]),
       ),
     );
@@ -447,8 +447,9 @@ class _JournalEditorState extends State<JournalEditor> {
         _transcribing = true;
         _pendingAudioPath = path;
       });
-      _recStatusSet('transcribing in the background — carry on writing.', false);
-      _voice.transcribe(path, language: 'auto').then((transcript) async {
+      _recStatusSet(
+          'transcribing in the background — carry on writing.', false);
+      _voice.transcribe(path).then((transcript) async {
         _pendingAudioPath = null;
         if (mounted) {
           setState(() => _transcribing = false);
@@ -573,7 +574,8 @@ class _JournalEditorState extends State<JournalEditor> {
                     Text(
                       'the words are already on the page. you can also keep '
                       'the original audio as an attachment, or let it go.',
-                      style: MenteType.bodySerif.copyWith( height: 1.5, color: textSecondary),
+                      style: MenteType.bodySerif
+                          .copyWith(height: 1.5, color: textSecondary),
                     ),
                     const SizedBox(height: 18),
                     Row(
@@ -658,9 +660,8 @@ class _JournalEditorState extends State<JournalEditor> {
     final isDay = h >= 6 && h < 18;
     // The editor owns a complete page surface. Keeping this opaque prevents
     // the underlying home/check-in sea from showing through when it opens.
-    final lightingColor = isDay
-        ? const Color(0xFF26323B)
-        : const Color(0xFF111820);
+    final lightingColor =
+        isDay ? const Color(0xFF26323B) : const Color(0xFF111820);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 600),
@@ -686,8 +687,7 @@ class _JournalEditorState extends State<JournalEditor> {
                         children: [
                           Text(_dateLine,
                               style: MenteType.caption.copyWith(
-                                  letterSpacing: .14 * 11.5,
-                                  color: textFaint)),
+                                  letterSpacing: .14 * 11.5, color: textFaint)),
                           AnimatedOpacity(
                             duration: const Duration(milliseconds: 400),
                             opacity: _heldSaving ? .95 : .55,
@@ -718,8 +718,7 @@ class _JournalEditorState extends State<JournalEditor> {
                         children: [
                           Text('title',
                               style: MenteType.eyebrow.copyWith(
-                                  letterSpacing: .22 * 10,
-                                  color: textFaint)),
+                                  letterSpacing: .22 * 10, color: textFaint)),
                           ConstrainedBox(
                             constraints: const BoxConstraints(maxHeight: 98),
                             child: TextField(
@@ -729,7 +728,8 @@ class _JournalEditorState extends State<JournalEditor> {
                               maxLines: null,
                               textInputAction: TextInputAction.next,
                               onSubmitted: (_) => _textFocus.requestFocus(),
-                              style: MenteType.title.copyWith(// clamp(22px, 5.8vw, 24px)
+                              style: MenteType.title.copyWith(
+                                  // clamp(22px, 5.8vw, 24px)
                                   height: 1.3,
                                   color: textPrimary),
                               cursorColor: kRiva,
@@ -740,9 +740,8 @@ class _JournalEditorState extends State<JournalEditor> {
                                     const EdgeInsets.symmetric(vertical: 6),
                                 border: InputBorder.none,
                                 hintText: 'name this page — or don’t',
-                                hintStyle: MenteType.heading.copyWith(
-                                    height: 1.3,
-                                    color: textDisabled),
+                                hintStyle: MenteType.heading
+                                    .copyWith(height: 1.3, color: textDisabled),
                               ),
                             ),
                           ),
@@ -771,7 +770,8 @@ class _JournalEditorState extends State<JournalEditor> {
                       maxLines: null,
                       minLines: 8,
                       keyboardType: TextInputType.multiline,
-                      style: MenteType.heading.copyWith(// clamp(18px, 4.8vw, 20px)
+                      style: MenteType.heading.copyWith(
+                          // clamp(18px, 4.8vw, 20px)
                           height: 1.62,
                           color: textPrimary),
                       cursorColor: kRiva,
@@ -781,7 +781,8 @@ class _JournalEditorState extends State<JournalEditor> {
                         hintText: _stepChosen
                             ? stepPrompt(_journalStep, _v, _a)
                             : 'start anywhere.',
-                        hintStyle: MenteType.heading.copyWith(height: 1.62, color: textDisabled),
+                        hintStyle: MenteType.heading
+                            .copyWith(height: 1.62, color: textDisabled),
                       ),
                     ),
                     // pivot: 'you have named a lot — add what you need next'
@@ -818,8 +819,7 @@ class _JournalEditorState extends State<JournalEditor> {
                               ),
                               child: Text(kSafetyText,
                                   style: MenteType.caption.copyWith(
-                                      height: 1.55,
-                                      color: textSecondary)),
+                                      height: 1.55, color: textSecondary)),
                             )
                           : const SizedBox.shrink(),
                     ),
@@ -844,7 +844,8 @@ class _JournalEditorState extends State<JournalEditor> {
       onPressed: onTap,
       icon: StrokeIcon(SeaIcons.back, size: 20, color: textSecondary),
       label: Text(label,
-          style: MenteType.caption.copyWith( letterSpacing: .18 * 11, color: textSecondary)),
+          style: MenteType.caption
+              .copyWith(letterSpacing: .18 * 11, color: textSecondary)),
       style: TextButton.styleFrom(
         minimumSize: const Size(44, 44),
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -873,7 +874,7 @@ class _JournalEditorState extends State<JournalEditor> {
                       controller: _bottle,
                       focusNode: _bottleFocus,
                       maxLength: 140,
-                      style: MenteType.bodySerif.copyWith( color: textPrimary),
+                      style: MenteType.bodySerif.copyWith(color: textPrimary),
                       cursorColor: kRiva,
                       decoration: _panelInput(
                           'something you would like to meet again, later'),
@@ -887,10 +888,10 @@ class _JournalEditorState extends State<JournalEditor> {
                           focusNode: _tagFocus,
                           maxLength: 18,
                           style:
-                              MenteType.bodySerif.copyWith( color: textPrimary),
+                              MenteType.bodySerif.copyWith(color: textPrimary),
                           cursorColor: kRiva,
-                          decoration: _panelInput(
-                              'like work, home, or the sea'),
+                          decoration:
+                              _panelInput('like work, home, or the sea'),
                         ),
                       )
                     : const SizedBox.shrink(),
@@ -910,8 +911,8 @@ class _JournalEditorState extends State<JournalEditor> {
                   () => _togglePanel('tide', _bottleFocus)),
               _shelfTool(SeaIcons.tag, holdingTag,
                   () => _togglePanel('tag', _tagFocus)),
-              _shelfTool(SeaIcons.attach, _pending.length >= widget.store.attachmentCap,
-                  _onAttachTap),
+              _shelfTool(SeaIcons.attach,
+                  _pending.length >= widget.store.attachmentCap, _onAttachTap),
               _shelfTool(SeaIcons.record, _recording, _onRecordTap),
               const SizedBox(width: 8),
               Expanded(
@@ -928,9 +929,8 @@ class _JournalEditorState extends State<JournalEditor> {
           const SizedBox(height: 7),
           Text('this page never leaves your device.',
               textAlign: TextAlign.center,
-              style: MenteType.caption.copyWith(
-                  letterSpacing: .08 * 10.5,
-                  color: textDisabled)),
+              style: MenteType.caption
+                  .copyWith(letterSpacing: .08 * 10.5, color: textDisabled)),
         ],
       ),
     );
@@ -939,14 +939,14 @@ class _JournalEditorState extends State<JournalEditor> {
   InputDecoration _panelInput(String hint) => InputDecoration(
         counterText: '',
         isDense: true,
-        border: UnderlineInputBorder(
-            borderSide: BorderSide(color: textDisabled)),
-        enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: textDisabled)),
-        focusedBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: kRiva)),
+        border:
+            UnderlineInputBorder(borderSide: BorderSide(color: textDisabled)),
+        enabledBorder:
+            UnderlineInputBorder(borderSide: BorderSide(color: textDisabled)),
+        focusedBorder:
+            const UnderlineInputBorder(borderSide: BorderSide(color: kRiva)),
         hintText: hint,
-        hintStyle: MenteType.bodySerif.copyWith( color: textDisabled),
+        hintStyle: MenteType.bodySerif.copyWith(color: textDisabled),
       );
 
   Widget _shelfPanel({required String label, required Widget child}) {
@@ -958,7 +958,8 @@ class _JournalEditorState extends State<JournalEditor> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(label,
-              style: MenteType.eyebrow.copyWith( letterSpacing: .2 * 10, color: textFaint)),
+              style: MenteType.eyebrow
+                  .copyWith(letterSpacing: .2 * 10, color: textFaint)),
           child,
         ],
       ),
@@ -977,17 +978,12 @@ class _JournalEditorState extends State<JournalEditor> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-                color: holding
-                    ? kRiva.withValues(alpha: .7)
-                    : ivory(.18)),
-            color: holding
-                ? kRiva.withValues(alpha: .12)
-                : Colors.transparent,
+                color: holding ? kRiva.withValues(alpha: .7) : ivory(.18)),
+            color: holding ? kRiva.withValues(alpha: .12) : Colors.transparent,
           ),
           child: Center(
             child: StrokeIcon(icon,
-                size: 21,
-                color: holding ? kRivaLight : ivory(.62)),
+                size: 21, color: holding ? kRivaLight : ivory(.62)),
           ),
         ),
       ),
@@ -1007,7 +1003,7 @@ class _JournalEditorState extends State<JournalEditor> {
               ? kOro.withValues(alpha: .16)
               : const Color(0xFF2D3D43).withValues(alpha: .55),
           border: Border.all(
-              color: _kept ? kOro.withValues(alpha: .72) : ivory(.4), width: 1),
+              color: _kept ? kOro.withValues(alpha: .72) : ivory(.4)),
         ),
         child: Center(
           child: Text(_keepLabel,
@@ -1022,9 +1018,7 @@ class _JournalEditorState extends State<JournalEditor> {
   }
 
   Widget _attachmentChip(Attachment a) {
-    final label = a.isAudio
-        ? a.name.split(' · ').first
-        : a.name;
+    final label = a.isAudio ? a.name.split(' · ').first : a.name;
     Widget leading;
     if (a.isImage && a.data.isNotEmpty) {
       leading = _dataUrlImage(a.data, 24);
@@ -1049,7 +1043,7 @@ class _JournalEditorState extends State<JournalEditor> {
             constraints: const BoxConstraints(maxWidth: 150),
             child: Text(label,
                 overflow: TextOverflow.ellipsis,
-                style: MenteType.caption.copyWith( color: textSecondary)),
+                style: MenteType.caption.copyWith(color: textSecondary)),
           ),
         ],
       ),
@@ -1099,4 +1093,3 @@ class _FormatButton extends StatelessWidget {
     );
   }
 }
-

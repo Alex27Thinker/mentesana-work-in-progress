@@ -104,7 +104,6 @@ class AttachmentService {
         minWidth: 800,
         minHeight: 800,
         quality: q,
-        format: CompressFormat.jpeg,
       );
       q -= 10;
     }

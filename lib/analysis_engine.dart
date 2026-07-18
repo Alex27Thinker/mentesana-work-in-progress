@@ -14,8 +14,18 @@ import 'text_lexicons.dart';
 
 /// Month labels local to this file (kept here so the engine has no UI deps).
 const _kMonthsShortAE = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec'
 ];
 
 /// Canonical on-device crisis phrase detector, shared by every surface
@@ -123,7 +133,8 @@ class MoodAnalysis {
 }
 
 class Sentiment {
-  const Sentiment(this.score, this.positive, this.negative, this.total, this.label);
+  const Sentiment(
+      this.score, this.positive, this.negative, this.total, this.label);
   final double score;
   final int positive;
   final int negative;
@@ -132,7 +143,8 @@ class Sentiment {
 }
 
 class TextEntryAnalysis {
-  const TextEntryAnalysis(this.keywords, this.sentiment, this.themes, this.wordCount);
+  const TextEntryAnalysis(
+      this.keywords, this.sentiment, this.themes, this.wordCount);
   final List<WordCount> keywords;
   final Sentiment sentiment;
   final List<ThemeHits> themes;
@@ -238,10 +250,8 @@ class MoodAnalyzer {
     for (var i = 0; i < data.length; i++) {
       final start = math.max(0, i - windowSize + 1);
       final slice = data.sublist(start, i + 1);
-      final avgV =
-          slice.fold<double>(0, (s, e) => s + e.v!) / slice.length;
-      final avgA =
-          slice.fold<double>(0, (s, e) => s + e.a!) / slice.length;
+      final avgV = slice.fold<double>(0, (s, e) => s + e.v!) / slice.length;
+      final avgA = slice.fold<double>(0, (s, e) => s + e.a!) / slice.length;
       result.add(_MaPoint(data[i].ts, avgV, avgA));
     }
     return result;
@@ -297,8 +307,7 @@ class MoodAnalyzer {
       return const MoodTrajectory(
           0, 0, 'not enough weather to read a direction yet');
     }
-    final ma =
-        _movingAverage(data, math.min(3, (data.length / 2).ceil()));
+    final ma = _movingAverage(data, math.min(3, (data.length / 2).ceil()));
     final first = ma.first, last = ma.last;
     final vDir = last.avgV - first.avgV;
     final aDir = last.avgA - first.avgA;
@@ -514,8 +523,8 @@ class TextAnalyzer {
     final cutoff =
         DateTime.now().millisecondsSinceEpoch - days * 24 * 60 * 60 * 1000;
     final withText = entries
-        .where((e) =>
-            e.text.trim().length > 10 && (days == 0 || e.ts >= cutoff))
+        .where(
+            (e) => e.text.trim().length > 10 && (days == 0 || e.ts >= cutoff))
         .toList();
     if (withText.isEmpty) return const TextAnalysis(hasData: false, count: 0);
     final allKeywords = <String, int>{};
@@ -575,8 +584,8 @@ class PromptEngine {
   /// Context-aware daily prompts drawing from mood patterns, journal themes,
   /// and temporal context. All output is gentle invitation.
   List<String> generateContextPrompts() {
-    final mood = MoodAnalyzer(entries).analyze(7);
-    final text = TextAnalyzer(entries).analyzeEntries(7);
+    final mood = MoodAnalyzer(entries).analyze();
+    final text = TextAnalyzer(entries).analyzeEntries();
     final prompts = <String>[];
 
     // 1. Mood-aware prompts (from recent mood patterns)
@@ -672,8 +681,8 @@ class PromptEngine {
   /// A richer weekly insight using both mood and text analysis.
   InsightParts generateWeeklyInsight(
       {TideExperiment? experiment, Anchor? anchor}) {
-    final mood = MoodAnalyzer(entries).analyze(7);
-    final text = TextAnalyzer(entries).analyzeEntries(7);
+    final mood = MoodAnalyzer(entries).analyze();
+    final text = TextAnalyzer(entries).analyzeEntries();
     final parts = InsightParts();
 
     if (!mood.hasData && !text.hasData) {
@@ -728,8 +737,7 @@ class PromptEngine {
         }
       }
       if (text.topKeywords.length >= 2) {
-        final kwStr =
-            text.topKeywords.take(3).map((k) => k.word).join(', ');
+        final kwStr = text.topKeywords.take(3).map((k) => k.word).join(', ');
         parts.patterns.add(
             'The words <em>$kwStr</em> appeared across your pages. They may be worth holding.');
       }
@@ -794,8 +802,7 @@ class PromptEngine {
     if (anchor != null) {
       final weekAgoAnchor =
           DateTime.now().millisecondsSinceEpoch - 7 * 24 * 60 * 60 * 1000;
-      if (anchor.reflectedAt != null &&
-          anchor.reflectedAt! >= weekAgoAnchor) {
+      if (anchor.reflectedAt != null && anchor.reflectedAt! >= weekAgoAnchor) {
         parts.patterns.add(anchor.outcome == 'passed'
             ? 'An anchor — <em>${anchor.text}</em> — came and went without happening. The sea does not count; it only keeps.'
             : 'You set a small anchor — <em>${anchor.text}</em> — and gave it a few lines afterwards. Loops closed this gently tend to hold.');
@@ -920,10 +927,9 @@ class PromptEngine {
         action: m.action,
         theme: m.theme,
         startedAt: DateTime.now().millisecondsSinceEpoch,
-        durationDays: 7,
       );
     }
-    final text = TextAnalyzer(entries).analyzeEntries(7);
+    final text = TextAnalyzer(entries).analyzeEntries();
     if (!text.hasData || text.topThemes.isEmpty) return null;
     final theme = text.topThemes.first.theme;
     const seeds = <String, List<String>>{
@@ -962,8 +968,6 @@ class PromptEngine {
       action: seed[1],
       theme: theme,
       startedAt: DateTime.now().millisecondsSinceEpoch,
-      durationDays: 7,
     );
   }
 }
-

@@ -17,7 +17,8 @@ class WhisperController {
     required String audioPath,
     required String lang,
   }) async {
-    return WhisperResult(WhisperTranscription("Voice transcription is not supported on Web."));
+    return WhisperResult(
+        WhisperTranscription('Voice transcription is not supported on Web.'));
   }
 }
 

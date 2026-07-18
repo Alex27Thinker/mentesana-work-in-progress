@@ -96,9 +96,8 @@ class _LockScreenState extends State<LockScreen>
                       fontStyle: FontStyle.italic, color: textPrimary)),
               const SizedBox(height: s8),
               Text('enter your pin to continue',
-                  style: MenteType.eyebrow.copyWith(
-                      letterSpacing: .12 * 11,
-                      color: textSecondary)),
+                  style: MenteType.eyebrow
+                      .copyWith(letterSpacing: .12 * 11, color: textSecondary)),
               const SizedBox(height: 26),
               GestureDetector(
                 onTap: () => _focus.requestFocus(),
@@ -158,8 +157,7 @@ class _LockScreenState extends State<LockScreen>
                 height: 18,
                 child: Text(_note,
                     style: MenteType.caption.copyWith(
-                        fontStyle: FontStyle.italic,
-                        color: textSecondary)),
+                        fontStyle: FontStyle.italic, color: textSecondary)),
               ),
               const SizedBox(height: 10),
               TextButton(
@@ -178,4 +176,3 @@ class _LockScreenState extends State<LockScreen>
     );
   }
 }
-

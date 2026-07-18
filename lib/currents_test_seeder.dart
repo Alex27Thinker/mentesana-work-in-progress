@@ -29,35 +29,65 @@ class CurrentsTestSeeder {
     final random = _SeededRandom(42);
 
     // Generate 14 days of data (15 days to ensure enough span).
-    final days = 15;
+    const days = 15;
     final baseMoodValues = <double>[
       -0.8, -0.2, 0.3, 0.5, 0.1, -0.4, -0.6, // Week 1
       -0.3, 0.2, 0.6, 0.4, 0.0, -0.1, 0.3, 0.7, // Week 2 + extra
     ];
     final baseArousalValues = <double>[
-      -0.4, 0.1, 0.3, -0.1, -0.2, -0.5, -0.3,
-      0.0, 0.4, 0.2, -0.1, -0.3, 0.1, 0.3, 0.0,
+      -0.4,
+      0.1,
+      0.3,
+      -0.1,
+      -0.2,
+      -0.5,
+      -0.3,
+      0.0,
+      0.4,
+      0.2,
+      -0.1,
+      -0.3,
+      0.1,
+      0.3,
+      0.0,
     ];
     final words = [
-      'tired', 'okay', 'hopeful', 'calm', 'anxious', 'low', 'flat',
-      'steady', 'lighter', 'peaceful', 'fine', 'restless', 'warm', 'bright', 'quiet',
+      'tired',
+      'okay',
+      'hopeful',
+      'calm',
+      'anxious',
+      'low',
+      'flat',
+      'steady',
+      'lighter',
+      'peaceful',
+      'fine',
+      'restless',
+      'warm',
+      'bright',
+      'quiet',
     ];
     for (var i = 0; i < days; i++) {
       final dayDate = now.subtract(Duration(days: days - i));
       final v = baseMoodValues[i % baseMoodValues.length] +
-          random.nextDouble() * 0.3 - 0.15;
+          random.nextDouble() * 0.3 -
+          0.15;
       final a = baseArousalValues[i % baseArousalValues.length] +
-          random.nextDouble() * 0.3 - 0.15;
+          random.nextDouble() * 0.3 -
+          0.15;
       // Ensure v is within [-1, 1].
       final moodV = v.clamp(-1.0, 1.0);
       final moodA = a.clamp(-1.0, 1.0);
       final word = words[i % words.length];
 
       // Time of day: morning (7-11) or evening (17-20) varied.
-      final hour = (i % 2 == 0) ? 8 + random.nextInt(4) : 17 + random.nextInt(4);
+      final hour =
+          (i % 2 == 0) ? 8 + random.nextInt(4) : 17 + random.nextInt(4);
       final minute = random.nextInt(60);
-      final ts = DateTime(dayDate.year, dayDate.month, dayDate.day, hour, minute)
-          .millisecondsSinceEpoch;
+      final ts =
+          DateTime(dayDate.year, dayDate.month, dayDate.day, hour, minute)
+              .millisecondsSinceEpoch;
 
       // Journal text: include outside/ walk/ park/ sunlight on gentler days.
       var text = _generateEntryText(moodV, i, random);
@@ -83,7 +113,6 @@ class CurrentsTestSeeder {
         a: moodA,
         word: word,
         text: text.trim(),
-        edited: false,
         title: _titleFromText(text),
       );
       entries.add(entry);
@@ -113,7 +142,7 @@ class CurrentsTestSeeder {
     }
 
     // Add a due ParkedWorry to the store (returnAt <= now).
-    final worryText =
+    const worryText =
         'I\'ve been worrying about the upcoming presentation at work. [TEST fixture worry]';
     store.parkedWorries.add(ParkedWorry(
       ts: now.subtract(const Duration(days: 2)).millisecondsSinceEpoch,
@@ -176,12 +205,13 @@ class CurrentsTestSeeder {
   }
 
   /// Create three undertow fixture entries that genuinely pass undertowScan.
-  static List<JournalEntry> _createUndertowFixtures(DateTime now, _SeededRandom random) {
+  static List<JournalEntry> _createUndertowFixtures(
+      DateTime now, _SeededRandom random) {
     final entries = <JournalEntry>[];
     final baseDate = now.subtract(const Duration(days: 1));
 
     // 1. Brooding fixture: why loops + counterfactual.
-    final broodingText = '''
+    const broodingText = '''
 Why do I always end up in the same place? Why can't I just get it right for once? 
 I should have done things differently last week. If only I had known better. 
 I keep going over it and over it, but nothing changes. I feel stuck in this loop. 
@@ -189,48 +219,45 @@ Why does everything feel so hard right now? I can't seem to break out of this pa
 It's pointless, really. I'll never figure this out.
 ''';
     final broodingEntry = JournalEntry(
-      ts: baseDate.subtract(const Duration(days: 0, hours: 2)).millisecondsSinceEpoch,
+      ts: baseDate.subtract(const Duration(hours: 2)).millisecondsSinceEpoch,
       v: -0.5,
       a: -0.3,
       word: 'low',
       text: broodingText.trim(),
-      edited: false,
       title: 'Brooding fixture [TEST]',
     );
     entries.add(broodingEntry);
 
     // 2. Worry fixture: what-if chains.
-    final worryText = '''
+    const worryText = '''
 What if I don't get the job? What if I'm not good enough for this position? 
 What if they find out I'm not as capable as they think? I keep thinking about it. 
 What if I fail and everyone sees it? What if I can't handle the pressure? 
 I can't stop worrying about what will happen next week. It's consuming me.
 ''';
     final worryEntry = JournalEntry(
-      ts: baseDate.subtract(const Duration(days: 0, hours: 4)).millisecondsSinceEpoch,
+      ts: baseDate.subtract(const Duration(hours: 4)).millisecondsSinceEpoch,
       v: -0.6,
       a: 0.2,
       word: 'anxious',
       text: worryText.trim(),
-      edited: false,
       title: 'Worry fixture [TEST]',
     );
     entries.add(worryEntry);
 
     // 3. Self-critique fixture.
-    final critiqueText = '''
+    const critiqueText = '''
 I'm such a failure. I can't do anything right. I hate myself for messing this up. 
 My fault, always my fault. There's something wrong with me. I ruin everything. 
 I'm useless, completely useless. I don't know why I even try anymore. 
 I'm pathetic and weak. I'll never be good enough for anyone.
 ''';
     final critiqueEntry = JournalEntry(
-      ts: baseDate.subtract(const Duration(days: 0, hours: 6)).millisecondsSinceEpoch,
+      ts: baseDate.subtract(const Duration(hours: 6)).millisecondsSinceEpoch,
       v: -0.8,
       a: -0.4,
       word: 'hopeless',
       text: critiqueText.trim(),
-      edited: false,
       title: 'Self-critique fixture [TEST]',
     );
     entries.add(critiqueEntry);
@@ -240,11 +267,11 @@ I'm pathetic and weak. I'll never be good enough for anyone.
 
   /// Create a due ParkedWorry (returnAt <= now).
   static JournalEntry _createParkedWorryFixture(DateTime now) {
-    final text = '''
+    const text = '''
 I've been carrying this worry about the upcoming presentation. 
 What if I forget everything? What if they see how nervous I am? 
 It's been on my mind for days. Letting it go to the tide for now.
-''';  // This is the worry text that gets parked.
+'''; // This is the worry text that gets parked.
 
     // This entry is just a journal entry; the parked worry is added separately.
     // We'll return a synthetic entry and also add the parked worry to the store.
@@ -256,14 +283,13 @@ It's been on my mind for days. Letting it go to the tide for now.
       a: 0.1,
       word: 'worried',
       text: text.trim(),
-      edited: false,
       title: 'Parked worry fixture [TEST]',
     );
   }
 
   /// Create an open Anchor due today.
   static JournalEntry _createAnchorFixture(DateTime now) {
-    final text = '''
+    const text = '''
 Today I want to hold a small anchor: a few unhurried minutes outside. 
 The sea suggests it, and I'm willing to try.
 ''';
@@ -273,7 +299,6 @@ The sea suggests it, and I'm willing to try.
       a: 0.1,
       word: 'hopeful',
       text: text.trim(),
-      edited: false,
       title: 'Anchor fixture [TEST]',
     );
   }
@@ -286,7 +311,8 @@ The sea suggests it, and I'm willing to try.
     return first;
   }
 
-  static String _generateEntryText(double moodV, int dayIndex, _SeededRandom random) {
+  static String _generateEntryText(
+      double moodV, int dayIndex, _SeededRandom random) {
     final phrases = [
       'Today was quiet. I sat with my thoughts for a while.',
       'The morning felt heavy, but the afternoon lifted a little.',

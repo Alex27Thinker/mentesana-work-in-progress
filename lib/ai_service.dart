@@ -20,8 +20,7 @@ import 'app_store.dart';
 
 /// Where /api/ai-insight is served. Empty string disables network calls
 /// (the app then always falls back to the local engine, quietly).
-const kAiProxyBase = String.fromEnvironment('MENTESANA_AI_PROXY',
-    defaultValue: '');
+const kAiProxyBase = String.fromEnvironment('MENTESANA_AI_PROXY');
 
 /// The doctrine-locked system prompt — kept verbatim from the prototype for
 /// reference and for any future on-device use. The deployed proxy holds its
@@ -64,24 +63,27 @@ class AIService {
       RegExp(
           r'\b(depression|anxiety disorder|bipolar|ADHD|PTSD|trauma disorder|mental illness|pathological|dysfunction|maladaptive|clinical)\b',
           caseSensitive: false),
-      RegExp(r'\b(you are|you have|you seem to have|diagnosed|diagnosis|symptom of)\b',
+      RegExp(
+          r'\b(you are|you have|you seem to have|diagnosed|diagnosis|symptom of)\b',
           caseSensitive: false),
       RegExp(r'\b(caused by|because of this|this means you|this indicates)\b',
           caseSensitive: false),
       RegExp(
           r'\b(streak|score|badge|points|reward|punish|failure|failed|guilty|should have|must|need to)\b',
           caseSensitive: false),
-      RegExp(r'\b(chart|graph|statistic|percent|percentage|data shows|numbers show)\b',
+      RegExp(
+          r'\b(chart|graph|statistic|percent|percentage|data shows|numbers show)\b',
           caseSensitive: false),
     ];
     for (final re in forbidden) {
       if (re.hasMatch(text)) {
         // Instead of returning the raw text, sanitize it.
         String sub(String s, String pattern, String replacement) =>
-            s.replaceAll(RegExp('\\b($pattern)\\b', caseSensitive: false),
-                replacement);
+            s.replaceAll(
+                RegExp('\\b($pattern)\\b', caseSensitive: false), replacement);
         var t = text;
-        t = sub(t,
+        t = sub(
+            t,
             'depression|anxiety disorder|bipolar|ADHD|PTSD|trauma disorder|mental illness|pathological|dysfunction|maladaptive|clinical',
             'this weather');
         t = sub(t, 'you are|you have|you seem to have', 'these pages seem to');
@@ -100,13 +102,26 @@ class AIService {
   /// JS `toLocaleDateString([], { weekday:'short', day:'numeric', month:'short' })`.
   static String _shortDate(DateTime dt) {
     const dows = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
     return '${dows[dt.weekday % 7]}, ${months[dt.month - 1]} ${dt.day}';
   }
 
   /// Build the user message from local engine output + entries.
-  String buildInsightContext(InsightParts localInsight, MoodAnalysis moodAnalysis,
-      TextAnalysis textAnalysis) {
+  String buildInsightContext(InsightParts localInsight,
+      MoodAnalysis moodAnalysis, TextAnalysis textAnalysis) {
     final seasons = PromptEngine(store.entries).generateSeasons();
     final seasonLines = seasons.map((s) {
       final theme = s.topTheme ?? 'no clear theme';
@@ -170,10 +185,10 @@ Generate a richer weekly insight. Return JSON with this exact shape:
 If evidence is thin (fewer than 3 entries), set thin:true and keep it to 1-2 observations with an acknowledgment.''';
   }
 
-  String buildPromptContext(MoodAnalysis moodAnalysis, TextAnalysis textAnalysis) {
-    final withAny = store.entries
-        .where((e) => e.text.isNotEmpty || e.isMoodEntry)
-        .toList();
+  String buildPromptContext(
+      MoodAnalysis moodAnalysis, TextAnalysis textAnalysis) {
+    final withAny =
+        store.entries.where((e) => e.text.isNotEmpty || e.isMoodEntry).toList();
     final last8 =
         withAny.length > 8 ? withAny.sublist(withAny.length - 8) : withAny;
     final entrySummaries = last8.map((e) {
@@ -236,8 +251,8 @@ Generate ONE daily journal prompt — a single gentle question or invitation to 
       final engine = PromptEngine(store.entries);
       final localInsight =
           engine.generateWeeklyInsight(experiment: store.activeTideExperiment);
-      final mood = MoodAnalyzer(store.entries).analyze(7);
-      final text = TextAnalyzer(store.entries).analyzeEntries(7);
+      final mood = MoodAnalyzer(store.entries).analyze();
+      final text = TextAnalyzer(store.entries).analyzeEntries();
       final userMsg = buildInsightContext(localInsight, mood, text);
       final raw = await _callLLM(userMsg);
       final parsed = jsonDecode(raw);
@@ -257,9 +272,8 @@ Generate ONE daily journal prompt — a single gentle question or invitation to 
       );
       // Crisis check.
       final written = store.entries.where((e) => e.text.isNotEmpty).toList();
-      final last5 = written.length > 5
-          ? written.sublist(written.length - 5)
-          : written;
+      final last5 =
+          written.length > 5 ? written.sublist(written.length - 5) : written;
       if (parsed['type'] == 'crisis' ||
           containsCrisisLanguage(last5.map((e) => e.text))) {
         return InsightParts(
@@ -285,8 +299,8 @@ Generate ONE daily journal prompt — a single gentle question or invitation to 
   Future<String?> generateAIDailyPrompt() async {
     if (!isAIEnabled) return null;
     try {
-      final mood = MoodAnalyzer(store.entries).analyze(7);
-      final text = TextAnalyzer(store.entries).analyzeEntries(7);
+      final mood = MoodAnalyzer(store.entries).analyze();
+      final text = TextAnalyzer(store.entries).analyzeEntries();
       final userMsg = buildPromptContext(mood, text);
       final raw = await _callLLM(userMsg);
       final parsed = jsonDecode(raw);
@@ -300,4 +314,3 @@ Generate ONE daily journal prompt — a single gentle question or invitation to 
     }
   }
 }
-

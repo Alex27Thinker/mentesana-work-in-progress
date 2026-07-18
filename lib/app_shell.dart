@@ -31,11 +31,11 @@ import 'journal_prompts.dart';
 import 'lock_screen.dart';
 import 'mood_palette.dart';
 import 'mood_selector_screen.dart';
-import 'theme.dart';
 import 'prompt_library_screen.dart';
 import 'sea_icons.dart';
 import 'sea_painter.dart';
 import 'settings_screen.dart';
+import 'theme.dart';
 import 'tide_lab_screen.dart';
 import 'welcome_screen.dart';
 
@@ -236,8 +236,7 @@ class _MentesanaShellState extends State<MentesanaShell>
       _suppressMoodWriteInvite = false;
       setState(() => _checkinJournaledSubline = true);
       _keptNavTimer?.cancel();
-      _keptNavTimer =
-          Timer(Duration(milliseconds: _reduced ? 350 : 1200), () {
+      _keptNavTimer = Timer(Duration(milliseconds: _reduced ? 350 : 1200), () {
         if (mounted) _show(AppScreen.home);
       });
       return;
@@ -253,8 +252,7 @@ class _MentesanaShellState extends State<MentesanaShell>
     _lastKeptEntry = entry;
     // The invite arrives after the ceremony; both exits are costless.
     _inviteTimer?.cancel();
-    _inviteTimer =
-        Timer(Duration(milliseconds: _reduced ? 700 : 2100), () {
+    _inviteTimer = Timer(Duration(milliseconds: _reduced ? 700 : 2100), () {
       if (!mounted ||
           _journalKept ||
           _journalOpen ||
@@ -312,16 +310,13 @@ class _MentesanaShellState extends State<MentesanaShell>
     final mode = draft?.mode ??
         (activeEntry != null && activeEntry.v != null ? 'mood' : 'free');
     final rawPrompt = draft?.prompt ?? prompt ?? activeEntry?.prompt;
-    final bottle = draft != null
-        ? draft.bottle
-        : (activeEntry?.tideLine ?? '');
+    final bottle = draft != null ? draft.bottle : (activeEntry?.tideLine ?? '');
     _activeEntry = activeEntry;
     _journalKept = false;
     _openEditor(JournalEditorConfig(
       mode: mode,
       activeEntry: activeEntry,
-      freePrompt:
-          (rawPrompt == null || rawPrompt.isEmpty) ? null : rawPrompt,
+      freePrompt: (rawPrompt == null || rawPrompt.isEmpty) ? null : rawPrompt,
       v: activeEntry?.v ?? 0,
       a: activeEntry?.a ?? 0,
       word: activeEntry?.word,
@@ -479,216 +474,218 @@ class _MentesanaShellState extends State<MentesanaShell>
         _handleSystemBack();
       },
       child: MediaQuery(
-      data: mq.copyWith(
-        disableAnimations: reduced,
-        textScaler: TextScaler.linear(store.textScale),
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: Stack(
-        children: [
-          const Positioned.fill(child: ColoredBox(color: kInkDeep)),
-          // The living sea, behind Home (settings and check-in bring their own
-          // full backgrounds).
-          if (screen == AppScreen.home)
-            Positioned.fill(
-              child: RepaintBoundary(
-                child: CustomPaint(
-                  painter: SeaPainter(
-                    model: _seaManager.model,
-                    foamX: _seaManager.foamX,
-                    foamLayer: _seaManager.foamLayer,
-                  ),
-                ),
-              ),
-            ),
-          // Deeper screens still sit in the same sea, just quieter and dimmer
-          // with depth — continuity instead of a flat backdrop swap.
-          if (depth > 0 && screen != AppScreen.settings)
-            Positioned.fill(
-              child: RepaintBoundary(
-                child: Opacity(
-                  // #4: keep the living sea clearly present on deep screens,
-                  // not a faint ghost — the sea is a character everywhere.
-                  opacity: (0.44 - depth * 0.06).clamp(0.18, 0.44),
-                  child: CustomPaint(
-                    painter: SeaPainter(
-                      model: _seaManager.model,
-                      foamX: _seaManager.foamX,
-                      foamLayer: _seaManager.foamLayer,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          // Depth ambience — the water darkens as you descend (JS SCREEN_DEPTH).
-          if (depth > 0)
-            Positioned.fill(
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: reduced ? 0 : 700),
-                decoration: BoxDecoration(
-                  // Kept translucent (not opaque) so the mood-tinted sea
-                  // underneath still shows through on every screen depth,
-                  // not just Home.
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      // #4: lighter scrim so the sea reads through, rather than
-                      // being crushed to near-black on deeper screens.
-                      const Color(0xFF060B12).withValues(
-                          alpha: (depth / 2.25 * .34).clamp(0.0, .34)),
-                      const Color(0xFF04080D).withValues(
-                          alpha: (depth / 2.25 * .5).clamp(0.0, .5)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          // Screens.
-          Positioned.fill(
-            child: AnimatedSwitcher(
-              duration: Duration(milliseconds: reduced ? 0 : 360),
-              reverseDuration: Duration(milliseconds: reduced ? 0 : 240),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (child, anim) {
-                final curve = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
-                return FadeTransition(
-                  opacity: curve,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, .025),
-                      end: Offset.zero,
-                    ).animate(curve),
-                    child: ScaleTransition(
-                      scale: Tween<double>(begin: .985, end: 1.0)
-                          .animate(curve),
-                      child: child,
-                    ),
-                  ),
-                );
-              },
-              child: KeyedSubtree(
-                key: ValueKey(screen),
-                child: SafeArea(
-                  top: screen != AppScreen.home &&
-                      screen != AppScreen.checkin &&
-                      screen != AppScreen.settings,
-                  bottom: false,
-                  child: _screenWidget(),
-                ),
-              ),
-            ),
-          ),
-          // Bottom navigation — home / journal home / archive / insight /
-          // settings only (JS nav visibility).
-          if (_navVisible && !_welcomeOpen)
-            Positioned(left: 0, right: 0, bottom: 0, child: _nav()),
-          // Journal editor overlay (sits over the check-in, as in the web).
-          // While closing, it fades and settles down instead of vanishing
-          // and yanking the screen beneath it into place all at once.
-          if (_journalOpen && _editorConfig != null)
-            Positioned.fill(
-              child: AnimatedSlide(
-                duration: Duration(milliseconds: reduced ? 0 : 260),
-                curve: Curves.easeInCubic,
-                offset: _journalClosing ? const Offset(0, .05) : Offset.zero,
-                child: AnimatedOpacity(
-                  duration: Duration(milliseconds: reduced ? 0 : 260),
-                  curve: Curves.easeInCubic,
-                  opacity: _journalClosing ? 0 : 1,
-                  child: JournalEditor(
-                    key: ValueKey('editor-${_editorConfig.hashCode}'),
-                    store: store,
-                    config: _editorConfig!,
-                    reduced: reduced,
-                    onClose: _closeJournal,
-                    onKept: _onJournalKept,
-                  ),
-                ),
-              ),
-            ),
-          // Write invite — asks once, both exits are costless.
-          if (_inviteOpen) ..._invite(),
-          // Post-journal check-in prompt.
-          if (_postJournalOpen) ..._postJournal(),
-          // A current under the kept page — the undertow surface.
-          if (_undertowOpen &&
-              _undertowEntry != null &&
-              _undertowReading != null)
-            Positioned.fill(
-              child: UndertowSurface(
-                store: store,
-                entry: _undertowEntry!,
-                reading: _undertowReading!,
-                reduced: reduced,
-                onClose: () => setState(() => _undertowOpen = false),
-              ),
-            ),
-          // Onboarding overlay.
-          if (_welcomeOpen)
-            Positioned.fill(
-              child: WelcomeScreen(
-                initialPreferences: store.onboardingPreferences,
-                testing: _welcomeTesting,
-                onClose: (to, prefs) {
-                  if (!_welcomeTesting) store.setWelcomed(prefs);
-                  setState(() {
-                    _welcomeOpen = false;
-                    _welcomeTesting = false;
-                  });
-                  if (to == 'checkin') {
-                    store.sessionFresh = false;
-                    _navManager.show(AppScreen.checkin);
-                  } else {
-                    _navManager.show(AppScreen.home);
-                  }
-                  if (to == 'write') _startFreeJournal();
-                },
-              ),
-            ),
-          // Quiet note.
-          if (_note != null)
-            Positioned(
-              left: 26,
-              right: 26,
-              bottom: 78,
-              child: IgnorePointer(
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: s16, vertical: s8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      color: const Color.fromRGBO(11, 20, 27, .92),
-                      border: Border.all(color: ivory(.18)),
-                    ),
-                    child: Text(
-                      _note!,
-                      textAlign: TextAlign.center,
-                      style: MenteType.bodySerif.copyWith(
-                        fontStyle: FontStyle.italic,
-                        color: textSecondary,
+        data: mq.copyWith(
+          disableAnimations: reduced,
+          textScaler: TextScaler.linear(store.textScale),
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: Stack(
+            children: [
+              const Positioned.fill(child: ColoredBox(color: kInkDeep)),
+              // The living sea, behind Home (settings and check-in bring their own
+              // full backgrounds).
+              if (screen == AppScreen.home)
+                Positioned.fill(
+                  child: RepaintBoundary(
+                    child: CustomPaint(
+                      painter: SeaPainter(
+                        model: _seaManager.model,
+                        foamX: _seaManager.foamX,
+                        foamLayer: _seaManager.foamLayer,
                       ),
                     ),
                   ),
                 ),
+              // Deeper screens still sit in the same sea, just quieter and dimmer
+              // with depth — continuity instead of a flat backdrop swap.
+              if (depth > 0 && screen != AppScreen.settings)
+                Positioned.fill(
+                  child: RepaintBoundary(
+                    child: Opacity(
+                      // #4: keep the living sea clearly present on deep screens,
+                      // not a faint ghost — the sea is a character everywhere.
+                      opacity: (0.44 - depth * 0.06).clamp(0.18, 0.44),
+                      child: CustomPaint(
+                        painter: SeaPainter(
+                          model: _seaManager.model,
+                          foamX: _seaManager.foamX,
+                          foamLayer: _seaManager.foamLayer,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              // Depth ambience — the water darkens as you descend (JS SCREEN_DEPTH).
+              if (depth > 0)
+                Positioned.fill(
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: reduced ? 0 : 700),
+                    decoration: BoxDecoration(
+                      // Kept translucent (not opaque) so the mood-tinted sea
+                      // underneath still shows through on every screen depth,
+                      // not just Home.
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          // #4: lighter scrim so the sea reads through, rather than
+                          // being crushed to near-black on deeper screens.
+                          const Color(0xFF060B12).withValues(
+                              alpha: (depth / 2.25 * .34).clamp(0.0, .34)),
+                          const Color(0xFF04080D).withValues(
+                              alpha: (depth / 2.25 * .5).clamp(0.0, .5)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              // Screens.
+              Positioned.fill(
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: reduced ? 0 : 360),
+                  reverseDuration: Duration(milliseconds: reduced ? 0 : 240),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  transitionBuilder: (child, anim) {
+                    final curve = CurvedAnimation(
+                        parent: anim, curve: Curves.easeOutCubic);
+                    return FadeTransition(
+                      opacity: curve,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, .025),
+                          end: Offset.zero,
+                        ).animate(curve),
+                        child: ScaleTransition(
+                          scale: Tween<double>(begin: .985, end: 1.0)
+                              .animate(curve),
+                          child: child,
+                        ),
+                      ),
+                    );
+                  },
+                  child: KeyedSubtree(
+                    key: ValueKey(screen),
+                    child: SafeArea(
+                      top: screen != AppScreen.home &&
+                          screen != AppScreen.checkin &&
+                          screen != AppScreen.settings,
+                      bottom: false,
+                      child: _screenWidget(),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          // The sea keeps this, quietly — PIN veil at boot.
-          if (_locked)
-            Positioned.fill(
-              child: LockScreen(
-                store: store,
-                reduced: reduced,
-                onUnlocked: () => setState(() => _locked = false),
-              ),
-            ),
-        ],
+              // Bottom navigation — home / journal home / archive / insight /
+              // settings only (JS nav visibility).
+              if (_navVisible && !_welcomeOpen)
+                Positioned(left: 0, right: 0, bottom: 0, child: _nav()),
+              // Journal editor overlay (sits over the check-in, as in the web).
+              // While closing, it fades and settles down instead of vanishing
+              // and yanking the screen beneath it into place all at once.
+              if (_journalOpen && _editorConfig != null)
+                Positioned.fill(
+                  child: AnimatedSlide(
+                    duration: Duration(milliseconds: reduced ? 0 : 260),
+                    curve: Curves.easeInCubic,
+                    offset:
+                        _journalClosing ? const Offset(0, .05) : Offset.zero,
+                    child: AnimatedOpacity(
+                      duration: Duration(milliseconds: reduced ? 0 : 260),
+                      curve: Curves.easeInCubic,
+                      opacity: _journalClosing ? 0 : 1,
+                      child: JournalEditor(
+                        key: ValueKey('editor-${_editorConfig.hashCode}'),
+                        store: store,
+                        config: _editorConfig!,
+                        reduced: reduced,
+                        onClose: _closeJournal,
+                        onKept: _onJournalKept,
+                      ),
+                    ),
+                  ),
+                ),
+              // Write invite — asks once, both exits are costless.
+              if (_inviteOpen) ..._invite(),
+              // Post-journal check-in prompt.
+              if (_postJournalOpen) ..._postJournal(),
+              // A current under the kept page — the undertow surface.
+              if (_undertowOpen &&
+                  _undertowEntry != null &&
+                  _undertowReading != null)
+                Positioned.fill(
+                  child: UndertowSurface(
+                    store: store,
+                    entry: _undertowEntry!,
+                    reading: _undertowReading!,
+                    reduced: reduced,
+                    onClose: () => setState(() => _undertowOpen = false),
+                  ),
+                ),
+              // Onboarding overlay.
+              if (_welcomeOpen)
+                Positioned.fill(
+                  child: WelcomeScreen(
+                    initialPreferences: store.onboardingPreferences,
+                    testing: _welcomeTesting,
+                    onClose: (to, prefs) {
+                      if (!_welcomeTesting) store.setWelcomed(prefs);
+                      setState(() {
+                        _welcomeOpen = false;
+                        _welcomeTesting = false;
+                      });
+                      if (to == 'checkin') {
+                        store.sessionFresh = false;
+                        _navManager.show(AppScreen.checkin);
+                      } else {
+                        _navManager.show(AppScreen.home);
+                      }
+                      if (to == 'write') _startFreeJournal();
+                    },
+                  ),
+                ),
+              // Quiet note.
+              if (_note != null)
+                Positioned(
+                  left: 26,
+                  right: 26,
+                  bottom: 78,
+                  child: IgnorePointer(
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: s16, vertical: s8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          color: const Color.fromRGBO(11, 20, 27, .92),
+                          border: Border.all(color: ivory(.18)),
+                        ),
+                        child: Text(
+                          _note!,
+                          textAlign: TextAlign.center,
+                          style: MenteType.bodySerif.copyWith(
+                            fontStyle: FontStyle.italic,
+                            color: textSecondary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              // The sea keeps this, quietly — PIN veil at boot.
+              if (_locked)
+                Positioned.fill(
+                  child: LockScreen(
+                    store: store,
+                    reduced: reduced,
+                    onUnlocked: () => setState(() => _locked = false),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
-      ),
-    ),
     );
   }
 
@@ -760,19 +757,19 @@ class _MentesanaShellState extends State<MentesanaShell>
             SafeArea(
               child: Align(
                 alignment: Alignment.topLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(top: s16, left: s12),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _show(AppScreen.home),
-              child: Padding(
-                padding: const EdgeInsets.all(s8),
-                child: Text('home',
-                    style: MenteType.eyebrow.copyWith(
-                        letterSpacing: .72, color: textFaint)),
-              ),
-            ),
-          ),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: s16, left: s12),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _show(AppScreen.home),
+                    child: Padding(
+                      padding: const EdgeInsets.all(s8),
+                      child: Text('home',
+                          style: MenteType.eyebrow
+                              .copyWith(letterSpacing: .72, color: textFaint)),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -797,8 +794,7 @@ class _MentesanaShellState extends State<MentesanaShell>
           onFreshPage: () => _startFreeJournal(),
           onResumeDraft: () => _startFreeJournal(resume: true),
           onContinueEntry: (e) => _openEditorForEntry(e),
-          onOpenEntry: (e) =>
-              _showEntryDetail(e, AppScreen.journalhome),
+          onOpenEntry: (e) => _showEntryDetail(e, AppScreen.journalhome),
           onWriteFromPrompt: (p) => _startFreeJournal(prompt: p),
         );
       case AppScreen.promptlibrary:
@@ -861,7 +857,8 @@ class _MentesanaShellState extends State<MentesanaShell>
       Positioned.fill(
         child: GestureDetector(
           onTap: skipToHome,
-          child: Container(color: const Color(0xFF060B12).withValues(alpha: .45)),
+          child:
+              Container(color: const Color(0xFF060B12).withValues(alpha: .45)),
         ),
       ),
       Positioned(
@@ -892,11 +889,13 @@ class _MentesanaShellState extends State<MentesanaShell>
               const SizedBox(height: s16),
               Row(
                 children: [
-                  MenteButtons.primary(label: 'write', onTap: () {
-                    final e = _lastKeptEntry;
-                    setState(() => _inviteOpen = false);
-                    if (e != null) _openEditorForEntry(e, mode: 'mood');
-                  }),
+                  MenteButtons.primary(
+                      label: 'write',
+                      onTap: () {
+                        final e = _lastKeptEntry;
+                        setState(() => _inviteOpen = false);
+                        if (e != null) _openEditorForEntry(e, mode: 'mood');
+                      }),
                   const SizedBox(width: s12),
                   MenteButtons.quiet(label: 'not tonight', onTap: skipToHome),
                 ],
@@ -919,7 +918,8 @@ class _MentesanaShellState extends State<MentesanaShell>
       Positioned.fill(
         child: GestureDetector(
           onTap: later,
-          child: Container(color: const Color(0xFF060B12).withValues(alpha: .45)),
+          child:
+              Container(color: const Color(0xFF060B12).withValues(alpha: .45)),
         ),
       ),
       Positioned(
@@ -943,8 +943,8 @@ class _MentesanaShellState extends State<MentesanaShell>
                 const SizedBox(height: s8),
                 Text(
                     'You have already written. This is only a place to notice where you are.',
-                    style: MenteType.bodySerif.copyWith(
-                        height: 1.55, color: textSecondary)),
+                    style: MenteType.bodySerif
+                        .copyWith(height: 1.55, color: textSecondary)),
                 const SizedBox(height: s16),
                 Row(
                   children: [
@@ -1016,13 +1016,12 @@ class _MentesanaShellState extends State<MentesanaShell>
                       borderRadius: BorderRadius.circular(999),
                       color: activeThis ? color.withValues(alpha: .12) : null,
                     ),
-                    child: StrokeIcon(icon,
-                        size: 19, color: color, strokeWidth: 1.5),
+                    child: StrokeIcon(icon, color: color, strokeWidth: 1.5),
                   ),
                   const SizedBox(height: s4),
                   Text(label,
-                      style: MenteType.eyebrow.copyWith(
-                          letterSpacing: .76, color: color)),
+                      style: MenteType.eyebrow
+                          .copyWith(letterSpacing: .76, color: color)),
                 ],
               ),
             ),
@@ -1031,7 +1030,8 @@ class _MentesanaShellState extends State<MentesanaShell>
       );
     }
 
-    final moodGlow = kSea.bilerp(_seaManager.model.visualV, _seaManager.model.visualA)[0];
+    final moodGlow =
+        kSea.bilerp(_seaManager.model.visualV, _seaManager.model.visualA)[0];
     // A soft blur behind the bar, plus a graduated (not hard-edged) tint,
     // so the nav reads as part of the scene instead of a pasted-on strip.
     return ClipRect(
@@ -1047,8 +1047,7 @@ class _MentesanaShellState extends State<MentesanaShell>
               end: Alignment.bottomCenter,
               stops: const [0, .35, 1],
               colors: [
-                moodGlow.withValues(
-                    alpha: store.moodAtmosphereOn ? .06 : 0),
+                moodGlow.withValues(alpha: store.moodAtmosphereOn ? .06 : 0),
                 const Color(0xFF0B141B).withValues(alpha: .30),
                 const Color(0xFF0B141B).withValues(alpha: .46),
               ],
@@ -1071,4 +1070,3 @@ class _MentesanaShellState extends State<MentesanaShell>
     );
   }
 }
-

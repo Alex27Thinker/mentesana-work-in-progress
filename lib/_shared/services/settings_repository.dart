@@ -67,8 +67,7 @@ class SettingsRepository {
   set autoRoomOn(bool v) => _set(StoreKeys.autoRoom, v ? '1' : '0');
 
   bool get moodAtmosphereOn => _get(StoreKeys.moodAtmosphere) != '0';
-  set moodAtmosphereOn(bool v) =>
-      _set(StoreKeys.moodAtmosphere, v ? '1' : '0');
+  set moodAtmosphereOn(bool v) => _set(StoreKeys.moodAtmosphere, v ? '1' : '0');
 
   String get textSize => _get(StoreKeys.textSize, 'regular');
   set textSize(String v) => _set(StoreKeys.textSize, v);
@@ -89,12 +88,10 @@ class SettingsRepository {
   set reminderAt(String v) => _set(StoreKeys.reminderTime, v);
 
   bool get weeklyReminderOn => _getBool(StoreKeys.weeklyReminder);
-  set weeklyReminderOn(bool v) =>
-      _set(StoreKeys.weeklyReminder, v ? '1' : '0');
+  set weeklyReminderOn(bool v) => _set(StoreKeys.weeklyReminder, v ? '1' : '0');
 
   int get weeklyReminderDay => _getInt(StoreKeys.weeklyReminderDay);
-  set weeklyReminderDay(int v) =>
-      _set(StoreKeys.weeklyReminderDay, '$v');
+  set weeklyReminderDay(int v) => _set(StoreKeys.weeklyReminderDay, '$v');
 
   bool get quietHoursOn => _getBool(StoreKeys.quietHours);
   set quietHoursOn(bool v) => _set(StoreKeys.quietHours, v ? '1' : '0');
@@ -124,8 +121,7 @@ class SettingsRepository {
   }
 
   bool get tideLineDefault => _getBool(StoreKeys.tideLineDefault);
-  set tideLineDefault(bool v) =>
-      _set(StoreKeys.tideLineDefault, v ? '1' : '0');
+  set tideLineDefault(bool v) => _set(StoreKeys.tideLineDefault, v ? '1' : '0');
 
   int get attachmentCap => _getInt(StoreKeys.attachmentCap, 3);
   set attachmentCap(int v) => _set(StoreKeys.attachmentCap, '$v');
@@ -133,10 +129,8 @@ class SettingsRepository {
   bool get aiEnabled => _getBool(StoreKeys.aiEnabled);
   set aiEnabled(bool v) => _set(StoreKeys.aiEnabled, v ? '1' : '0');
 
-  String get tideExperimentsJson =>
-      _get(StoreKeys.tideExperiments, '[]');
-  set tideExperimentsJson(String v) =>
-      _set(StoreKeys.tideExperiments, v);
+  String get tideExperimentsJson => _get(StoreKeys.tideExperiments, '[]');
+  set tideExperimentsJson(String v) => _set(StoreKeys.tideExperiments, v);
 
   bool get currentsOn => _get(StoreKeys.currents) != '0';
   set currentsOn(bool v) => _set(StoreKeys.currents, v ? '1' : '0');
@@ -145,36 +139,29 @@ class SettingsRepository {
   set almanacOn(bool v) => _set(StoreKeys.almanac, v ? '1' : '0');
 
   String get undertowLastDay => _get(StoreKeys.undertowLastDay);
-  set undertowLastDay(String v) =>
-      _set(StoreKeys.undertowLastDay, v);
+  set undertowLastDay(String v) => _set(StoreKeys.undertowLastDay, v);
 
   int get anchorQuietUntil => _getInt(StoreKeys.anchorQuietUntil);
-  set anchorQuietUntil(int v) =>
-      _set(StoreKeys.anchorQuietUntil, '$v');
+  set anchorQuietUntil(int v) => _set(StoreKeys.anchorQuietUntil, '$v');
 
   String get parkedWorriesJson => _get(StoreKeys.parkedWorries, '[]');
-  set parkedWorriesJson(String v) =>
-      _set(StoreKeys.parkedWorries, v);
+  set parkedWorriesJson(String v) => _set(StoreKeys.parkedWorries, v);
 
   String get anchorsJson => _get(StoreKeys.anchors, '[]');
   set anchorsJson(String v) => _set(StoreKeys.anchors, v);
 
-  String get shownInsightLinesJson =>
-      _get(StoreKeys.shownInsightLines, '[]');
-  set shownInsightLinesJson(String v) =>
-      _set(StoreKeys.shownInsightLines, v);
+  String get shownInsightLinesJson => _get(StoreKeys.shownInsightLines, '[]');
+  set shownInsightLinesJson(String v) => _set(StoreKeys.shownInsightLines, v);
 
   String get journalDraftJson => _get(StoreKeys.journalDraft, '{}');
-  set journalDraftJson(String v) =>
-      _set(StoreKeys.journalDraft, v);
+  set journalDraftJson(String v) => _set(StoreKeys.journalDraft, v);
 
   // -- Reminder firing tracking (used by AppStore.checkReminders) --
 
   String get reminderLastFired => _get(StoreKeys.reminderLastFired);
   set reminderLastFired(String v) => _set(StoreKeys.reminderLastFired, v);
 
-  String get weeklyReminderLastFired =>
-      _get(StoreKeys.weeklyReminderLastFired);
+  String get weeklyReminderLastFired => _get(StoreKeys.weeklyReminderLastFired);
   set weeklyReminderLastFired(String v) =>
       _set(StoreKeys.weeklyReminderLastFired, v);
 

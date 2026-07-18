@@ -1,8 +1,20 @@
 // Mentesana — design tokens.
 //
 // Single source of truth for the presentation layer: type scale, text
-// opacities, spacing, shape, and the two supported button styles.
-// Built on top of the existing palette helpers in lib/mood_palette.dart.
+// opacities, spacing, shape, the motion scale, and the two supported button
+// styles. Built on top of the existing palette helpers in
+// lib/mood_palette.dart (ivory, riva, kBreath, kExhale, seaTint, …).
+//
+// CHARTER NOTES
+// - Minimum text size anywhere is 12. No fontSize literal below 12.
+// - letterSpacing is 0 across the whole scale. Section labels are plain
+//   13px sans (caption) or 14px serif, sentence-case lowercase, normal
+//   tracking. The only place letterspaced micro-labels survive is the
+//   ritual mood check-in / keep moment (the design reference), which is
+//   never migrated.
+// - All serif runs through GoogleFonts.alice. Sans is the existing system
+//   sans (no Roboto leak: every colored text on the sea goes through the
+//   ivory() opacity tokens below).
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,23 +22,27 @@ import 'package:google_fonts/google_fonts.dart';
 import 'mood_palette.dart';
 
 // ───────────────────────── Text opacities ─────────────────────────
+//
+// The four text opacity tokens on the existing ivory() helper. Nothing
+// else may invent a text colour for the sea — use these.
 
-/// Primary text: body, titles, mood word, insight letter.
+/// Primary text: headlines, body, the mood word, insight letter.
 Color get textPrimary => ivory(.95);
 
 /// Secondary text: captions, helper lines, metadata.
-Color get textSecondary => ivory(.65);
+Color get textSecondary => ivory(.68);
 
-/// Faint text: decorative/ambient text, placeholders.
-Color get textFaint => ivory(.42);
+/// Faint text: ambient / placeholder / decorative lines.
+Color get textFaint => ivory(.45);
 
-/// Disabled text: unavailable actions.
+/// Disabled text: unavailable actions, the quietest hints.
 Color get textDisabled => ivory(.28);
 
 // ───────────────────────── Type scale ─────────────────────────
 //
-// Allowed font sizes in the app. No other fontSize literals may be used
-// after migration. Minimum size is 11.
+// The only allowed text styles. Sizes ≥ 12. letterSpacing is 0 on the
+// scale itself; per-call overrides must not exceed 0.5 on text under 14
+// in migrated files (see CHARTER NOTES above).
 
 class MenteType {
   const MenteType._();
@@ -38,14 +54,14 @@ class MenteType {
         color: textPrimary,
       );
 
-  /// Title: screen headers / large card headlines (24, Alice serif).
+  /// Title: screen headers / large headlines (24, Alice serif).
   static TextStyle get title => GoogleFonts.alice(
         fontSize: 24,
         height: 1.22,
         color: textPrimary,
       );
 
-  /// Heading: section / card headings (19, Alice serif).
+  /// Heading: section / row headings (19, Alice serif).
   static TextStyle get heading => GoogleFonts.alice(
         fontSize: 19,
         height: 1.3,
@@ -53,10 +69,10 @@ class MenteType {
       );
 
   /// Body: primary reading text (15, system sans).
-  static TextStyle get body => const TextStyle(
+  static TextStyle get body => TextStyle(
         fontSize: 15,
         height: 1.5,
-        color: Colors.white,
+        color: textPrimary,
       );
 
   /// Body serif: reflective / poetic body text (15, Alice serif).
@@ -66,19 +82,21 @@ class MenteType {
         color: textPrimary,
       );
 
-  /// Caption: labels, metadata, helper text (13, system sans).
-  static TextStyle get caption => const TextStyle(
+  /// Caption: labels, metadata, one-line subtitles, section labels
+  /// (13, system sans, normal tracking — sentence-case lowercase).
+  static TextStyle get caption => TextStyle(
         fontSize: 13,
         height: 1.45,
-        color: Colors.white,
+        color: textPrimary,
       );
 
-  /// Eyebrow: uppercase labels, nav badges, tiny metadata (11, system sans).
-  static TextStyle get eyebrow => const TextStyle(
-        fontSize: 11,
-        letterSpacing: 1.4,
+  /// Eyebrow: section labels and tiny metadata (13, system sans).
+  /// Normal tracking by default; the ritual mood check-in is the only
+  /// place that re-adds letterspacing on top, and it is never migrated.
+  static TextStyle get eyebrow => TextStyle(
+        fontSize: 13,
         height: 1.3,
-        color: Colors.white,
+        color: textPrimary,
       );
 }
 
@@ -88,6 +106,7 @@ const double s4 = 4;
 const double s8 = 8;
 const double s12 = 12;
 const double s16 = 16;
+const double s20 = 20;
 const double s24 = 24;
 const double s32 = 32;
 
@@ -96,11 +115,38 @@ const EdgeInsets padH = EdgeInsets.symmetric(horizontal: s16);
 
 // ───────────────────────── Shape ─────────────────────────
 
-/// The app's single corner radius for cards, panels, and sheets.
+/// The app's single corner radius — reserved for the ritual keep button
+/// and sheet/dialog surfaces only. Per the charter the sea is the only
+/// container; cards do not use this.
 const double r = 18;
 
-/// A hairline border tuned for the dark sea palette.
+/// A hairline border tuned for the dark sea palette — used sparingly,
+/// only to separate sections where whitespace alone is not enough.
 BorderSide get hairline => BorderSide(color: ivory(.13));
+
+/// Section-separator hairline: ivory(.08), the charter's only allowed
+/// divider line between sections.
+const BorderSide sectionRule = BorderSide(color: Color(0x14F2EEE6));
+
+// ───────────────────────── Motion scale ─────────────────────────
+//
+// Reactive, not looping. Springs for gestures; single staggered fade for
+// content reveal; ambient loops live only inside the sea painter. Every
+// duration here honours the existing reduced-motion setting, which the
+// per-screen builders snap to 0 or Duration.zero.
+
+/// Fast: gestures, taps, small state changes.
+const Duration kMotionFast = Duration(milliseconds: 180);
+
+/// Normal: most surface transitions, toggles.
+const Duration kMotionNormal = Duration(milliseconds: 320);
+
+/// Slow: screen-level crossfades, the keep ceremony.
+const Duration kMotionSlow = Duration(milliseconds: 550);
+
+/// The ritual breath — reserved for the mood check-in lens and the keep
+/// button only (re-exported from mood_palette so screens import one place).
+// kBreath is already defined in mood_palette.dart; do not re-declare.
 
 // ───────────────────────── Buttons ─────────────────────────
 //
@@ -131,7 +177,8 @@ class MenteButtons {
           border: Border.all(color: riva(.62)),
           color: riva(.14),
         ),
-        child: Text(label, style: MenteType.bodySerif.copyWith(color: kRivaLight)),
+        child:
+            Text(label, style: MenteType.bodySerif.copyWith(color: kRivaLight)),
       ),
     );
     return expanded
@@ -158,10 +205,7 @@ class MenteButtons {
         padding: const EdgeInsets.symmetric(horizontal: s8, vertical: s8),
         child: Text(
           label,
-          style: MenteType.caption.copyWith(
-            color: color,
-            letterSpacing: .05 * 11,
-          ),
+          style: MenteType.caption.copyWith(color: color),
         ),
       ),
     );

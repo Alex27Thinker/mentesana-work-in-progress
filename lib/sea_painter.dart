@@ -19,13 +19,36 @@ class SeaFieldModel extends ChangeNotifier {
   double t = 0;
   double visualV = 0;
   double visualA = 0;
+
   /// Wind: a steady directional drift on the water, -1 (left/offshore) … +1
   /// (right/onshore). Drives a constant lean in the swell and chop; gusts are
   /// derived from [t] and arousal so the field never blows perfectly steady.
   double wind = 0;
   bool reduced = false;
 
+  /// An optional parallax input from screen scroll — shifts wave phase and
+  /// the horizon by a few px, heavily damped. Default 0 = no effect, so the
+  /// painter's existing rendering is unchanged when screens don't feed it.
+  double scrollDrift = 0;
+
+  /// One-shot ripple impulses the painter expands as wave rings radiating
+  /// from [origin]. Empty = no effect (existing rendering unchanged).
+  final List<SeaRipple> ripples = [];
+
   void bump() => notifyListeners();
+}
+
+/// A single ripple impulse on the sea — an expanding wave ring from
+/// [origin], seeded at [startT] (seconds, in the field's own clock). Removed
+/// by the painter once it has fully expanded and faded. No-op under reduced
+/// motion (the manager never pushes one when reduced).
+class SeaRipple {
+  SeaRipple({required this.origin, required this.startT});
+  final Offset origin;
+  final double startT;
+
+  static const Duration lifetime = Duration(milliseconds: 1600);
+  static const double maxRadius = 320;
 }
 
 class SeaPainter extends CustomPainter {
@@ -58,9 +81,10 @@ class SeaPainter extends CustomPainter {
   /// and arousal so the field never blows perfectly steady.
   static double waveY(double x, double t, int layer, double energy,
       double valence, double breathe, double h, double horizonY,
-      [double wind = 0]) {
+      [double wind = 0, double scrollDrift = 0]) {
     // First movement is already present inside the dissolve zone; no static horizon is drawn.
-    final base = horizonY - 12 + layer * (h - horizonY) / 5.15;
+    final base =
+        horizonY - 12 + layer * (h - horizonY) / 5.15 + scrollDrift * 4;
     final coherence = (valence + 1) / 2, layering = 1 - coherence;
     // Arousal lifts amplitude; unpleasant weather (low valence) runs a touch
     // taller and more restless, pleasant weather settles lower and longer.
@@ -87,15 +111,25 @@ class SeaPainter extends CustomPainter {
     // Horizontal advection: the stronger the wind, the faster crests travel
     // sideways. This is what makes the wave direction visibly follow the wind.
     final windPhase = x * .022 * gust + t * speed * gust * 2.2;
-    final main = x * k1 + t * speed + layer * (1.15 + coherence * 1.12) + windPhase;
+    // A few px of scroll parallax — heavy damping keeps this a whisper.
+    // scrollDrift defaults to 0, so existing rendering is unchanged when
+    // screens don't feed it.
+    final driftPhase = scrollDrift * 6;
+    final main = x * k1 +
+        t * speed +
+        layer * (1.15 + coherence * 1.12) +
+        windPhase +
+        driftPhase;
 
     // Organic swell: a few incommensurate octaves summed per layer, each with
     // its own drift, so the surface never repeats on a clean period. This is
     // what keeps the water from reading as a synthetic sine.
     final swell = math.sin(main) * .68 -
         math.cos(main * 2 + layer * .7) * (.045 + .115 * energy) +
-        math.sin(main * 2.37 + t * speed * .31 + layer * 1.9) * (.03 + .05 * energy) +
-        math.sin(main * 4.13 - t * speed * .22 + layer * 3.1) * (.015 + .03 * energy);
+        math.sin(main * 2.37 + t * speed * .31 + layer * 1.9) *
+            (.03 + .05 * energy) +
+        math.sin(main * 4.13 - t * speed * .22 + layer * 3.1) *
+            (.015 + .03 * energy);
 
     // Cross-chop grows strongly with fractured weather; its phase tumbles
     // faster there, so unpleasant water visibly breaks apart. Two offset
@@ -147,8 +181,8 @@ class SeaPainter extends CustomPainter {
     final chromaPulse =
         model.reduced ? 0.0 : .045 * math.sin(t * .22 + visualV * 1.7);
 
-    double wy(double x, int layer) =>
-        waveY(x, t, layer, energy, valence, breathe, h, horizonY, model.wind);
+    double wy(double x, int layer) => waveY(x, t, layer, energy, valence,
+        breathe, h, horizonY, model.wind, model.scrollDrift);
 
     // Upper field: diffuse mental space with moving colour, deliberately not a literal sky.
     final driftX = w * (.18 + .12 * math.sin(t * .11));
@@ -253,7 +287,11 @@ class SeaPainter extends CustomPainter {
         fill.shader = ui.Gradient.linear(
           Offset(0, horizonY - 28),
           Offset(0, horizonY + 104),
-          [col.withValues(alpha: 0), col.withValues(alpha: .28), col.withValues(alpha: .88)],
+          [
+            col.withValues(alpha: 0),
+            col.withValues(alpha: .28),
+            col.withValues(alpha: .88)
+          ],
           [0, .42, 1],
         );
       } else {
@@ -289,10 +327,8 @@ class SeaPainter extends CustomPainter {
           // Choppy, restless water (low valence / high arousal) earns a
           // brighter, slightly thicker crest; calm water keeps it whisper-thin.
           ..strokeWidth = .7 + .5 * layering + .35 * energy
-          ..color = ivory(.014 +
-              .020 * depth +
-              .022 * energy +
-              .020 * layering),
+          ..color =
+              ivory(.014 + .020 * depth + .022 * energy + .020 * layering),
       );
 
       // Surface handwriting: linked light marks at one end, interwoven marks at
@@ -331,8 +367,8 @@ class SeaPainter extends CustomPainter {
         for (var s = 0; s < streakCount; s++) {
           final seed = math.sin((s + 1) * 53.3 + layer * 9.1);
           final sx = (((s + .5 + seed * .3) / streakCount) * w +
-                  t * 14 * dir * (1 + energy)) %
-              (w + 40) -
+                      t * 14 * dir * (1 + energy)) %
+                  (w + 40) -
               20;
           final sy = wy(sx, layer) + 4 + (s % 3) * (3 + layer);
           final len = (10 + windMag * 34) * (1 - depth * .3);
@@ -341,7 +377,8 @@ class SeaPainter extends CustomPainter {
             _streakPath
               ..reset()
               ..moveTo(sx - len / 2 * dir, sy - drift * .3)
-              ..quadraticBezierTo(sx, sy + drift, sx + len / 2 * dir, sy + drift * .3),
+              ..quadraticBezierTo(
+                  sx, sy + drift, sx + len / 2 * dir, sy + drift * .3),
             Paint()
               ..style = PaintingStyle.stroke
               ..strokeWidth = .6 + windMag * .8
@@ -363,8 +400,7 @@ class SeaPainter extends CustomPainter {
           const d = 6.0;
           // Cache wy(fx, layer) — used 3× in curvature + 1× for fy.
           final fy0 = wy(fx, layer);
-          final curv =
-              wy(fx - d, layer) - 2 * fy0 + wy(fx + d, layer);
+          final curv = wy(fx - d, layer) - 2 * fy0 + wy(fx + d, layer);
           final sharp = math.max(0.0, curv - thresh);
           final foaminess = math.min(1.0, sharp / 5.5);
           if (foaminess < .05) continue;
@@ -386,6 +422,40 @@ class SeaPainter extends CustomPainter {
       canvas.restore();
     }
 
+    // Ripples — one-shot expanding wave rings a screen can fire (e.g. on the
+    // journal keep). Carried on the model so any screen can trigger one via
+    // SeaManager.ripple(Offset), and pruned here once they have fully grown.
+    // No-op under reduced motion (the manager never pushes one then) and the
+    // list is empty by default, so existing rendering is unchanged.
+    if (model.ripples.isNotEmpty) {
+      final lifetimeS = SeaRipple.lifetime.inMilliseconds / 1000.0;
+      for (var i = model.ripples.length - 1; i >= 0; i--) {
+        final r = model.ripples[i];
+        final age = t - r.startT;
+        if (age >= lifetimeS) {
+          model.ripples.removeAt(i);
+          continue;
+        }
+        final p = age / lifetimeS;
+        final ease = 1 - math.pow(1 - p, 3).toDouble();
+        final radius = ease * SeaRipple.maxRadius;
+        final alpha = (.46 * (1 - p)).clamp(0.0, .46);
+        if (radius < 1 || alpha <= 0) continue;
+        // Two slightly offset soft rings read as a wave front, not a hard
+        // circle. Drawn as strokes so the living sea stays visible through them.
+        for (final off in const [0.0, -2.5]) {
+          canvas.drawCircle(
+            r.origin + Offset(0, off),
+            math.max(0, radius + off),
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 1.1 + (1 - p) * .8
+              ..color = Color.fromRGBO(242, 238, 230, alpha),
+          );
+        }
+      }
+    }
+
     // Vignette (CSS: inset 0 0 90px rgba(6,11,18,.38)).
     canvas.save();
     canvas.clipRect(Offset.zero & size);
@@ -403,4 +473,3 @@ class SeaPainter extends CustomPainter {
   @override
   bool shouldRepaint(SeaPainter oldDelegate) => false;
 }
-

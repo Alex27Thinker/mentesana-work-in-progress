@@ -21,7 +21,10 @@ const kOroHome = Color(0xFFE8B36A);
 
 /// Home text floats over the living sea — same shadow as the CSS.
 const kHomeShadow = [
-  Shadow(offset: Offset(0, 1), blurRadius: 10, color: Color.fromRGBO(6, 11, 18, .58)),
+  Shadow(
+      offset: Offset(0, 1),
+      blurRadius: 10,
+      color: Color.fromRGBO(6, 11, 18, .58)),
 ];
 
 class HomeScreen extends StatefulWidget {
@@ -66,8 +69,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // lens-current 7.4s.
   late final AnimationController _breath = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 5800));
-  late final AnimationController _shape = AnimationController(
-      vsync: this, duration: const Duration(seconds: 8));
+  late final AnimationController _shape =
+      AnimationController(vsync: this, duration: const Duration(seconds: 8));
   late final AnimationController _currents = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 7400));
 
@@ -137,8 +140,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final sky1 = kSky.bilerp(v, a)[1];
     return _LensColors(
       Color.lerp(neutral.lens, sea0, strength)!,
-      Color.lerp(neutral.veil, sky1.withOpacity(.24 * strength), strength)!,
-      Color.lerp(neutral.currents, sea0.withOpacity(.42 * strength), strength)!,
+      Color.lerp(
+          neutral.veil, sky1.withValues(alpha: .24 * strength), strength)!,
+      Color.lerp(
+          neutral.currents, sea0.withValues(alpha: .42 * strength), strength)!,
     );
   }
 
@@ -308,7 +313,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: Padding(
                 padding: const EdgeInsets.all(s8),
                 child: Text('⋯',
-                    style: MenteType.bodySerif.copyWith( color: textFaint, height: 1)),
+                    style: MenteType.bodySerif
+                        .copyWith(color: textFaint, height: 1)),
               ),
             ),
           ]),
@@ -400,15 +406,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         curve: kExhale,
         child: AnimatedScale(
           scale: _dissolving ? 1.8 : (_pressed ? .95 : 1),
-          duration: Duration(
-              milliseconds: _reduced ? 0 : (_dissolving ? 650 : 180)),
+          duration:
+              Duration(milliseconds: _reduced ? 0 : (_dissolving ? 650 : 180)),
           curve: kExhale,
           child: AnimatedBuilder(
             animation: Listenable.merge([_breath, _shape, _currents]),
             builder: (context, _) {
-              final m = _reduced
-                  ? 0.0
-                  : Curves.easeInOut.transform(_shape.value);
+              final m =
+                  _reduced ? 0.0 : Curves.easeInOut.transform(_shape.value);
               final radius = _morphRadius(m, size);
               final breathe =
                   _reduced ? 0.0 : Curves.easeInOut.transform(_breath.value);
@@ -427,7 +432,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         blurRadius: 18),
                     // The breath: a ring that swells to 14px and returns.
                     BoxShadow(
-                        color: colors.lens.withOpacity(.12),
+                        color: colors.lens.withValues(alpha: .12),
                         spreadRadius: 14 * breathe),
                   ],
                 ),
@@ -542,7 +547,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 height: ringSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: kIvory, width: 1),
+                  border: Border.all(color: kIvory),
                 ),
               ),
             ),
@@ -567,19 +572,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           children: [
             Text(label,
                 style: _serif.copyWith(
-                    fontSize: 16.5, color: textSecondary, shadows: kHomeShadow)),
+                    fontSize: 16.5,
+                    color: textSecondary,
+                    shadows: kHomeShadow)),
             const Spacer(),
             Opacity(
               opacity: .75,
               child: Text(sotto,
                   style: MenteType.caption.copyWith(
                       letterSpacing: .5,
-                      color: Color(0xFF99A3B3),
+                      color: const Color(0xFF99A3B3),
                       shadows: kHomeShadow)),
             ),
             const SizedBox(width: 8),
             Text('›',
-                style: MenteType.bodySerif.copyWith( color: textFaint, shadows: kHomeShadow)),
+                style: MenteType.bodySerif
+                    .copyWith(color: textFaint, shadows: kHomeShadow)),
           ],
         ),
       ),
@@ -607,9 +615,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           Text('on this day',
               style: MenteType.eyebrow.copyWith(
-                  letterSpacing: .76,
-                  color: textFaint,
-                  shadows: kHomeShadow)),
+                  letterSpacing: .76, color: textFaint, shadows: kHomeShadow)),
           const SizedBox(height: 5),
           Text.rich(
             TextSpan(children: [
@@ -658,8 +664,7 @@ class _LensCurrentsPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1
         ..strokeCap = StrokeCap.round
-        ..color = color.withOpacity(
-            (color.opacity * opacity).clamp(0.0, 1.0));
+        ..color = color.withValues(alpha: (color.a * opacity).clamp(0.0, 1.0));
       final path = Path()
         ..moveTo(x0, y + 3)
         ..quadraticBezierTo(x0 + len / 2, y - 4, x0 + len, y + 2);
@@ -671,4 +676,3 @@ class _LensCurrentsPainter extends CustomPainter {
   bool shouldRepaint(_LensCurrentsPainter old) =>
       old.t != t || old.color != color;
 }
-

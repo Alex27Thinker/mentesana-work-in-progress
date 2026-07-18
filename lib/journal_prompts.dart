@@ -33,8 +33,8 @@ List<InlineSpan> richTextSpans(String s, TextStyle base, TextStyle em) {
 /// Render journal text: `*emphasis*` runs become italic serif, matching the
 /// prototype's renderJournalText (`\*([^\n*]+)\*` → `<em>`).
 List<InlineSpan> journalTextSpans(String s, TextStyle base) {
-  final em = GoogleFonts.alice(
-      textStyle: base.copyWith(fontStyle: FontStyle.italic));
+  final em =
+      GoogleFonts.alice(textStyle: base.copyWith(fontStyle: FontStyle.italic));
   final spans = <InlineSpan>[];
   final re = RegExp(r'\*([^\n*]+)\*');
   var idx = 0;
@@ -160,7 +160,8 @@ List<String> dailyPromptOptions(
     final t = tailored[key];
     if (t != null && !options.contains(t)) options.add(t);
   }
-  options.add('What is one small thing from today that you do not want to lose?');
+  options
+      .add('What is one small thing from today that you do not want to lose?');
   options.add('What would you tell a friend who had your day?');
   options.add('What is still sitting with you, unfinished?');
   // JS `Array.from(new Set(options))` — dedupe, keep first occurrence.
@@ -239,15 +240,41 @@ const kSafetyText =
 /// JS date formats used across journal surfaces.
 const kDowsShort = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const kDowsLong = [
-  'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday'
 ];
 const kMonthsShort = [
-  'jan', 'feb', 'mar', 'apr', 'may', 'jun',
-  'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+  'jan',
+  'feb',
+  'mar',
+  'apr',
+  'may',
+  'jun',
+  'jul',
+  'aug',
+  'sep',
+  'oct',
+  'nov',
+  'dec'
 ];
 const kMonthsLong = [
-  'january', 'february', 'march', 'april', 'may', 'june', 'july',
-  'august', 'september', 'october', 'november', 'december'
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december'
 ];
 
 /// en-GB `weekday, day month` lowercase — e.g. 'thursday, 16 july'.
@@ -260,4 +287,3 @@ String hhmm(DateTime dt) =>
 
 /// en-GB `d mmm` lowercase — e.g. '16 jul'.
 String dMmm(DateTime dt) => '${dt.day} ${kMonthsShort[dt.month - 1]}';
-

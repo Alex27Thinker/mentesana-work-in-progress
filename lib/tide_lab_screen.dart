@@ -14,8 +14,8 @@ import 'analysis_engine.dart';
 import 'app_store.dart';
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
-import 'theme.dart';
 import 'sea_icons.dart';
+import 'theme.dart';
 
 const _kRiva = Color(0xFF7FA89B);
 const _kRivaBright = Color(0xFFB6D1C8);
@@ -114,15 +114,21 @@ class _TideLabScreenState extends State<TideLabScreen>
 
   static const _actions = <String, String>{
     'work': 'Before ending work or study, write down the next smallest task.',
-    'relationships': 'After an important interaction, take one quiet minute before the next activity.',
+    'relationships':
+        'After an important interaction, take one quiet minute before the next activity.',
     'sleep': 'Give the final ten minutes before bed to a screen-free landing.',
-    'health': 'Pause once during the day and notice what your body is asking for.',
+    'health':
+        'Pause once during the day and notice what your body is asking for.',
     'self-care': 'Choose one small act of care before the day becomes crowded.',
-    'creativity': 'Make five minutes for something expressive with no outcome required.',
-    'nature': 'Step outside, or near a window, and notice three changing details.',
-    'movement': 'Try five unhurried minutes of movement at a natural stopping point.',
+    'creativity':
+        'Make five minutes for something expressive with no outcome required.',
+    'nature':
+        'Step outside, or near a window, and notice three changing details.',
+    'movement':
+        'Try five unhurried minutes of movement at a natural stopping point.',
     'food': 'Let one meal happen without another task beside it.',
-    'money': 'Give financial thoughts one planned ten-minute container, then close it.',
+    'money':
+        'Give financial thoughts one planned ten-minute container, then close it.',
   };
 
   static const _titles = <String, String>{
@@ -225,13 +231,13 @@ class _TideLabScreenState extends State<TideLabScreen>
     final didDays = <String>{};
     for (final observation in experiment.observations) {
       if (observation.response == 'did') {
-        didDays.add(_dayKey(
-            DateTime.fromMillisecondsSinceEpoch(observation.ts)));
+        didDays
+            .add(_dayKey(DateTime.fromMillisecondsSinceEpoch(observation.ts)));
       }
     }
     final windowMood = _moodByDay(experiment.startedAt, endTs);
-    final baselineMood = _moodByDay(
-        experiment.startedAt - 28 * 86400000, experiment.startedAt);
+    final baselineMood =
+        _moodByDay(experiment.startedAt - 28 * 86400000, experiment.startedAt);
     final actionA = <double>[], actionV = <double>[];
     final restA = <double>[], restV = <double>[];
     windowMood.forEach((day, mood) {
@@ -410,13 +416,15 @@ class _TideLabScreenState extends State<TideLabScreen>
               settingUp
                   ? 'Try one small thing for a week.'
                   : 'This week’s small tide.',
-              style: MenteType.display.copyWith(height: 1.15, color: textPrimary)),
+              style:
+                  MenteType.display.copyWith(height: 1.15, color: textPrimary)),
           const SizedBox(height: 10),
           Text(
             settingUp
                 ? 'Each day, tap whether it happened. Your usual check-ins do the measuring — at the end, Mentesana shows whether your weather felt any different on the days you did it.'
                 : 'Tap once a day. Your usual check-ins quietly hold the rest.',
-            style: MenteType.bodySerif.copyWith( height: 1.6, color: textSecondary),
+            style:
+                MenteType.bodySerif.copyWith(height: 1.6, color: textSecondary),
           ),
         ],
       );
@@ -439,7 +447,8 @@ class _TideLabScreenState extends State<TideLabScreen>
           const SizedBox(height: 14),
           if (!_writingOwn) ...[
             Text(chosenAction,
-                style: MenteType.heading.copyWith(height: 1.35, color: textPrimary)),
+                style: MenteType.heading
+                    .copyWith(height: 1.35, color: textPrimary)),
             const SizedBox(height: 16),
             _label('or try'),
             const SizedBox(height: 4),
@@ -514,7 +523,9 @@ class _TideLabScreenState extends State<TideLabScreen>
     final now = DateTime.now();
     final todayRecorded = experiment.observations.any((observation) {
       final day = DateTime.fromMillisecondsSinceEpoch(observation.ts);
-      return day.year == now.year && day.month == now.month && day.day == now.day;
+      return day.year == now.year &&
+          day.month == now.month &&
+          day.day == now.day;
     });
     final elapsed = now
         .difference(DateTime.fromMillisecondsSinceEpoch(experiment.startedAt))
@@ -530,11 +541,12 @@ class _TideLabScreenState extends State<TideLabScreen>
             _breathingDot(_kRiva),
             const SizedBox(width: 8),
             Text(daysLeft == 0 ? 'ready to look back' : '$daysLeft days left',
-                style: MenteType.caption.copyWith( color: textFaint)),
+                style: MenteType.caption.copyWith(color: textFaint)),
           ]),
           const SizedBox(height: 14),
           Text(experiment.action,
-              style: MenteType.heading.copyWith(height: 1.35, color: textPrimary)),
+              style:
+                  MenteType.heading.copyWith(height: 1.35, color: textPrimary)),
           const SizedBox(height: 22),
           _weekTides(experiment),
           const SizedBox(height: 6),
@@ -543,12 +555,13 @@ class _TideLabScreenState extends State<TideLabScreen>
             children: [
               _legendDot(_kRiva, filled: true),
               const SizedBox(width: 5),
-              Text('did it', style: MenteType.eyebrow.copyWith( color: textFaint)),
+              Text('did it',
+                  style: MenteType.eyebrow.copyWith(color: textFaint)),
               const SizedBox(width: 16),
               _legendDot(ivory(.5), filled: false),
               const SizedBox(width: 5),
               Text('colour · that day’s weather',
-                  style: MenteType.eyebrow.copyWith( color: textFaint)),
+                  style: MenteType.eyebrow.copyWith(color: textFaint)),
             ],
           ),
           const SizedBox(height: 18),
@@ -649,14 +662,16 @@ class _TideLabScreenState extends State<TideLabScreen>
                 style: MenteType.heading.copyWith(color: textPrimary)),
             const SizedBox(height: 8),
             Text(stats.narrative,
-                style: MenteType.bodySerif.copyWith( height: 1.55, color: textSecondary)),
+                style: MenteType.bodySerif
+                    .copyWith(height: 1.55, color: textSecondary)),
             if (stats.grounded) ...[
               const SizedBox(height: 16),
               Row(children: [
-                Text('calmer', style: MenteType.eyebrow.copyWith( color: textFaint)),
+                Text('calmer',
+                    style: MenteType.eyebrow.copyWith(color: textFaint)),
                 const Spacer(),
                 Text('more awake',
-                    style: MenteType.eyebrow.copyWith( color: textFaint)),
+                    style: MenteType.eyebrow.copyWith(color: textFaint)),
               ]),
               const SizedBox(height: 6),
               SizedBox(
@@ -667,8 +682,7 @@ class _TideLabScreenState extends State<TideLabScreen>
                     painter: _TideComparePainter(
                       actionA: stats.actionA,
                       restA: stats.restA,
-                      breath:
-                          _reduced ? .5 : kExhale.transform(_breath.value),
+                      breath: _reduced ? .5 : kExhale.transform(_breath.value),
                     ),
                     size: const Size(double.infinity, 74),
                   ),
@@ -681,12 +695,12 @@ class _TideLabScreenState extends State<TideLabScreen>
                   _legendDot(_kRiva, filled: true),
                   const SizedBox(width: 5),
                   Text('days with it',
-                      style: MenteType.eyebrow.copyWith( color: textFaint)),
+                      style: MenteType.eyebrow.copyWith(color: textFaint)),
                   const SizedBox(width: 16),
                   _legendDot(ivory(.5), filled: false),
                   const SizedBox(width: 5),
                   Text('your usual days',
-                      style: MenteType.eyebrow.copyWith( color: textFaint)),
+                      style: MenteType.eyebrow.copyWith(color: textFaint)),
                 ],
               ),
             ],
@@ -726,7 +740,7 @@ class _TideLabScreenState extends State<TideLabScreen>
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: filled ? color.withValues(alpha: .8) : Colors.transparent,
-          border: Border.all(color: color.withValues(alpha: .8), width: 1),
+          border: Border.all(color: color.withValues(alpha: .8)),
         ),
       );
 
@@ -739,9 +753,7 @@ class _TideLabScreenState extends State<TideLabScreen>
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: selected
-                    ? _kRiva.withValues(alpha: .85)
-                    : ivory(.28),
+                color: selected ? _kRiva.withValues(alpha: .85) : ivory(.28),
                 width: selected ? 1.4 : 1,
               ),
             ),
@@ -764,19 +776,21 @@ class _TideLabScreenState extends State<TideLabScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [ivory(.065), const Color(0xFF0B141B).withValues(alpha: .6)],
+            colors: [
+              ivory(.065),
+              const Color(0xFF0B141B).withValues(alpha: .6)
+            ],
           ),
         ),
         child: child,
       );
 
   Widget _eyebrow(String text, {Color? color}) => Text(text.toUpperCase(),
-      style: MenteType.eyebrow.copyWith(
-          letterSpacing: 1.8,
-          color: color ?? ivory(.42)));
+      style: MenteType.eyebrow
+          .copyWith(letterSpacing: 1.8, color: color ?? ivory(.42)));
 
   Widget _label(String text) => Text(text.toUpperCase(),
-      style: MenteType.eyebrow.copyWith( letterSpacing: 1.65, color: textFaint));
+      style: MenteType.eyebrow.copyWith(letterSpacing: 1.65, color: textFaint));
 
   Widget _primaryButton(String label, VoidCallback onTap) => SizedBox(
         width: double.infinity,
@@ -813,7 +827,8 @@ class _TideLabScreenState extends State<TideLabScreen>
             const SizedBox(height: 14),
             Text(
               'Pick one small daily habit. Each day, tap whether it happened — that is all. Your ordinary check-ins are the measurement, and at the end Mentesana compares your weather on habit days with your usual recent days. It can notice a lean; it cannot prove a cause, and it never turns your days into scores.',
-              style: MenteType.bodySerif.copyWith( height: 1.65, color: textSecondary),
+              style: MenteType.bodySerif
+                  .copyWith(height: 1.65, color: textSecondary),
             ),
           ]),
         ),
@@ -1047,15 +1062,16 @@ class _TideLabBackdrop extends CustomPainter {
       final amplitude = (5.0 + swell * 3) * (.7 + breath * .5);
       final path = Path()..moveTo(0, baseY);
       for (double x = 0; x <= size.width; x += 10) {
-        path.lineTo(
-            x, baseY + math.sin(x / size.width * math.pi * 2 + phase) * amplitude);
+        path.lineTo(x,
+            baseY + math.sin(x / size.width * math.pi * 2 + phase) * amplitude);
       }
       canvas.drawPath(
         path,
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1
-          ..color = kIvory.withValues(alpha: .045 + swell * .02 + breath * .015),
+          ..color =
+              kIvory.withValues(alpha: .045 + swell * .02 + breath * .015),
       );
     }
 
@@ -1095,4 +1111,3 @@ class _TideLabBackdrop extends CustomPainter {
       old.drift != drift ||
       old.points.length != points.length;
 }
-

@@ -79,8 +79,8 @@ class NotificationService {
     final hour = int.tryParse(parts[0]) ?? 20;
     final minute = int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 30;
     final now = tz.TZDateTime.now(tz.local);
-    var scheduled = tz.TZDateTime(
-        tz.local, now.year, now.month, now.day, hour, minute);
+    var scheduled =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
     if (scheduled.isBefore(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
     }

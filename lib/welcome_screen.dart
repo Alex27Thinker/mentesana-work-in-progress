@@ -122,8 +122,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     border: Border.all(color: ivory(.16)),
                   ),
                   child: Text('‹',
-                      style: MenteType.heading.copyWith(
-                          height: 1, color: textSecondary)),
+                      style: MenteType.heading
+                          .copyWith(height: 1, color: textSecondary)),
                 ),
               ),
             ),
@@ -197,7 +197,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           _kickerText('the language of the app'),
           _title('Weather moves. The sea remains.'),
           const SizedBox(height: 26),
-          _legendRow('the sea', 'you — deeper and more lasting than any moment.'),
+          _legendRow(
+              'the sea', 'you — deeper and more lasting than any moment.'),
           _legendRow('weather',
               'what is here now: temporary, human, and never graded.'),
           _legendRow(
@@ -226,7 +227,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           const SizedBox(height: 24),
           _copy([
             const _Run('Mentesana draws on evidence around '),
-            const _Run('expressive writing, emotional labeling, and reflective distance',
+            const _Run(
+                'expressive writing, emotional labeling, and reflective distance',
                 strong: true),
             const _Run(
                 '. A page can help organize experience; later, repeated themes may become easier to notice.'),
@@ -284,8 +286,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: Text(
               'No account is required in this prototype. Your pages stay on this device.',
               textAlign: TextAlign.center,
-              style: MenteType.eyebrow.copyWith(
-                  letterSpacing: .3, color: textSecondary),
+              style: MenteType.eyebrow
+                  .copyWith(letterSpacing: .3, color: textSecondary),
             ),
           ),
         ]);
@@ -315,15 +317,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _kickerText(String text) => Padding(
         padding: const EdgeInsets.only(bottom: s12),
         child: Text(text.toUpperCase(),
-            style: MenteType.eyebrow.copyWith(
-                color: _kicker, letterSpacing: 1.4)),
+            style:
+                MenteType.eyebrow.copyWith(color: _kicker, letterSpacing: 1.4)),
       );
 
   Widget _title(String text) => ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 310),
         child: Text(text,
-            style: MenteType.display.copyWith(
-                height: 1.04, letterSpacing: -.85)),
+            style:
+                MenteType.display.copyWith(height: 1.04, letterSpacing: -.85)),
       );
 
   Widget _copy(List<_Run> runs) => ConstrainedBox(
@@ -335,14 +337,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 TextSpan(
                   text: r.text,
                   style: r.strong
-                      ? TextStyle(
+                      ? const TextStyle(
                           color: kIvory, fontWeight: FontWeight.w500)
                       : null,
                 ),
             ],
           ),
-          style: MenteType.body.copyWith(
-              height: 1.62, color: textPrimary),
+          style: MenteType.body.copyWith(height: 1.62, color: textPrimary),
         ),
       );
 
@@ -356,15 +357,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ),
         child: Text(text,
-            style: MenteType.caption.copyWith(
-                height: 1.55, color: textSecondary)),
+            style:
+                MenteType.caption.copyWith(height: 1.55, color: textSecondary)),
       );
 
   Widget _note(String text) => Padding(
         padding: const EdgeInsets.only(top: s16),
         child: Text(text,
-            style: MenteType.eyebrow.copyWith(
-                height: 1.5, color: textSecondary)),
+            style:
+                MenteType.eyebrow.copyWith(height: 1.5, color: textSecondary)),
       );
 
   Widget _legendRow(String term, String meaning) => Container(
@@ -386,8 +387,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             const SizedBox(width: 14),
             Expanded(
               child: Text(meaning,
-                  style: MenteType.caption.copyWith(
-                      height: 1.45, color: textSecondary)),
+                  style: MenteType.caption
+                      .copyWith(height: 1.45, color: textSecondary)),
             ),
           ],
         ),
@@ -404,18 +405,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-              color: selected
-                  ? kRiva.withValues(alpha: .72)
-                  : ivory(.17)),
-          color: selected
-              ? kRiva.withValues(alpha: .1)
-              : ivory(.025),
+              color: selected ? kRiva.withValues(alpha: .72) : ivory(.17)),
+          color: selected ? kRiva.withValues(alpha: .1) : ivory(.025),
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(label,
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontSize: 14, height: 1.35, color: kIvory)),
             ),
             const SizedBox(width: 12),
@@ -476,8 +473,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
           child: Text(
             _step == _stageCount - 2 ? 'continue' : 'next',
-            style: MenteType.caption.copyWith(
-                letterSpacing: .78, color: kIvory),
+            style:
+                MenteType.caption.copyWith(letterSpacing: .78, color: kIvory),
           ),
         ),
       ),
@@ -555,4 +552,3 @@ class _QuietButton extends StatelessWidget {
     );
   }
 }
-

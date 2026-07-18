@@ -17,8 +17,8 @@ import 'app_store.dart';
 import 'archive_screen.dart' show formatTime12;
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
-import 'theme.dart';
 import 'sea_icons.dart';
+import 'theme.dart';
 
 class EntryDetailScreen extends StatefulWidget {
   const EntryDetailScreen({
@@ -81,8 +81,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
     _armTimer?.cancel();
     // Gentle, slow friction: the confirmation arrives after a breath,
     // and stands down on its own.
-    _armTimer = Timer(
-        Duration(milliseconds: widget.reduced ? 400 : 2200), () {
+    _armTimer = Timer(Duration(milliseconds: widget.reduced ? 400 : 2200), () {
       if (!mounted || !_deleteArmed) return;
       setState(() => _deleteReady = true);
       _disarmTimer?.cancel();
@@ -156,8 +155,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
     final d = e.date;
     final timeLine =
         '${kDowsLong[d.weekday % 7]}, ${kMonthsLong[d.month - 1]} ${d.day} \u00b7 ${formatTime12(d)}';
-    final softenVisible =
-        widget.reads >= 3 && e.text.isNotEmpty && !_distance;
+    final softenVisible = widget.reads >= 3 && e.text.isNotEmpty && !_distance;
 
     final moodTint = hasMood ? seaTint(e.v!, e.a!) : null;
 
@@ -188,8 +186,6 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
               children: [
                 BreathingCard(
                   tint: moodTint,
-                  fill: .06,
-                  border: .10,
                   radius: BorderRadius.circular(18),
                   intensity: .5,
                   child: Container(
@@ -206,33 +202,34 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(timeLine,
-                    style: MenteType.caption.copyWith(
-                        letterSpacing: .14 * 11,
-                        color: textFaint)),
+                    style: MenteType.caption
+                        .copyWith(letterSpacing: .14 * 11, color: textFaint)),
                 const SizedBox(height: 6),
                 Text(e.title.isNotEmpty ? e.title : (e.word ?? 'journal'),
-                    style: MenteType.display.copyWith(height: 1.15, color: textPrimary)),
+                    style: MenteType.display
+                        .copyWith(height: 1.15, color: textPrimary)),
                 if (e.texture.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Text(e.texture,
-                      style: MenteType.caption.copyWith( color: textFaint)),
+                      style: MenteType.caption.copyWith(color: textFaint)),
                 ],
                 if ((e.afterWord ?? '').isNotEmpty) ...[
                   const SizedBox(height: 10),
                   Text.rich(
                     TextSpan(
-                      style: MenteType.bodySerif.copyWith( height: 1.55, color: textSecondary),
+                      style: MenteType.bodySerif
+                          .copyWith(height: 1.55, color: textSecondary),
                       children: [
                         const TextSpan(text: 'The weather began '),
                         TextSpan(
                             text: (e.word ?? '').isNotEmpty ? e.word : 'here',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600)),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
                         const TextSpan(text: ' and later felt '),
                         TextSpan(
                             text: e.afterWord,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600)),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
                         const TextSpan(
                             text:
                                 '. No direction required \u2014 only a shift noticed.'),
@@ -243,7 +240,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                 if (e.tag.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text('#${e.tag}',
-                      style: MenteType.caption.copyWith( color: textFaint)),
+                      style: MenteType.caption.copyWith(color: textFaint)),
                 ],
                 _rule(),
                 _label('the page began with'),
@@ -262,7 +259,8 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                     TextSpan(
                         children: journalTextSpans(
                       _distance ? distanceText(e.text) : e.text,
-                      MenteType.heading.copyWith( height: 1.75, color: textPrimary),
+                      MenteType.heading
+                          .copyWith(height: 1.75, color: textPrimary),
                     )),
                   ),
                   if (_distance) ...[
@@ -311,7 +309,9 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                         primary: true, onTap: () => widget.onEdit(e)),
                     if (e.text.isNotEmpty)
                       _action(
-                          _distance ? 'in your own voice' : 'read at a distance',
+                          _distance
+                              ? 'in your own voice'
+                              : 'read at a distance',
                           onTap: () => setState(() => _distance = !_distance)),
                     _action(_moreOpen ? 'less' : 'more', onTap: () {
                       setState(() {
@@ -327,8 +327,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _action('duplicate',
-                          onTap: () => widget.onDuplicate(e)),
+                      _action('duplicate', onTap: () => widget.onDuplicate(e)),
                       if (hasMood)
                         _action('revisit this weather',
                             onTap: () => widget.onRevisitWeather(e)),
@@ -374,7 +373,8 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
   }
 
   Widget _label(String text) => Text(text,
-      style: MenteType.eyebrow.copyWith( letterSpacing: .22 * 10, color: textFaint));
+      style: MenteType.eyebrow
+          .copyWith(letterSpacing: .22 * 10, color: textFaint));
 
   Widget _attachment(Attachment a) {
     if (a.isImage && a.data.isNotEmpty) {
@@ -417,7 +417,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
             constraints: const BoxConstraints(maxWidth: 170),
             child: Text(name,
                 overflow: TextOverflow.ellipsis,
-                style: MenteType.caption.copyWith( color: textSecondary)),
+                style: MenteType.caption.copyWith(color: textSecondary)),
           ),
         ],
       ),
@@ -434,18 +434,13 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-              color: primary
-                  ? kRiva.withValues(alpha: .6)
-                  : ivory(.13)),
-          color: primary
-              ? kRiva.withValues(alpha: .12)
-              : Colors.transparent,
+              color: primary ? kRiva.withValues(alpha: .6) : ivory(.13)),
+          color: primary ? kRiva.withValues(alpha: .12) : Colors.transparent,
         ),
         child: Text(label,
             style: MenteType.caption.copyWith(
                 letterSpacing: .05 * 12,
-                color:
-                    primary ? kRivaLight : ivory(.68))),
+                color: primary ? kRivaLight : ivory(.68))),
       ),
     );
   }
@@ -473,14 +468,14 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-              color: const Color(0xFFC98A7B)
-                  .withValues(alpha: _deleteArmed && !_deleteReady ? .28 : .55)),
+              color: const Color(0xFFC98A7B).withValues(
+                  alpha: _deleteArmed && !_deleteReady ? .28 : .55)),
         ),
         child: Text(label,
             style: MenteType.caption.copyWith(
                 letterSpacing: .05 * 12,
-                color: const Color(0xFFC98A7B)
-                    .withValues(alpha: _deleteArmed && !_deleteReady ? .5 : .9))),
+                color: const Color(0xFFC98A7B).withValues(
+                    alpha: _deleteArmed && !_deleteReady ? .5 : .9))),
       ),
     );
   }
@@ -494,8 +489,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
         onTap: () => _restoreVersion(index),
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: s12, vertical: s12),
+          padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: textDisabled),
@@ -504,11 +498,10 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('${dMmm(d)} ${hhmm(d)}',
-                  style: MenteType.caption.copyWith( color: textSecondary)),
+                  style: MenteType.caption.copyWith(color: textSecondary)),
               Text('restore',
-                  style: MenteType.caption.copyWith(
-                      letterSpacing: .08 * 11,
-                      color: kRivaLight)),
+                  style: MenteType.caption
+                      .copyWith(letterSpacing: .08 * 11, color: kRivaLight)),
             ],
           ),
         ),
@@ -516,4 +509,3 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
     );
   }
 }
-

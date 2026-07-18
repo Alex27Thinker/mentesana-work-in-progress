@@ -42,7 +42,7 @@ Widget _pill(String label, VoidCallback onTap, {bool primary = false}) {
 }
 
 Widget _capsLabel(String text, Color color) => Text(text,
-    style: MenteType.eyebrow.copyWith( letterSpacing: .22 * 10, color: color));
+    style: MenteType.eyebrow.copyWith(letterSpacing: .22 * 10, color: color));
 
 // ────────────────────────── the undertow ───────────────────────────────
 
@@ -141,7 +141,10 @@ class _UndertowSurfaceState extends State<UndertowSurface>
             lead:
                 'someone fond of you reads this page and finds that line. how would they say it back to you?',
             steps: [
-              ('their voice, a line or two', 'kindness, with your own facts in it…'),
+              (
+                'their voice, a line or two',
+                'kindness, with your own facts in it…'
+              ),
             ],
             keepLabel: 'keep this with the page',
             closing: 'kept. distance is not denial — it is room to breathe.',
@@ -193,8 +196,8 @@ class _UndertowSurfaceState extends State<UndertowSurface>
       widget.store.appendToEntry(widget.entry, lines);
     }
     setState(() => _stage = 'done');
-    _closeTimer = Timer(
-        Duration(milliseconds: widget.reduced ? 1600 : 3400), () {
+    _closeTimer =
+        Timer(Duration(milliseconds: widget.reduced ? 1600 : 3400), () {
       if (mounted) widget.onClose();
     });
   }
@@ -264,8 +267,8 @@ class _UndertowSurfaceState extends State<UndertowSurface>
                         Positioned.fill(
                           child: IgnorePointer(
                             child: CustomPaint(
-                              painter: _CurrentsPainter(
-                                  drift: _drift, tint: tint),
+                              painter:
+                                  _CurrentsPainter(drift: _drift, tint: tint),
                             ),
                           ),
                         ),
@@ -314,8 +317,7 @@ class _UndertowSurfaceState extends State<UndertowSurface>
         _capsLabel('a current under this page', kOro.withValues(alpha: .75)),
         const SizedBox(height: 10),
         Text(undertowObservation(r),
-            style:
-                MenteType.heading.copyWith(height: 1.4, color: textPrimary)),
+            style: MenteType.heading.copyWith(height: 1.4, color: textPrimary)),
         if (r.phrase.isNotEmpty) ...[
           const SizedBox(height: 10),
           Text('“${r.phrase}”',
@@ -328,9 +330,7 @@ class _UndertowSurfaceState extends State<UndertowSurface>
         const SizedBox(height: 10),
         Text('just something the water showed — it may be nothing at all.',
             style: GoogleFonts.alice(
-                fontStyle: FontStyle.italic,
-                fontSize: 11.5,
-                color: textFaint)),
+                fontStyle: FontStyle.italic, fontSize: 11.5, color: textFaint)),
         const SizedBox(height: 16),
         Row(
           children: [
@@ -356,25 +356,23 @@ class _UndertowSurfaceState extends State<UndertowSurface>
         _capsLabel(c.title, kRiva.withValues(alpha: .8)),
         const SizedBox(height: 10),
         Text(c.lead,
-            style: MenteType.bodySerif.copyWith( height: 1.55, color: textSecondary)),
+            style: MenteType.bodySerif
+                .copyWith(height: 1.55, color: textSecondary)),
         const SizedBox(height: 14),
         Text(prompt,
-            style:
-                MenteType.heading.copyWith(height: 1.4, color: textPrimary)),
+            style: MenteType.heading.copyWith(height: 1.4, color: textPrimary)),
         const SizedBox(height: 8),
         TextField(
           controller: _fields[_step],
           maxLines: 4,
           minLines: 2,
           autofocus: !widget.reduced,
-          style: MenteType.bodySerif.copyWith( height: 1.55, color: textPrimary),
+          style: MenteType.bodySerif.copyWith(height: 1.55, color: textPrimary),
           cursorColor: kRivaLight,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.alice(
-                fontStyle: FontStyle.italic,
-                fontSize: 13,
-                color: textDisabled),
+                fontStyle: FontStyle.italic, fontSize: 13, color: textDisabled),
             filled: true,
             fillColor: tint.withValues(alpha: .07),
             border: OutlineInputBorder(
@@ -387,8 +385,7 @@ class _UndertowSurfaceState extends State<UndertowSurface>
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  BorderSide(color: kRiva.withValues(alpha: .45)),
+              borderSide: BorderSide(color: kRiva.withValues(alpha: .45)),
             ),
           ),
         ),
@@ -424,8 +421,7 @@ class _UndertowSurfaceState extends State<UndertowSurface>
           // The worry line visibly settles into the water and is carried off.
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0, end: 1),
-            duration:
-                Duration(milliseconds: widget.reduced ? 0 : 1600),
+            duration: Duration(milliseconds: widget.reduced ? 0 : 1600),
             curve: Curves.easeInOut,
             builder: (_, t, __) => Opacity(
               opacity: (1 - t).clamp(0, 1),
@@ -443,8 +439,8 @@ class _UndertowSurfaceState extends State<UndertowSurface>
         WaveDivider(color: tint, alpha: .35),
         const SizedBox(height: 10),
         Text(_copy.closing,
-            style:
-                MenteType.bodySerif.copyWith(height: 1.5, color: textSecondary)),
+            style: MenteType.bodySerif
+                .copyWith(height: 1.5, color: textSecondary)),
         const SizedBox(height: 12),
         Align(
           alignment: Alignment.centerRight,
@@ -557,12 +553,10 @@ class _AlmanacCardState extends State<AlmanacCard>
     for (final e in store.entries) {
       if (e.isMoodEntry && (latest == null || e.ts > latest.ts)) latest = e;
     }
-    final tint =
-        latest != null ? seaTint(latest.v!, latest.a!) : kRiva;
+    final tint = latest != null ? seaTint(latest.v!, latest.a!) : kRiva;
     final sky = latest != null ? skyTint(latest.v!, latest.a!) : kRivaLight;
 
-    final showable =
-        reading.hasData && reading.lines.isNotEmpty;
+    final showable = reading.hasData && reading.lines.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: s8),
@@ -586,8 +580,8 @@ class _AlmanacCardState extends State<AlmanacCard>
               Positioned.fill(
                 child: IgnorePointer(
                   child: CustomPaint(
-                    painter: _HorizonPainter(
-                        drift: _drift, tint: tint, sky: sky),
+                    painter:
+                        _HorizonPainter(drift: _drift, tint: tint, sky: sky),
                   ),
                 ),
               ),
@@ -610,14 +604,13 @@ class _AlmanacCardState extends State<AlmanacCard>
                         children: [
                           Row(
                             children: [
-                              _capsLabel('the almanac',
-                                  kOro.withValues(alpha: .7)),
+                              _capsLabel(
+                                  'the almanac', kOro.withValues(alpha: .7)),
                               const Spacer(),
                               if (showable)
                                 Text(_expanded ? 'fold' : 'unfold',
                                     style: MenteType.eyebrow.copyWith(
-                                        letterSpacing: .72,
-                                        color: textFaint)),
+                                        letterSpacing: .72, color: textFaint)),
                             ],
                           ),
                           const SizedBox(height: 7),
@@ -625,8 +618,8 @@ class _AlmanacCardState extends State<AlmanacCard>
                             showable
                                 ? reading.leading!.text
                                 : 'still filling — the almanac learns only from your own weather, and there is not quite enough yet.',
-                            style: MenteType.bodySerif.copyWith(height: 1.45,
-                                color: textPrimary),
+                            style: MenteType.bodySerif
+                                .copyWith(height: 1.45, color: textPrimary),
                           ),
                           if (_expanded && showable) ...[
                             const SizedBox(height: 10),
@@ -635,8 +628,8 @@ class _AlmanacCardState extends State<AlmanacCard>
                               Padding(
                                 padding: const EdgeInsets.only(top: s8),
                                 child: Text(l.text,
-                                    style: MenteType.bodySerif.copyWith(height: 1.5,
-                                        color: textSecondary)),
+                                    style: MenteType.bodySerif.copyWith(
+                                        height: 1.5, color: textSecondary)),
                               ),
                             const SizedBox(height: 10),
                             Text(
@@ -718,8 +711,7 @@ class _HorizonPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_HorizonPainter old) =>
-      old.tint != tint || old.sky != sky;
+  bool shouldRepaint(_HorizonPainter old) => old.tint != tint || old.sky != sky;
 }
 
 // ──────────────────────── the tide returns ─────────────────────────
@@ -763,12 +755,13 @@ class _TideReturnsCardState extends State<TideReturnsCard> {
                 'the tide brought this back', kRiva.withValues(alpha: .8)),
             const SizedBox(height: 8),
             Text('“${w.text}”',
-                style: MenteType.bodySerif.copyWith(height: 1.45, color: textPrimary)),
+                style: MenteType.bodySerif
+                    .copyWith(height: 1.45, color: textPrimary)),
             const SizedBox(height: 6),
             Text(
                 'has it changed while the tide held it — heavier, lighter, or done with you?',
-                style:
-                    MenteType.caption.copyWith( height: 1.5, color: textSecondary)),
+                style: MenteType.caption
+                    .copyWith(height: 1.5, color: textSecondary)),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -902,11 +895,12 @@ class _AnchorCardState extends State<AnchorCard> {
             ],
             const SizedBox(height: 8),
             Text(body,
-                style: MenteType.heading.copyWith(height: 1.4, color: textPrimary)),
+                style: MenteType.heading
+                    .copyWith(height: 1.4, color: textPrimary)),
             const SizedBox(height: 6),
             Text(note,
                 style:
-                    MenteType.caption.copyWith( height: 1.5, color: textFaint)),
+                    MenteType.caption.copyWith(height: 1.5, color: textFaint)),
             const SizedBox(height: 12),
             Row(children: actions),
           ],

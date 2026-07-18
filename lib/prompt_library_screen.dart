@@ -99,11 +99,11 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                 children: [
                   Expanded(
                     child: Text(title,
-                        style: MenteType.bodySerif.copyWith(color: textPrimary)),
+                        style:
+                            MenteType.bodySerif.copyWith(color: textPrimary)),
                   ),
                   Text('${prompts.length}',
-                      style:
-                          MenteType.caption.copyWith(color: textFaint)),
+                      style: MenteType.caption.copyWith(color: textFaint)),
                   const SizedBox(width: 10),
                   AnimatedRotation(
                     turns: open ? .5 : 0,
@@ -133,8 +133,8 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                                 'once you have kept a few pages, this will draw from them.',
                                 style: GoogleFonts.alice(
                                     fontStyle: FontStyle.italic,
-                                fontSize: 13,
-                                color: textFaint)),
+                                    fontSize: 13,
+                                    color: textFaint)),
                           )
                         else
                           for (final p in prompts) _promptCard(title, p),
@@ -164,13 +164,12 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(title,
-                  style: MenteType.eyebrow.copyWith(
-                      letterSpacing: .2 * 10,
-                      color: textFaint)),
+                  style: MenteType.eyebrow
+                      .copyWith(letterSpacing: .2 * 10, color: textFaint)),
               const SizedBox(height: s8),
               Text(plain,
-                  style: MenteType.bodySerif.copyWith(
-                      height: 1.45, color: textPrimary)),
+                  style: MenteType.bodySerif
+                      .copyWith(height: 1.45, color: textPrimary)),
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerRight,
@@ -183,8 +182,8 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                   ),
                   child: Center(
                       child: Text('\u2192',
-                          style: MenteType.bodySerif.copyWith(
-                              color: textSecondary))),
+                          style: MenteType.bodySerif
+                              .copyWith(color: textSecondary))),
                 ),
               ),
             ],
@@ -194,4 +193,3 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
     );
   }
 }
-

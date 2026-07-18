@@ -12,7 +12,8 @@ const kBreath = Duration(milliseconds: 5800);
 const Cubic kExhale = Cubic(.22, 1, .36, 1);
 
 const kIvory = Color(0xFFF2EEE6);
-const kOro = Color(0xFFE8B36A); // reserved for insight moments — not used as accent here
+const kOro =
+    Color(0xFFE8B36A); // reserved for insight moments — not used as accent here
 const kInkDeep = Color(0xFF10141E);
 
 /// Riva — the "active / selected / discipline" association (JS --riva).
@@ -127,8 +128,8 @@ class WaveDivider extends StatelessWidget {
         height: height,
         width: double.infinity,
         child: CustomPaint(
-          painter: _WaveDividerPainter(
-              (color ?? kIvory).withValues(alpha: alpha)),
+          painter:
+              _WaveDividerPainter((color ?? kIvory).withValues(alpha: alpha)),
         ),
       );
 }
@@ -216,24 +217,48 @@ const kShades = <String, List<String>>{
 /// A deliberately fuzzy interpretation: it invites recognition, never diagnosis.
 List<String> feltOptions(double v, double a) {
   if (a > .35 && v > .25) {
-    return ['charged and hopeful', 'awake to what is possible', 'bright, with momentum'];
+    return [
+      'charged and hopeful',
+      'awake to what is possible',
+      'bright, with momentum'
+    ];
   }
   if (a > .35 && v < -.25) {
-    return ['restless, not bad', 'too much at once', 'asking for your attention'];
+    return [
+      'restless, not bad',
+      'too much at once',
+      'asking for your attention'
+    ];
   }
   if (a < -.35 && v > .25) {
     return ['softly okay', 'quietly held', 'settled, with room to breathe'];
   }
   if (a < -.35 && v < -.25) {
-    return ['quiet, but carrying a lot', 'flat and far away', 'low tide, still here'];
+    return [
+      'quiet, but carrying a lot',
+      'flat and far away',
+      'low tide, still here'
+    ];
   }
   if (v > .35) {
-    return ['open, with some lift', 'lighter than before', 'gently moving forward'];
+    return [
+      'open, with some lift',
+      'lighter than before',
+      'gently moving forward'
+    ];
   }
   if (v < -.35) {
-    return ['a little closed-in', 'not easy to name', 'somewhere under the weather'];
+    return [
+      'a little closed-in',
+      'not easy to name',
+      'somewhere under the weather'
+    ];
   }
-  return ['somewhere in between', 'neither here nor there', 'still finding the shape of it'];
+  return [
+    'somewhere in between',
+    'neither here nor there',
+    'still finding the shape of it'
+  ];
 }
 
 /// A shared 64px screen header: a quiet backlink on the left, a centered
@@ -285,10 +310,7 @@ class ScreenHeader extends StatelessWidget {
                         color: ivory(.85))),
               ),
             ),
-            if (trailing != null)
-              trailing!
-            else
-              const SizedBox(width: 68),
+            if (trailing != null) trailing! else const SizedBox(width: 68),
           ],
         ),
       );
@@ -325,8 +347,7 @@ class _BreathingCardState extends State<BreathingCard>
   late final AnimationController _ctrl =
       AnimationController(vsync: this, duration: kBreath);
 
-  bool get _reduced =>
-      MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+  bool get _reduced => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
   @override
   void initState() {
@@ -378,4 +399,3 @@ class _BreathingCardState extends State<BreathingCard>
     );
   }
 }
-

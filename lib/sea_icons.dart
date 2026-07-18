@@ -8,7 +8,8 @@ import 'package:flutter/widgets.dart';
 /// Icon data in the prototype's 24×24 viewBox: raw `<path d>` strings plus
 /// optional `<circle>` / `<rect rx>` primitives.
 class SeaIconData {
-  const SeaIconData(this.paths, {this.circles = const [], this.rects = const []});
+  const SeaIconData(this.paths,
+      {this.circles = const [], this.rects = const []});
 
   final List<String> paths;
 
@@ -22,8 +23,8 @@ class SeaIconData {
 /// Icon set — path data copied verbatim from index.html.
 class SeaIcons {
   /// `.backlink-icon` chevron.
-  static const back = SeaIconData(
-      ['M15 5c-3.3 1.8-5.6 4.1-6.9 7 1.3 2.9 3.6 5.2 6.9 7']);
+  static const back =
+      SeaIconData(['M15 5c-3.3 1.8-5.6 4.1-6.9 7 1.3 2.9 3.6 5.2 6.9 7']);
 
   static const notifications = SeaIconData([
     'M12 4c-3.4 0-5.6 2.4-5.6 6 0 4.5-1.7 5.6-2.4 7h16c-.7-1.4-2.4-2.5-2.4-7 0-3.6-2.2-6-5.6-6',
@@ -216,8 +217,7 @@ Path parseSvgPath(String d) {
     return double.parse(m.group(2)!);
   }
 
-  bool numbersAhead() =>
-      i < tokens.length && tokens[i].group(2) != null;
+  bool numbersAhead() => i < tokens.length && tokens[i].group(2) != null;
 
   while (i < tokens.length) {
     final t = tokens[i];
@@ -292,9 +292,8 @@ Path parseSvgPath(String d) {
         {
           final rel = cmd == 's';
           final base = rel ? cur : Offset.zero;
-          final c1 = prevCubicControl == null
-              ? cur
-              : cur * 2 - prevCubicControl;
+          final c1 =
+              prevCubicControl == null ? cur : cur * 2 - prevCubicControl;
           final c2 = base + Offset(nextNum(), nextNum());
           final end = base + Offset(nextNum(), nextNum());
           path.cubicTo(c1.dx, c1.dy, c2.dx, c2.dy, end.dx, end.dy);
@@ -344,4 +343,3 @@ Path parseSvgPath(String d) {
   }
   return path;
 }
-

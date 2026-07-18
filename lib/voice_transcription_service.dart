@@ -29,7 +29,8 @@
 
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
-import 'package:whisper_ggml/whisper_ggml.dart' if (dart.library.html) 'whisper_stub.dart';
+import 'package:whisper_ggml/whisper_ggml.dart'
+    if (dart.library.html) 'whisper_stub.dart';
 
 /// Which ggml model to transcribe with. `balanced` (the `base` model) is
 /// the default: small enough to download quickly and accurate enough for
@@ -79,7 +80,8 @@ class WhisperTranscriber {
   /// been compiled or run inside an actual Flutter project — re-check
   /// against whichever version `flutter pub add whisper_ggml` resolves
   /// to before shipping, in case the API has shifted again since.
-  Future<String> transcribe(String audioPath, {String language = 'auto'}) async {
+  Future<String> transcribe(String audioPath,
+      {String language = 'auto'}) async {
     if (!_modelReady) {
       await _whisper.downloadModel(quality.ggmlModel);
       _modelReady = true;
@@ -107,7 +109,8 @@ class WhisperTranscriber {
 /// AppStore.transcribeInBackground so the page can be kept immediately
 /// instead of waiting on it.
 class VoiceTranscriptionService {
-  VoiceTranscriptionService({VoiceModelQuality quality = VoiceModelQuality.balanced})
+  VoiceTranscriptionService(
+      {VoiceModelQuality quality = VoiceModelQuality.balanced})
       : _transcriber = WhisperTranscriber(quality: quality);
 
   final AudioRecorder _recorder = AudioRecorder();
