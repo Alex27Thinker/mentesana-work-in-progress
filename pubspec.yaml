@@ -1,0 +1,33 @@
+name: mentesana_mood_selector
+description: "Mentesana — full Flutter port of the journaling prototype: every screen, 1:1."
+publish_to: "none"
+version: 0.3.5
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_fonts: ^6.2.1
+  shared_preferences: ^2.2.3
+  crypto: ^3.0.3
+  encrypt: ^5.0.3
+  record: ^7.1.1
+  path_provider: ^2.1.4
+  whisper_ggml: ^2.4.0
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.4
+  get_it: ^8.0.3
+  watch_it: ^1.5.0
+  image_picker: ^1.2.3
+  flutter_image_compress: ^2.5.0
+  amicons: ^1.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

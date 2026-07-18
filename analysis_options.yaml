@@ -1,0 +1,95 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    invalid_annotation_target: ignore
+
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    # --- Clarity & consistency ---
+    - always_declare_return_types
+    - annotate_overrides
+    - avoid_empty_else
+    - avoid_init_to_null
+    - avoid_redundant_argument_values
+    - avoid_return_types_on_setters
+    - avoid_shadowing_type_parameters
+    - avoid_types_as_parameter_names
+    - avoid_unnecessary_containers
+    - await_only_futures
+    - camel_case_extensions
+    - camel_case_types
+    - cancel_subscriptions
+    - constant_identifier_names
+    - curly_braces_in_flow_control_structures
+    - directives_ordering
+    - empty_constructor_bodies
+    - empty_statements
+    - exhaustive_cases
+    - file_names
+    - hash_and_equals
+    - no_adjacent_strings_in_list
+    - no_duplicate_case_values
+    - no_leading_underscores_for_local_identifiers
+    - no_leading_underscores_for_library_prefixes
+    - no_runtimeType_toString
+    - non_constant_identifier_names
+    - null_closures
+    - overridden_fields
+    - prefer_adjacent_string_concatenation
+    - prefer_asserts_in_initializer_lists
+    - prefer_collection_literals
+    - prefer_conditional_assignment
+    - prefer_const_constructors
+    - prefer_const_constructors_in_immutables
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    - prefer_contains
+    - prefer_final_fields
+    - prefer_final_locals
+    - prefer_for_elements_to_map_fromIterable
+    - prefer_generic_function_type_aliases
+    - prefer_if_elements_to_conditional_expressions
+    - prefer_if_null_operators
+    - prefer_initializing_formals
+    - prefer_inlined_adds
+    - prefer_is_empty
+    - prefer_is_not_empty
+    - prefer_is_not_operator
+    - prefer_iterable_whereType
+    - prefer_null_aware_operators
+    - prefer_single_quotes
+    - prefer_spread_collections
+    - provide_deprecation_message
+    - recursive_getters
+    - sized_box_for_whitespace
+    - slash_for_doc_comments
+    - sort_child_properties_last
+    - test_types_in_equals
+    - throw_in_finally
+    - unnecessary_brace_in_string_interps
+    - unnecessary_const
+    - unnecessary_getters_setters
+    - unnecessary_late
+    - unnecessary_new
+    - unnecessary_null_aware_assignments
+    - unnecessary_null_in_if_null_operators
+    - unnecessary_nullable_for_final_variable_declarations
+    - unnecessary_overrides
+    - unnecessary_string_escapes
+    - unnecessary_string_interpolations
+    - unnecessary_this
+    - unrelated_type_equality_checks
+    - use_build_context_synchronously
+    - use_full_hex_values_for_flutter_colors
+    - use_function_type_syntax_for_parameters
+    - use_key_in_widget_constructors
+    - use_rethrow_when_possible
+    - use_super_parameters
+    - use_test_throws_matchers
+    - void_checks

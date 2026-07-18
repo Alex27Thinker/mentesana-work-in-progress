@@ -1,0 +1,18 @@
+# ==============================================================================
+# SDD Runtime Directory .gitignore
+# ==============================================================================
+#
+# This file should be copied to .sdd/.gitignore in the user's repository.
+# It excludes runtime-generated files while allowing template overrides.
+#
+# Usage:
+#   Commands should copy this to .sdd/.gitignore on first initialization
+#
+# ==============================================================================
+
+# Runtime-generated files (project-specific, not versioned)
+codebase/
+memory/
+
+# Allow templates directory for local overrides
+!templates/

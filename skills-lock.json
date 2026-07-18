@@ -1,0 +1,1049 @@
+{
+  "version": 1,
+  "skills": {
+    "agile-metrics": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/scrum-master/skills/agile-metrics/SKILL.md",
+      "computedHash": "68890bfd9d8e1e6444db76ee78d8cb91d2e7866ae942b61f4f5e8136474afa0d"
+    },
+    "api-documentation": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/technical-writer/skills/api-documentation/SKILL.md",
+      "computedHash": "27029ccf866501ddc0f9d7aa943d59cbdd14d1de3547d5b6bcdcd844804ec7a4"
+    },
+    "architecture-documentation": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/solutions-architect/skills/architecture-documentation/SKILL.md",
+      "computedHash": "56453f24f2aa6ae783d9a6deb07d8c5ea8c6359e077100260f5ed46cc0e945e2"
+    },
+    "aspnet-core": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-development/skills/aspnet-core/SKILL.md",
+      "computedHash": "225c33c5aec340b01ea1a0c49a50c82472a54ca3284364587b181da3561c964f"
+    },
+    "async-python-patterns": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/async-python-patterns/SKILL.md",
+      "computedHash": "bbd8469ac647c5cacae80a7cd7b82239a8d2019633d22be838037995d3e55a68"
+    },
+    "bloc-pattern": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-development/skills/bloc-pattern/SKILL.md",
+      "computedHash": "929ff4cb0494b6769fb146b83905eb02d36a81488bc0bfec3a3e36be6e85704a"
+    },
+    "business-documentation": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/business-analyst/skills/business-documentation/SKILL.md",
+      "computedHash": "6698edaf8eace918a448749ad572e39468efd266ea5cf96b8b5137d6fe82ce28"
+    },
+    "cloud-architecture": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/solutions-architect/skills/cloud-architecture/SKILL.md",
+      "computedHash": "cbc7c640c49d8bbb8562c5f59eb1b8c3f07490bbd1cc86e406e014ed36b0d538"
+    },
+    "compliance-management": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/security-analyst/skills/compliance-management/SKILL.md",
+      "computedHash": "b4d5157484ee7bcd4fe04a459a0aafc66292ee1e8a8edf238d0cc3e975d38517"
+    },
+    "constitution:amend": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/constitution/skills/amend/SKILL.md",
+      "computedHash": "8e39f5ceac474d69a95f539800eeda306355d80962eefce5cc67366d63219005"
+    },
+    "constitution:checklist-generator": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/constitution/skills/checklist-generator/SKILL.md",
+      "computedHash": "716fdc63abb6b6a4cad2fb7352c3f15aead4259deadcad71fa649e52a6aef1f2"
+    },
+    "constitution:writer": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/constitution/skills/writer/SKILL.md",
+      "computedHash": "cf1e727d34682358466f4e76d981fa958c5f679b3b452886c603db1ce03140ba"
+    },
+    "coroutines-kotlin": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/kotlin-development/skills/coroutines-kotlin/SKILL.md",
+      "computedHash": "3d3deec3eb06d912b6cf347cd6dbe90d5fc0c532f40b22f5699c4b811b8354d7"
+    },
+    "daily-standups": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/scrum-master/skills/daily-standups/SKILL.md",
+      "computedHash": "44429afbaef609aa521ef6e9cdc8b3cbc63c1a7ad846e20531a379eee71a89e6"
+    },
+    "dart-add-unit-test": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-add-unit-test/SKILL.md",
+      "computedHash": "b4d913eb86f9a8539b5d07d453ce213c3b1557b028569eb980e1ae6707165da6"
+    },
+    "dart-build-cli-app": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-build-cli-app/SKILL.md",
+      "computedHash": "c8cd77f77250ad0783152e180de4fbec149c76e6b2c51c3f0d265a64c7466f0a"
+    },
+    "dart-collect-coverage": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-collect-coverage/SKILL.md",
+      "computedHash": "abaf27c3fe7370e4daaea2c48f6efd8cc418042e2844649a9c2979bbfde8b7b1"
+    },
+    "dart-fix-runtime-errors": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-fix-runtime-errors/SKILL.md",
+      "computedHash": "5d297ccaf9a34c5939c80600ff8398437c0c6bd5d343093852b65559689fae1d"
+    },
+    "dart-generate-test-mocks": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-generate-test-mocks/SKILL.md",
+      "computedHash": "c5132b41dd1d00949d035f6d49fcaee79e95d056eb9652d465e7349f539d16a2"
+    },
+    "dart-migrate-to-checks-package": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-migrate-to-checks-package/SKILL.md",
+      "computedHash": "acb9d90dc41fa4410b523e8b60083f1d9fe1dd208c1579260d454c5ab4b3b3f5"
+    },
+    "dart-resolve-package-conflicts": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-resolve-package-conflicts/SKILL.md",
+      "computedHash": "4f8029de67b9b2da43eea381c6a320a0da8844d927781effcce6e07ac736dffd"
+    },
+    "dart-run-static-analysis": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-run-static-analysis/SKILL.md",
+      "computedHash": "7b143ff93bfb118ce9d72fca56cef4b38d75bfe9044367101db09cf32e6815ad"
+    },
+    "dart-setup-ffi-assets": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-setup-ffi-assets/SKILL.md",
+      "computedHash": "d1813c87bd7c556d1aeda275d4b4fa49ce3a3fc19d5d3d8c203c5b9aeaefac51"
+    },
+    "dart-use-ffigen": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-use-ffigen/SKILL.md",
+      "computedHash": "fed0a97615cf80d8fbd59960a7a9d4497ef35af84de618e26492289924cbbcbd"
+    },
+    "dart-use-pattern-matching": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-use-pattern-matching/SKILL.md",
+      "computedHash": "4900ea465cfec31cd83d8786491609dc94e338ec8c424a1530773b2aaa0832ff"
+    },
+    "dart-use-primary-constructors": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/dart-use-primary-constructors/SKILL.md",
+      "computedHash": "f3a388b5b11b2d3b6b6c494e2cc0fbd6c4f670b9bdeb97b024f4d18b4c1970f5"
+    },
+    "data-visualization": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/data-analyst/skills/data-visualization/SKILL.md",
+      "computedHash": "44fe4d56800314b2af62499e67519fdca7d003a6035f87eed9a1184c0aba81ad"
+    },
+    "design-systems:create": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/design-systems/skills/create/SKILL.md",
+      "computedHash": "442e055e7753c5709a42378d90ea4f0580cf4d9b159aad6b5891c12932be8296"
+    },
+    "design-systems:implement": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/design-systems/skills/implement/SKILL.md",
+      "computedHash": "31bdc024a77ae5c89c6d119dbc2d2f817e92738b2e1a19a222a207406a9ff824"
+    },
+    "design-systems:review": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/design-systems/skills/review/SKILL.md",
+      "computedHash": "2a251865f086ea73d4a1c46510b16c130e74ac8d4c0717d9b94672039020fead"
+    },
+    "design-systems:specimen": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/design-systems/skills/specimen/SKILL.md",
+      "computedHash": "0ea248b760daefb5d6ebdbc2ea4582b13aea2edaea6372ca3974d28d47f7492d"
+    },
+    "dev-specialisms:fly-deploy": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/dev-specialisms/skills/fly-deploy/SKILL.md",
+      "computedHash": "0894fefb29cf069a7daef40a5a81f52808e27686d51049eaf30141b41ddd7fa9"
+    },
+    "dev-specialisms:frontend-vibes": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/dev-specialisms/skills/frontend-vibes/SKILL.md",
+      "computedHash": "f68dc18fb386148ad218c26f10a10514c1e2c55e7f826c6a77e8b11da39d2670"
+    },
+    "dev-specialisms:hashbrown-core": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/dev-specialisms/skills/hashbrown-core/SKILL.md",
+      "computedHash": "3afa49b3202d5059328c74e28b5a0c0fcd25ef2c2e0c08803c5286dc1ff13889"
+    },
+    "dev-specialisms:init-local-tooling": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/dev-specialisms/skills/init-local-tooling/SKILL.md",
+      "computedHash": "0b5d41675c2948fe9ad692d7e0faa6532107bff1dd0c8afc5d6169ee4862c6e5"
+    },
+    "devs:code-review": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/devs/skills/code-review/SKILL.md",
+      "computedHash": "13563a903e15d88c9953a68ba315be512ddd38b9cdedeea555e7f319312fb245"
+    },
+    "devs:deps-core": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/devs/skills/deps-core/SKILL.md",
+      "computedHash": "512d9a0a5f6f834691cd68ee2098cbf0dbcfe371899f6dd66835acd48aa25cf5"
+    },
+    "devs:python-core": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/devs/skills/python-core/SKILL.md",
+      "computedHash": "e8d6782088b0bcb49a6273788069a67d89c89249f8073b08d8a330b90898091f"
+    },
+    "devs:react-components": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/devs/skills/react-components/SKILL.md",
+      "computedHash": "c28499672e24b8f6459e99cd2e92fca953d02ae4f916add11e77c138ea8578dc"
+    },
+    "devs:react-core": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/devs/skills/react-core/SKILL.md",
+      "computedHash": "e219513758500d6200f8d8cc39c0ac4295ee6d301a2311eeab4ffc3df0632e61"
+    },
+    "devs:rust-core": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/devs/skills/rust-core/SKILL.md",
+      "computedHash": "d908784e8d91f20d84896e2a719500d3b72d39299582e402d398a6292dc0514b"
+    },
+    "devs:security-core": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/devs/skills/security-core/SKILL.md",
+      "computedHash": "aef79f8d35395f85074f7a705796a3b735736ca11efce2051aed65acb558c3fc"
+    },
+    "devs:typescript-core": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/devs/skills/typescript-core/SKILL.md",
+      "computedHash": "44fb3eeb13246c4ae2120bb9e91a80939cd89bd4790480f12d36a25cc09f1ae9"
+    },
+    "docker-containers": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/devops-automation/skills/docker-containers/SKILL.md",
+      "computedHash": "16f0d8e41b7165d56ffba30225016a5280cedebb49c82c2c735e32b2e61412a2"
+    },
+    "docs-as-code": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/technical-writer/skills/docs-as-code/SKILL.md",
+      "computedHash": "22c12afdf50c713658bbb068b13c50fc6b480af51506c19514b8ce28b9155774"
+    },
+    "drift-persistence": {
+      "source": "dimitriRemoiville/cc-mobile",
+      "sourceType": "github",
+      "skillPath": "plugins/cc-mobile-flutter/skills/drift-persistence/SKILL.md",
+      "computedHash": "e282a33e2a88b999fa2ff64a2eb0f64d3bb8d90734ed6cd815d1fbbcf82b3978"
+    },
+    "excel-analysis": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/data-analyst/skills/excel-analysis/SKILL.md",
+      "computedHash": "5326978b662d596248394ceca542718367ce05b0efe493a2c257662b4a6fa4e5"
+    },
+    "express-api-development": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/nodejs-development/skills/express-api-development/SKILL.md",
+      "computedHash": "67c335225eef305a4d8208f5c21a19c2fa57f14ff56e40d2d40558c704f535c7"
+    },
+    "feed-datasource-expert": {
+      "source": "flutter-it/watch_it",
+      "sourceType": "github",
+      "skillPath": "skills/feed-datasource-expert/SKILL.md",
+      "computedHash": "f6ecf65fa2ec86c477e13badd39e115c6f672c1f46e19d2b3abc0bdffc355d58"
+    },
+    "flutter-add-integration-test": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-add-integration-test/SKILL.md",
+      "computedHash": "4246d3ef5f21bdb7945899056b99cf3863e2bff645a132b41634caaded68da6d"
+    },
+    "flutter-add-widget-preview": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-add-widget-preview/SKILL.md",
+      "computedHash": "369ed3ebdc1f81ee337551ad1d1dd9ec6e768ed2bdf65d32ad442117a6ba79b6"
+    },
+    "flutter-add-widget-test": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-add-widget-test/SKILL.md",
+      "computedHash": "f4ea905ae155d1bca76f5431bf6ed31f31e3d40146493e7ae4285eac39ba4ffd"
+    },
+    "flutter-animations": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-development/skills/flutter-animations/SKILL.md",
+      "computedHash": "3abbcac9bdf815046fc96650123e1ac764cd659254c5bea25fb8f83edb465274"
+    },
+    "flutter-apply-architecture-best-practices": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-apply-architecture-best-practices/SKILL.md",
+      "computedHash": "baeb208b1cab90c559677626dbd101b96ba93f803cbed85122abdadeb3283a8b"
+    },
+    "flutter-architecture-expert": {
+      "source": "flutter-it/watch_it",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-architecture-expert/SKILL.md",
+      "computedHash": "e4b0d95a1a75627a2da05ada3a4e6117b96de4133f8819f10fd5e0f570ded9d1"
+    },
+    "flutter-build-responsive-layout": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-build-responsive-layout/SKILL.md",
+      "computedHash": "6d74a9504c4e355c4c62f6fcb6c6dc0df67b56dd6616bea199e4e58f75b7729b"
+    },
+    "flutter-core:flutter-animations": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-animations/SKILL.md",
+      "computedHash": "8476d8375554ad3656f94e410c7c22e4027d889c0d00b483d3316b42f9df2564"
+    },
+    "flutter-core:flutter-architecture": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-architecture/SKILL.md",
+      "computedHash": "8b98ab00faedf6481c56bb6aa499bc6af48264bd2c9da8b0a40d5242893bb0c7"
+    },
+    "flutter-core:flutter-data-networking": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-data-networking/SKILL.md",
+      "computedHash": "03710ef7918aaeed39b910f4f4da146f1e0e15a6a821c7003f4cad4a90a37236"
+    },
+    "flutter-core:flutter-deployment": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-deployment/SKILL.md",
+      "computedHash": "757c3d6a320ed7c00b52f5f11f58d9b9bae69757262c11d0a21e149af21a8534"
+    },
+    "flutter-core:flutter-forms-input": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-forms-input/SKILL.md",
+      "computedHash": "6f6a423a4b03f81351d358ec10b22a6a2b28c2546b5d527035e0e6a7109c2961"
+    },
+    "flutter-core:flutter-navigation-routing": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-navigation-routing/SKILL.md",
+      "computedHash": "761ed9aeca545acf15b9ebb5a0ae9c5704484d8cdc7e450a45ee53a5b195c493"
+    },
+    "flutter-core:flutter-performance": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-performance/SKILL.md",
+      "computedHash": "6f8fdaaac6025be8334d3c03ef9918af5d7133238a826b6a0c1d72aab987608b"
+    },
+    "flutter-core:flutter-persistence": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-persistence/SKILL.md",
+      "computedHash": "97f54015bcedb298d292afdd9850d757496198d9c7a2d9b4967eb180069b3178"
+    },
+    "flutter-core:flutter-platform-integration": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-platform-integration/SKILL.md",
+      "computedHash": "e88efa2d491a619086e16b1f25d3ab5db439fd09db5d325ce7a691a8f2601d32"
+    },
+    "flutter-core:flutter-serverpod": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-serverpod/SKILL.md",
+      "computedHash": "23f9846483f4378a4d97b27ca7d8cf6dffb82f4e56564aaa5f419fc3d53708f0"
+    },
+    "flutter-core:flutter-state-management": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-state-management/SKILL.md",
+      "computedHash": "79deb90ce73849b9fde59bcb1c7c70e20847d3a2b39cf276350a9bcecb74744b"
+    },
+    "flutter-core:flutter-testing-quality": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-testing-quality/SKILL.md",
+      "computedHash": "aed47f0bc26018a4f110936127d366523a5552b7c57d4702c764b44984611a24"
+    },
+    "flutter-core:flutter-ui-widgets": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-core/skills/flutter-ui-widgets/SKILL.md",
+      "computedHash": "1bce028058e9170002ce3d2790164f9ac0f4c050e1dc257e184da0c5e8c21c10"
+    },
+    "flutter-fix-layout-issues": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-fix-layout-issues/SKILL.md",
+      "computedHash": "b2f9789451224e6df8d1d7ac63854c2f1beb30fa35d13ea06fbae9ba2b1b0a7f"
+    },
+    "flutter-implement-json-serialization": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-implement-json-serialization/SKILL.md",
+      "computedHash": "c2cf46854472a452dafa11f862f2bca3d9fe7286a5bb45d85b1efbcebc74b74e"
+    },
+    "flutter-performance": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-development/skills/flutter-performance/SKILL.md",
+      "computedHash": "19b3bacb04189eefa48c2fcd387bbce64e93088249272b5e660cf51fa1e121fe"
+    },
+    "flutter-setup-declarative-routing": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-setup-declarative-routing/SKILL.md",
+      "computedHash": "4c2ed2fd729230be581b15d84741688e206632fb2b38af320060cd3518b91179"
+    },
+    "flutter-setup-localization": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-setup-localization/SKILL.md",
+      "computedHash": "fc0811b1b775c52c1b8f7df600f5c52b83029aea0586b8cc55169812affd408f"
+    },
+    "flutter-state-management": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/flutter-development/skills/flutter-state-management/SKILL.md",
+      "computedHash": "fa18db3c9ba2cc467f243b3f95114302746e74f76f0f368d55faf4985b80e2a8"
+    },
+    "flutter-use-http-package": {
+      "source": "flutter/agent-plugins",
+      "sourceType": "github",
+      "skillPath": "skills/flutter-use-http-package/SKILL.md",
+      "computedHash": "bd169b5cee731751f3b32f43c94cfe9495fc8e6c3eb621b785c69e38b77d0e19"
+    },
+    "get-it-expert": {
+      "source": "flutter-it/watch_it",
+      "sourceType": "github",
+      "skillPath": "skills/get-it-expert/SKILL.md",
+      "computedHash": "b9ae2a3209e8b7a5c1a03a6d5ef39fa2597b56b66412048dccc8769d158d8e0a"
+    },
+    "git-lovely:gh-cli": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/git-lovely/skills/gh-cli/SKILL.md",
+      "computedHash": "96482c4b52091de5b9ed98e3e14dbf9af5418bb710e32a3b0e2b1852641778e2"
+    },
+    "git-lovely:useful-commits": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/git-lovely/skills/useful-commits/SKILL.md",
+      "computedHash": "4cd251c055ac62249a4d19b501f11f756f64d9ebf845ea4d3995939a34da0e2b"
+    },
+    "go-concurrency": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/go-development/skills/go-concurrency/SKILL.md",
+      "computedHash": "92d5f8b02f625dca0abf46eb66f89c122797d15693685a444d3cbf36a6e15217"
+    },
+    "ideas:ideation": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/ideas/skills/ideation/SKILL.md",
+      "computedHash": "1c4a11c2e4b5189f587d35d832e04ad82f512fa51b75dc3bd06e050d231afa72"
+    },
+    "ideas:refine": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/ideas/skills/refine/SKILL.md",
+      "computedHash": "d562770cc8734d17c0cd15c418deef1982baed4f9cb3f2801184d2cfe1a82186"
+    },
+    "ideas:riff": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/ideas/skills/riff/SKILL.md",
+      "computedHash": "49ec30494c1226ed3ec26b9f34846a172e2437918545971edb388d8d99189139"
+    },
+    "image-compression": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/image-gen/skills/image-compression/SKILL.md",
+      "computedHash": "d1bc6806bc269b57eb3abf1a61168a0b355e5512b16e15a94c1871b454a885fe"
+    },
+    "kubernetes-orchestration": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/devops-automation/skills/kubernetes-orchestration/SKILL.md",
+      "computedHash": "aff55e13f1cfcdcacf7f9124925d8307135376856b47c2c70fb9ac3b7823c27d"
+    },
+    "laravel-development": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/php-development/skills/laravel-development/SKILL.md",
+      "computedHash": "cd1e4f4b324bb6f30159e0dffb06304dd7bd95691be35376bc903a3523f83800"
+    },
+    "lexisim:design": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/lexisim/skills/design/SKILL.md",
+      "computedHash": "26d78f91ace45fddcb6f4580876ea3580dfe351dbc80dd9d68c643ad0e9d96f1"
+    },
+    "manual-testing": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/qa-engineer/skills/manual-testing/SKILL.md",
+      "computedHash": "74902d4047bb45a1895051f040988b9b08ed59e2924da6574ca716c5f01c4412"
+    },
+    "nanobanana": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/image-gen/skills/nanobanana/SKILL.md",
+      "computedHash": "68389bce06f9ddb8745b072501d4664eb5181fb20d7a361b2f5196bdeea13093"
+    },
+    "nestjs-patterns": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/nodejs-development/skills/nestjs-patterns/SKILL.md",
+      "computedHash": "ad23f7c2411fee7f3eeaf8df029945965ea1f8fe0e30bc5c539286fd4d67d3fc"
+    },
+    "performance-testing": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/qa-engineer/skills/performance-testing/SKILL.md",
+      "computedHash": "7b16facce8fb5cedd75b71b6c4a6a31f9abc20a35887c03cbf7b7effaf92c5ca"
+    },
+    "phoenix-framework": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/elixir-development/skills/phoenix-framework/SKILL.md",
+      "computedHash": "11e97769a6278f553ba7947733e095508ae2742594069127f6ef5a215839645f"
+    },
+    "pr-tools:address-review": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/pr-tools/skills/address-review/SKILL.md",
+      "computedHash": "0503a17dcfff69126297c0c6443dfa4f0a831e26dd3140683d9c220c05615567"
+    },
+    "pr-tools:review-pr": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/pr-tools/skills/review-pr/SKILL.md",
+      "computedHash": "2fbc642704ac2a86a605e2dd2616fcbc51470fe369a98cb6e5fac7c49cb30ee4"
+    },
+    "process-modeling": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/business-analyst/skills/process-modeling/SKILL.md",
+      "computedHash": "8e21c7fc86cbb70a01281e7e668dded12aa3d74acbe71920b86dd0c3431be8ff"
+    },
+    "product-backlog-management": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/product-owner-management/skills/product-backlog-management/SKILL.md",
+      "computedHash": "12d1fe5c1435bfe5769f07ac255e784218606789fd68ff7e2cd0880a11e97485"
+    },
+    "product-roadmapping": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/product-owner-management/skills/product-roadmapping/SKILL.md",
+      "computedHash": "3b03cfce333f08da57998c4c2a2d87775569919d25378e2d2ef4c823539720cf"
+    },
+    "project-api": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-api/SKILL.md",
+      "computedHash": "47ec4496f1214ac2b5d048a1172f5805fa83278d090738c25eec8cb388381a8c"
+    },
+    "project-bloc": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-bloc/SKILL.md",
+      "computedHash": "8ad4fa7efce40f71372c99f3018c96cfdba9ee24c113fde975fc2c2afc91fa21"
+    },
+    "project-database": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-database/SKILL.md",
+      "computedHash": "5c7ba936ca5a2613d04cf35148b433dbb9a07ec104ba1a3d11f366aefbad5569"
+    },
+    "project-development": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-development/SKILL.md",
+      "computedHash": "1ed6632b6b5889c397daf9034e1b6b8cdfb2dd2e4e32392f8d17b87e71c1f609"
+    },
+    "project-feedback": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-feedback/SKILL.md",
+      "computedHash": "3886b264beb2434ccbb7166c410ddc5943d9bdf648416b607492e4f8be16f47f"
+    },
+    "project-form": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-form/SKILL.md",
+      "computedHash": "d0575e3f449c77d4ffc191de67ca0f26fa69de5c3029a28df16c9253a15fd707"
+    },
+    "project-locale": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-locale/SKILL.md",
+      "computedHash": "de2b3e2e970829526f7341946b5cf421abf89c5c0d1e95457293bf5f5b3610ed"
+    },
+    "project-metadata": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-metadata/SKILL.md",
+      "computedHash": "17b71b34cd643091db64de749c52b87434ce545cabfc6acb9de8787e0f5f3695"
+    },
+    "project-planning": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/project-manager/skills/project-planning/SKILL.md",
+      "computedHash": "259bdf4608abd9726472475d02285b3f466f07633796253224c278b8974c01d0"
+    },
+    "project-plugin": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-plugin/SKILL.md",
+      "computedHash": "2ceee4f0cf87284d24ff815a17857bf6425b18f3d829d975362bc06a3ad523d6"
+    },
+    "project-reporting": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/project-manager/skills/project-reporting/SKILL.md",
+      "computedHash": "c331ae14604cbab93384db8e55e30f414e8d1d8647d4ccfc6aa0b71646ab2047"
+    },
+    "project-screen": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-screen/SKILL.md",
+      "computedHash": "ee81038490b95d73f6787d7eb0572c1d284dc5d607b185949ea1914d498ba36f"
+    },
+    "project-secure-storage": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-secure-storage/SKILL.md",
+      "computedHash": "b752fb69deb61cdb823a30dd3560acd3918e7b7df85b7f656fec9776173a33fd"
+    },
+    "project-widget": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": "skills/project-widget/SKILL.md",
+      "computedHash": "2d48601c3568d72c36e150b4642f7224ea9475fe950c93f56d9a9c58db5b9577"
+    },
+    "prompt-rewriter:generate-midnight-network-dapp-spec": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/prompt-rewriter/skills/generate-midnight-network-dapp-spec/SKILL.md",
+      "computedHash": "20333ee7b7b8dbffee1c2c8c9150a1640c5c0500763e06b99d74e7297f677045"
+    },
+    "prototyping": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/ux-designer/skills/prototyping/SKILL.md",
+      "computedHash": "06b2a7fb0be59ced2c714fcc7a9d4a0ad5e2267684b8b3682665cba70c9eb9a7"
+    },
+    "python-performance-optimization": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-performance-optimization/SKILL.md",
+      "computedHash": "90a1d99d179458189c50d0b0e8c3cf53cf3e2c3af78ab25cd700d858a42a56ca"
+    },
+    "rails-patterns": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/ruby-development/skills/rails-patterns/SKILL.md",
+      "computedHash": "4ab734add270b8e5a75b96a58ff9907e9a8330e9141e32294714dfbac9210a48"
+    },
+    "react-hooks-patterns": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/react-development/skills/react-hooks-patterns/SKILL.md",
+      "computedHash": "6ddf0adffe3016b745564e9d49fb33680ff9564c43cd8a6f5669fedebfdb2e45"
+    },
+    "readme-and-co:documentation-standards": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/readme-and-co/skills/documentation-standards/SKILL.md",
+      "computedHash": "9e581a095d5deafa1d487be1dfc8015bf0d1b7e10f033d8b336ed99b3c4f4dcf"
+    },
+    "readme-and-co:github-templates": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/readme-and-co/skills/github-templates/SKILL.md",
+      "computedHash": "66f6a67fca17603289f2e8716b543a7c5bb578754766825babb0bd02df3f5fb9"
+    },
+    "readme-and-co:license-selection": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/readme-and-co/skills/license-selection/SKILL.md",
+      "computedHash": "5e8ded7c1c0968d833cfc8df6dd49b91a570c96ce7eeb3bb41a0b4742c0afc75"
+    },
+    "readme-and-co:using-local-config": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/readme-and-co/skills/using-local-config/SKILL.md",
+      "computedHash": "f8c562eb5473c4020fbb4de409b7eaebb240ed9123c191e0c566e937efe3d003"
+    },
+    "requirements-gathering": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/business-analyst/skills/requirements-gathering/SKILL.md",
+      "computedHash": "e612576159c3aba696a033e42a0b64264c1823089c2ddd910457a39b893020a5"
+    },
+    "retrospectives": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/scrum-master/skills/retrospectives/SKILL.md",
+      "computedHash": "8b2c3be13c8b25482111e62db694502bd064ac0950017f6bb98895d62bdc3456"
+    },
+    "risk-management": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/project-manager/skills/risk-management/SKILL.md",
+      "computedHash": "1199a9398ab1b7ba9f4c092e0a7f8d9183cf0e93bf4347ea83f239bc925bcad6"
+    },
+    "route": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/decision-making/skills/route/SKILL.md",
+      "computedHash": "d1b2b4653d1cd95e10f25bb3a9a4c63dca05114edc8946194dc1d6a1a51f5ddb"
+    },
+    "rust-ownership": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/rust-development/skills/rust-ownership/SKILL.md",
+      "computedHash": "3c29b1ccd5f1904b9d65e6830fabcec275d6fced914616bba05ebcc6730b8112"
+    },
+    "rxjs-patterns": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/angular-development/skills/rxjs-patterns/SKILL.md",
+      "computedHash": "0a7a3e09b024c42fda712b1c9e3202ef8a85a9545a95b1554fb1cf79f4a2c373"
+    },
+    "sandbox:docker-sandbox-setup": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/sandbox/skills/docker-sandbox-setup/SKILL.md",
+      "computedHash": "4b910df4ebd6360248328e6e17714a0fdad62d142a7f6894fc6e271e52128436"
+    },
+    "sandbox:language-environment-config": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/sandbox/skills/language-environment-config/SKILL.md",
+      "computedHash": "975a32b0e9552e19176ef5fe55780bf31fd4e2538c9b05257ca429fe1eb37768"
+    },
+    "sandbox:sandbox-config-management": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/sandbox/skills/sandbox-config-management/SKILL.md",
+      "computedHash": "1b24975b20bf71e26343fd13acc6674884efb9f58f4fb05134a6392887de243f"
+    },
+    "scalability-patterns": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/solutions-architect/skills/scalability-patterns/SKILL.md",
+      "computedHash": "c063a73c6fe539a77989bee973caf5e8b72fcaaa0461786b876d0f7686c7ac99"
+    },
+    "sdd:code-mapping": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/sdd/skills/code-mapping/SKILL.md",
+      "computedHash": "9eeda0f34cb030f5ff6a768839d0254d113ca9a9cc6d12b71c8aa2248094607b"
+    },
+    "sdd:sdd-infrastructure": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/sdd/skills/sdd-infrastructure/SKILL.md",
+      "computedHash": "7e7d52e70e18392c7277716787a08536d79987e5d4465624d0009741dae3f9f1"
+    },
+    "security-assessment": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/security-analyst/skills/security-assessment/SKILL.md",
+      "computedHash": "bf0e257541e51395365bf352b82bf4691a74fd0db5bda4862668f5f4026a8fa0"
+    },
+    "security-documentation": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/security-analyst/skills/security-documentation/SKILL.md",
+      "computedHash": "598bad573eacfebd73382a40bda41aea01d839fac9aeb22a17b9d7c803ea6768"
+    },
+    "settings-presets:configure-attribution": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/settings-presets/skills/configure-attribution/SKILL.md",
+      "computedHash": "41c6f2f8808f7968ab9115ba75b24ac312659c9b02853d6d35235dd59ba67528"
+    },
+    "settings-presets:configure-powerline": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/settings-presets/skills/configure-powerline/SKILL.md",
+      "computedHash": "26e4825546c458676fde38c223bfc9efe62629881b70cb312957015cdf2ba432"
+    },
+    "share-transcript:share": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/share-transcript/skills/share/SKILL.md",
+      "computedHash": "7e8a65cf3d7826df62d34ee5f7781503bfd3a8dfcbfc0501bacd1a1b3c8670e3"
+    },
+    "spec-writer:specs-workflow": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/spec-writer/skills/specs-workflow/SKILL.md",
+      "computedHash": "74acf1229c3d95f46c17ddd1df84868e92a6918b40cdcb8fa67eeb87f91666dc"
+    },
+    "spring-boot": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/java-development/skills/spring-boot/SKILL.md",
+      "computedHash": "974a10aba20a62777c8f11b21fd1e230e2ece4c4b5155900c3bc722f72dade74"
+    },
+    "sprint-planning": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/scrum-master/skills/sprint-planning/SKILL.md",
+      "computedHash": "907cb9061827b4ba611da1bc65824bb84b4fcbc3e8b7fa4d99c6729febbffb1f"
+    },
+    "sql-analysis": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/data-analyst/skills/sql-analysis/SKILL.md",
+      "computedHash": "8fbc4c5efcfb8a6669d6e990d2b814abb22f4f924dd48aa4e5f55cd1490f5691"
+    },
+    "stakeholder-communication": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/product-owner-management/skills/stakeholder-communication/SKILL.md",
+      "computedHash": "432fa5b5368bd6829d3d4225a948735af4a81d0dfd7c769f3c54098cc99966a1"
+    },
+    "statistical-analysis": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/data-analyst/skills/statistical-analysis/SKILL.md",
+      "computedHash": "de0614926a3c5f239cfd70f15458e2e74d04e8e31cf85416b2c81374e8707ddb"
+    },
+    "style-guide-development": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/technical-writer/skills/style-guide-development/SKILL.md",
+      "computedHash": "b3fc8218b6b38e63d9fd1964d9ac8057db61a64a7717cfd19bd7d117cb8c47bf"
+    },
+    "supply-chain-defence:audit": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/supply-chain-defence/skills/audit/SKILL.md",
+      "computedHash": "62735d901708ae15560b2e32d606ab6b80cdcc3b26dd8ade4f216502da45bd0a"
+    },
+    "supply-chain-defence:harden": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/supply-chain-defence/skills/harden/SKILL.md",
+      "computedHash": "d2c45cde7b67cb6cd82d85a0d8f7a137a366d2c6878d380eb84db8819b4f93be"
+    },
+    "supply-chain-defence:setup": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/supply-chain-defence/skills/setup/SKILL.md",
+      "computedHash": "c8432a1111d4fd9359f60b74e93aafee629190e97abdc1f13f88ea3ad5ebb0ca"
+    },
+    "swiftui-patterns": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/swift-development/skills/swiftui-patterns/SKILL.md",
+      "computedHash": "4f38a5e2ca562fe37115bbea0d6bd2bd6403c69aef1de9024bff2cbc75554a20"
+    },
+    "system-design": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/solutions-architect/skills/system-design/SKILL.md",
+      "computedHash": "602d78cb4b569ae5e87c8187d7b653611d83fe2192345a27328b35a5dd947acf"
+    },
+    "team-coordination": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/project-manager/skills/team-coordination/SKILL.md",
+      "computedHash": "67f79c286af44a787630689d2c29e5b16ef1cf1f1ade9395ac95000cd7ceb7fc"
+    },
+    "template-mason-brick": {
+      "source": "gsmlg-app/flutter-app-template",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/template-mason-brick/SKILL.md",
+      "computedHash": "05004c1384c7653ec3a7cd829cad3ae2e92d7e33ee41f318151fd63ff0f6f950"
+    },
+    "test-automation": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/qa-engineer/skills/test-automation/SKILL.md",
+      "computedHash": "3ab1053d095ee8724cab3e379dae9929ef1527aa5bd982c6c1dbb884e8083c97"
+    },
+    "test-planning": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/qa-engineer/skills/test-planning/SKILL.md",
+      "computedHash": "87950110ebed89c5ba3e1327db27546b930e84bc61abe4660d949acde0e8b034"
+    },
+    "threat-modeling": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/security-analyst/skills/threat-modeling/SKILL.md",
+      "computedHash": "a0c1b56c0d48891a0d5d8a8ca77689fc62f4e10bcca73019f46d8fdfeb2088ad"
+    },
+    "usability-testing": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/ux-designer/skills/usability-testing/SKILL.md",
+      "computedHash": "c7a1944887e4498e8db9307f17303ffbf40945efdc7720872fa2aa33e868395b"
+    },
+    "use-case-development": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/business-analyst/skills/use-case-development/SKILL.md",
+      "computedHash": "c6dca28a1eb2af3bf48f18b81f7fdc778a9a90e730948c800d178b4d7ec9b04e"
+    },
+    "user-guide-writing": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/technical-writer/skills/user-guide-writing/SKILL.md",
+      "computedHash": "4e616978a03cef00cf8334bc6315c39ffa78d271ee67c579a1fbf6d66a9e8b42"
+    },
+    "user-research": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/ux-designer/skills/user-research/SKILL.md",
+      "computedHash": "0b37f54c4eec94caa2fa81442ca717a5ee01533e43b8cf7639057dd44751f242"
+    },
+    "user-story-writing": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/product-owner-management/skills/user-story-writing/SKILL.md",
+      "computedHash": "3ae98eb1522dcfd606831fba659a335da606618cd13a2fead176be75775acee6"
+    },
+    "utils:dependency-checker": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/utils/skills/dependency-checker/SKILL.md",
+      "computedHash": "86910acdb0e095c61048f73f48a70ee7f6ec899cc890e381d95897b61d0ef968"
+    },
+    "utils:dependency-scanner": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/utils/skills/dependency-scanner/SKILL.md",
+      "computedHash": "a3f9cf2435235490fa6e454a72bb1f7238101603c24aecf70a1d1e9ede8af962"
+    },
+    "utils:find-claude-plugin-root": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/utils/skills/find-claude-plugin-root/SKILL.md",
+      "computedHash": "7e11ed243c6118affd527919bef419adc7c3bccb387de961c30365e6d80f6a9c"
+    },
+    "utils:share-file": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/utils/skills/share-file/SKILL.md",
+      "computedHash": "c67c918fa9ad360b4e30caac20ee77a6fd034e78cd27954cde839d3ea66fe3d9"
+    },
+    "utils:tokf-filter": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/utils/skills/tokf-filter/SKILL.md",
+      "computedHash": "3fd9003f7200d821142cfa74e10a54204b68808bb11f19b73c6b2a112fe56822"
+    },
+    "uv-package-manager": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/uv-package-manager/SKILL.md",
+      "computedHash": "aff8b6eb7938387aa2e5702f4572ee1a4da6865442e854854e415bf8ae5f85c4"
+    },
+    "vue-composition-api": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/vue-development/skills/vue-composition-api/SKILL.md",
+      "computedHash": "b7abbeba2e9be4356c357b1931165803a70951e9994360de2630dfef0be0806c"
+    },
+    "watch-it-expert": {
+      "source": "flutter-it/watch_it",
+      "sourceType": "github",
+      "skillPath": "skills/watch-it-expert/SKILL.md",
+      "computedHash": "5961a5c4c9b98b297153cf74ce3b42b1d4e3a708ddef8914199e19df12ae685c"
+    },
+    "wireframing": {
+      "source": "spjoshis/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/ux-designer/skills/wireframing/SKILL.md",
+      "computedHash": "43daccec0519a937cb0e6eeb05b72afdf7eca080676b5c92009faa546648f425"
+    },
+    "worktrees:concepts": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/worktrees/skills/concepts/SKILL.md",
+      "computedHash": "e0cd6dcd9fe469bd1d1fcf25acbc26dc2c238471456444d58faf64a061a7b110"
+    },
+    "worktrees:finish": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/worktrees/skills/finish/SKILL.md",
+      "computedHash": "0c209cadcdcee1ad13da57fe229d019c21c8e4bdc934d19c2b351c17ed1c9637"
+    },
+    "worktrees:new": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/worktrees/skills/new/SKILL.md",
+      "computedHash": "e552f0caa51fc67ae62f7e9d0c993747102b1f5891a968368fa14b18ac464c7a"
+    },
+    "worktrees:orchestrator": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/worktrees/skills/orchestrator/SKILL.md",
+      "computedHash": "b793403841080532c0f7e63d9f2991b60f7af069b1022a732ffd82a54abea0eb"
+    },
+    "worktrees:peer": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/worktrees/skills/peer/SKILL.md",
+      "computedHash": "87edabff102caef6a24f6c04c44aa03be0b05d6320a05f4414bdc4cd44ae1b52"
+    },
+    "worktrees:status": {
+      "source": "aaronbassett/agent-foundry",
+      "sourceType": "github",
+      "skillPath": "plugins/worktrees/skills/status/SKILL.md",
+      "computedHash": "d855b9c32a7f48a6bb86264a5a8c2c13c6e780545b3d540927ce98b8ee80e9de"
+    }
+  }
+}
