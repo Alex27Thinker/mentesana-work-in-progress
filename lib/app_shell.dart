@@ -11,7 +11,6 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'ai_service.dart';
 import 'analysis_engine.dart';
@@ -32,6 +31,7 @@ import 'journal_prompts.dart';
 import 'lock_screen.dart';
 import 'mood_palette.dart';
 import 'mood_selector_screen.dart';
+import 'theme.dart';
 import 'prompt_library_screen.dart';
 import 'sea_icons.dart';
 import 'sea_painter.dart';
@@ -658,7 +658,7 @@ class _MentesanaShellState extends State<MentesanaShell>
                 child: Center(
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                        horizontal: s16, vertical: s8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
                       color: const Color.fromRGBO(11, 20, 27, .92),
@@ -667,12 +667,9 @@ class _MentesanaShellState extends State<MentesanaShell>
                     child: Text(
                       _note!,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Georgia',
+                      style: MenteType.bodySerif.copyWith(
                         fontStyle: FontStyle.italic,
-                        fontSize: 12.5,
-                        height: 1.55,
-                        color: ivory(.7),
+                        color: textSecondary,
                       ),
                     ),
                   ),
@@ -763,21 +760,19 @@ class _MentesanaShellState extends State<MentesanaShell>
             SafeArea(
               child: Align(
                 alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 16, left: 12),
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _show(AppScreen.home),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Text('home',
-                          style: TextStyle(
-                              fontSize: 9,
-                              letterSpacing: .72,
-                              color: ivory(.45))),
-                    ),
-                  ),
-                ),
+          child: Padding(
+            padding: const EdgeInsets.only(top: s16, left: s12),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _show(AppScreen.home),
+              child: Padding(
+                padding: const EdgeInsets.all(s8),
+                child: Text('home',
+                    style: MenteType.eyebrow.copyWith(
+                        letterSpacing: .72, color: textFaint)),
+              ),
+            ),
+          ),
               ),
             ),
           ],
@@ -874,9 +869,9 @@ class _MentesanaShellState extends State<MentesanaShell>
         right: 26,
         bottom: 90,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+          padding: const EdgeInsets.fromLTRB(s24, s24, s24, s16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(r),
             color: const Color(0xFF0B141B).withValues(alpha: .97),
             border: Border.all(color: ivory(.16)),
           ),
@@ -887,51 +882,23 @@ class _MentesanaShellState extends State<MentesanaShell>
                 TextSpan(
                     children: richTextSpans(
                   _invitePrompt,
-                  GoogleFonts.alice(
-                      fontSize: 17, height: 1.5, color: ivory(.9)),
-                  GoogleFonts.alice(
+                  MenteType.bodySerif.copyWith(height: 1.5),
+                  MenteType.bodySerif.copyWith(
                       fontStyle: FontStyle.italic,
-                      fontSize: 17,
                       height: 1.5,
                       color: kOro.withValues(alpha: .92)),
                 )),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: s16),
               Row(
                 children: [
-                  InkWell(
-                    onTap: () {
-                      final e = _lastKeptEntry;
-                      setState(() => _inviteOpen = false);
-                      if (e != null) _openEditorForEntry(e, mode: 'mood');
-                    },
-                    borderRadius: BorderRadius.circular(14),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 11),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color:
-                                kRiva.withValues(alpha: .6)),
-                        color: kRiva.withValues(alpha: .12),
-                      ),
-                      child: const Text('write',
-                          style: TextStyle(
-                              fontSize: 13, color: _rivaLight)),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  InkWell(
-                    onTap: skipToHome,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 11),
-                      child: Text('not tonight',
-                          style: TextStyle(
-                              fontSize: 12, color: ivory(.5))),
-                    ),
-                  ),
+                  MenteButtons.primary(label: 'write', onTap: () {
+                    final e = _lastKeptEntry;
+                    setState(() => _inviteOpen = false);
+                    if (e != null) _openEditorForEntry(e, mode: 'mood');
+                  }),
+                  const SizedBox(width: s12),
+                  MenteButtons.quiet(label: 'not tonight', onTap: skipToHome),
                 ],
               ),
             ],
@@ -962,9 +929,9 @@ class _MentesanaShellState extends State<MentesanaShell>
         child: Semantics(
           label: 'Check in after writing',
           child: Container(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+            padding: const EdgeInsets.fromLTRB(s24, s24, s24, s16),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(r),
               color: const Color(0xFF0B141B).withValues(alpha: .97),
               border: Border.all(color: ivory(.16)),
             ),
@@ -972,17 +939,17 @@ class _MentesanaShellState extends State<MentesanaShell>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Would you like to check in now?',
-                    style: GoogleFonts.alice(
-                        fontSize: 17, height: 1.4, color: ivory(.9))),
-                const SizedBox(height: 6),
+                    style: MenteType.bodySerif.copyWith(height: 1.4)),
+                const SizedBox(height: s8),
                 Text(
                     'You have already written. This is only a place to notice where you are.',
-                    style: TextStyle(
-                        fontSize: 12.5, height: 1.55, color: ivory(.6))),
-                const SizedBox(height: 16),
+                    style: MenteType.bodySerif.copyWith(
+                        height: 1.55, color: textSecondary)),
+                const SizedBox(height: s16),
                 Row(
                   children: [
-                    InkWell(
+                    MenteButtons.primary(
+                      label: 'check in',
                       onTap: () {
                         final entry = _postJournalEntry;
                         _suppressMoodWriteInvite = true;
@@ -1000,34 +967,9 @@ class _MentesanaShellState extends State<MentesanaShell>
                         });
                         _show(AppScreen.checkin);
                       },
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 11),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                              color: kRiva
-                                  .withValues(alpha: .6)),
-                          color:
-                              kRiva.withValues(alpha: .12),
-                        ),
-                        child: const Text('check in',
-                            style: TextStyle(
-                                fontSize: 13, color: _rivaLight)),
-                      ),
                     ),
-                    const SizedBox(width: 12),
-                    InkWell(
-                      onTap: later,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 11),
-                        child: Text('not now',
-                            style: TextStyle(
-                                fontSize: 12, color: ivory(.5))),
-                      ),
-                    ),
+                    const SizedBox(width: s12),
+                    MenteButtons.quiet(label: 'not now', onTap: later),
                   ],
                 ),
               ],
@@ -1077,12 +1019,10 @@ class _MentesanaShellState extends State<MentesanaShell>
                     child: StrokeIcon(icon,
                         size: 19, color: color, strokeWidth: 1.5),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: s4),
                   Text(label,
-                      style: TextStyle(
-                          fontSize: 9.5,
-                          letterSpacing: .76,
-                          color: color)),
+                      style: MenteType.eyebrow.copyWith(
+                          letterSpacing: .76, color: color)),
                 ],
               ),
             ),
