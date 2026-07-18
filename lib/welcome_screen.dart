@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'mood_palette.dart';
+import 'theme.dart';
 
 /// Where the ritual hands off when it closes.
 /// 'home' (skip / after saving), 'checkin' (name the weather), 'write' (a page).
@@ -43,8 +44,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   // ---------- palette (welcome screen CSS) ----------
   static const _kicker = kRivaLight;
   static const _riva = kRiva;
-
-  TextStyle get _serif => GoogleFonts.alice(color: kIvory);
 
   void _close(String to) {
     setState(() => _leaving = true);
@@ -124,8 +123,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     border: Border.all(color: ivory(.16)),
                   ),
                   child: Text('‹',
-                      style: TextStyle(
-                          fontSize: 21, height: 1, color: ivory(.7))),
+                      style: MenteType.heading.copyWith(
+                          height: 1, color: textSecondary)),
                 ),
               ),
             ),
@@ -156,7 +155,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               onTap: () => _close('home'),
               child: Center(
                 child: Text('skip',
-                    style: TextStyle(fontSize: 11, color: ivory(.7))),
+                    style: MenteType.eyebrow.copyWith(color: textSecondary)),
               ),
             ),
           ),
@@ -286,8 +285,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: Text(
               'No account is required in this prototype. Your pages stay on this device.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 10, height: 1.45, letterSpacing: .3, color: ivory(.5)),
+              style: MenteType.eyebrow.copyWith(
+                  letterSpacing: .3, color: textSecondary),
             ),
           ),
         ]);
@@ -315,17 +314,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _kickerText(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.only(bottom: s12),
         child: Text(text.toUpperCase(),
-            style: const TextStyle(
-                color: _kicker, fontSize: 10, letterSpacing: 1.4)),
+            style: MenteType.eyebrow.copyWith(
+                color: _kicker, letterSpacing: 1.4)),
       );
 
   Widget _title(String text) => ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 310),
         child: Text(text,
-            style: _serif.copyWith(
-                fontSize: 34, height: 1.04, letterSpacing: -.85)),
+            style: MenteType.display.copyWith(
+                height: 1.04, letterSpacing: -.85)),
       );
 
   Widget _copy(List<_Run> runs) => ConstrainedBox(
@@ -343,13 +342,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
             ],
           ),
-          style: TextStyle(fontSize: 15, height: 1.62, color: ivory(.76)),
+          style: MenteType.body.copyWith(
+              height: 1.62, color: textPrimary),
         ),
       );
 
   Widget _evidence(String text) => Container(
-        margin: const EdgeInsets.only(top: 20),
-        padding: const EdgeInsets.symmetric(vertical: 15),
+        margin: const EdgeInsets.only(top: s24),
+        padding: const EdgeInsets.symmetric(vertical: s16),
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(color: ivory(.13)),
@@ -357,13 +357,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ),
         child: Text(text,
-            style: TextStyle(fontSize: 12, height: 1.55, color: ivory(.68))),
+            style: MenteType.caption.copyWith(
+                height: 1.55, color: textSecondary)),
       );
 
   Widget _note(String text) => Padding(
-        padding: const EdgeInsets.only(top: 15),
+        padding: const EdgeInsets.only(top: s16),
         child: Text(text,
-            style: TextStyle(fontSize: 11, height: 1.5, color: ivory(.54))),
+            style: MenteType.eyebrow.copyWith(
+                height: 1.5, color: textSecondary)),
       );
 
   Widget _legendRow(String term, String meaning) => Container(
@@ -377,17 +379,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             SizedBox(
               width: 70,
               child: Text(term,
-                  style: const TextStyle(
+                  style: MenteType.eyebrow.copyWith(
                       color: _kicker,
-                      fontSize: 11,
                       fontWeight: FontWeight.w500,
                       letterSpacing: .88)),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Text(meaning,
-                  style: TextStyle(
-                      fontSize: 13, height: 1.45, color: ivory(.74))),
+                  style: MenteType.caption.copyWith(
+                      height: 1.45, color: textSecondary)),
             ),
           ],
         ),
@@ -476,7 +477,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
           child: Text(
             _step == _stageCount - 2 ? 'continue' : 'next',
-            style: TextStyle(fontSize: 13, letterSpacing: .78, color: kIvory),
+            style: MenteType.caption.copyWith(
+                letterSpacing: .78, color: kIvory),
           ),
         ),
       ),
