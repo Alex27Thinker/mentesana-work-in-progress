@@ -8,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'app_store.dart';
 import 'archive_screen.dart' show formatTime12;
+import 'core/locator.dart';
+import 'core/sea_manager.dart';
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
 import 'sea_icons.dart';
@@ -105,21 +107,27 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       ),
                     );
                   },
-                  child: ListView(
-                    controller: _scroll,
-                    padding: const EdgeInsets.fromLTRB(22, 0, 22, 28),
-                    children: [
-                      _navRow(now),
-                      const SizedBox(height: s16),
-                      _viewSwitch(),
-                      const SizedBox(height: s20),
-                      if (_view == 'month')
-                        ..._monthView(now)
-                      else if (_view == 'week')
-                        ..._weekView()
-                      else
-                        ..._dayView(),
-                    ],
+                  child: NotificationListener<ScrollUpdateNotification>(
+                    onNotification: (n) {
+                      locate<SeaManager>().scrollDrift(n.scrollDelta ?? 0);
+                      return false;
+                    },
+                    child: ListView(
+                      controller: _scroll,
+                      padding: const EdgeInsets.fromLTRB(22, 0, 22, 28),
+                      children: [
+                        _navRow(now),
+                        const SizedBox(height: s16),
+                        _viewSwitch(),
+                        const SizedBox(height: s20),
+                        if (_view == 'month')
+                          ..._monthView(now)
+                        else if (_view == 'week')
+                          ..._weekView()
+                        else
+                          ..._dayView(),
+                      ],
+                    ),
                   ),
                 ),
               ),

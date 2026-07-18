@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'app_store.dart';
+import 'core/locator.dart';
+import 'core/sea_manager.dart';
 import 'currents_surfaces.dart';
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
@@ -173,122 +175,129 @@ class _JournalHomeScreenState extends State<JournalHomeScreen> {
                       ),
                     );
                   },
-                  child: ListView(
-                    controller: _scroll,
-                    padding: const EdgeInsets.fromLTRB(22, 6, 22, 28),
-                    children: [
-                      // Sky zone: greeting.
-                      Text(
-                        journalGreeting(store),
-                        style: MenteType.display.copyWith(
-                          height: 1.18,
-                          color: textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: s16),
-
-                      // Return card — welcome back, if a gap warrants it.
-                      if (lastEntry != null && gapDays >= 5)
-                        _returnBlock(lastEntry),
-
-                      // Continuity — today's pages so far.
-                      if (latestToday != null)
-                        _continuityBlock(latestToday, todayPages.length),
-
-                      if (lastEntry != null && gapDays >= 5 ||
-                          latestToday != null)
-                        _hair(),
-
-                      // Today's prompt — large serif question in the sky zone.
-                      _promptBlock(),
-                      const SizedBox(height: s24),
-
-                      // Water zone: library + currents + archive + tide.
-                      _sectionLabel('pages'),
-                      const SizedBox(height: s8),
-                      _libraryRow(),
-                      TideReturnsCard(
-                        store: store,
-                        onWrite: widget.onWriteFromPrompt,
-                      ),
-                      AnchorCard(
-                        store: store,
-                        onWrite: widget.onWriteFromPrompt,
-                      ),
-                      if (draft != null) ...[
-                        _hair(),
-                        _sectionLabel('unfinished'),
-                        const SizedBox(height: s8),
-                        _draftRow(draft),
-                        const SizedBox(height: s4),
+                  child: NotificationListener<ScrollUpdateNotification>(
+                    onNotification: (n) {
+                      locate<SeaManager>().scrollDrift(n.scrollDelta ?? 0);
+                      return false;
+                    },
+                    child: ListView(
+                      controller: _scroll,
+                      padding: const EdgeInsets.fromLTRB(22, 6, 22, 28),
+                      children: [
+                        // Sky zone: greeting.
                         Text(
-                          'held safe as you wrote — nothing here is lost.',
-                          style: GoogleFonts.alice(
-                            fontStyle: FontStyle.italic,
-                            fontSize: 12,
-                            color: textFaint,
+                          journalGreeting(store),
+                          style: MenteType.display.copyWith(
+                            height: 1.18,
+                            color: textPrimary,
                           ),
                         ),
-                      ],
-                      _hair(),
-                      _sectionLabel('recent pages'),
-                      const SizedBox(height: s8),
-                      if (recent.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: s4),
-                          child: Text(
-                            'a blank page is still a place to arrive.',
+                        const SizedBox(height: s16),
+
+                        // Return card — welcome back, if a gap warrants it.
+                        if (lastEntry != null && gapDays >= 5)
+                          _returnBlock(lastEntry),
+
+                        // Continuity — today's pages so far.
+                        if (latestToday != null)
+                          _continuityBlock(latestToday, todayPages.length),
+
+                        if (lastEntry != null && gapDays >= 5 ||
+                            latestToday != null)
+                          _hair(),
+
+                        // Today's prompt — large serif question in the sky zone.
+                        _promptBlock(),
+                        const SizedBox(height: s24),
+
+                        // Water zone: library + currents + archive + tide.
+                        _sectionLabel('pages'),
+                        const SizedBox(height: s8),
+                        _libraryRow(),
+                        TideReturnsCard(
+                          store: store,
+                          onWrite: widget.onWriteFromPrompt,
+                        ),
+                        AnchorCard(
+                          store: store,
+                          onWrite: widget.onWriteFromPrompt,
+                        ),
+                        if (draft != null) ...[
+                          _hair(),
+                          _sectionLabel('unfinished'),
+                          const SizedBox(height: s8),
+                          _draftRow(draft),
+                          const SizedBox(height: s4),
+                          Text(
+                            'held safe as you wrote — nothing here is lost.',
                             style: GoogleFonts.alice(
                               fontStyle: FontStyle.italic,
-                              fontSize: 13,
+                              fontSize: 12,
                               color: textFaint,
                             ),
                           ),
-                        )
-                      else
-                        for (final e in recent) _recentRow(e),
-                      if (attachmentCount > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: s4),
-                          child: Text(
-                            '$attachmentCount recent attachment${attachmentCount == 1 ? '' : 's'} kept with your pages.',
-                            style: MenteType.caption.copyWith(color: textFaint),
+                        ],
+                        _hair(),
+                        _sectionLabel('recent pages'),
+                        const SizedBox(height: s8),
+                        if (recent.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: s4),
+                            child: Text(
+                              'a blank page is still a place to arrive.',
+                              style: GoogleFonts.alice(
+                                fontStyle: FontStyle.italic,
+                                fontSize: 13,
+                                color: textFaint,
+                              ),
+                            ),
+                          )
+                        else
+                          for (final e in recent) _recentRow(e),
+                        if (attachmentCount > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(top: s4),
+                            child: Text(
+                              '$attachmentCount recent attachment${attachmentCount == 1 ? '' : 's'} kept with your pages.',
+                              style:
+                                  MenteType.caption.copyWith(color: textFaint),
+                            ),
                           ),
-                        ),
-                      const SizedBox(height: s8),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: widget.onAllPages,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: s4),
-                          child: Text(
-                            'all pages in the archive',
-                            style: GoogleFonts.alice(
-                              fontStyle: FontStyle.italic,
-                              fontSize: 14,
-                              color: textSecondary,
-                              decoration: TextDecoration.underline,
-                              decorationColor: ivory(.35),
+                        const SizedBox(height: s8),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: widget.onAllPages,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: s4),
+                            child: Text(
+                              'all pages in the archive',
+                              style: GoogleFonts.alice(
+                                fontStyle: FontStyle.italic,
+                                fontSize: 14,
+                                color: textSecondary,
+                                decoration: TextDecoration.underline,
+                                decorationColor: ivory(.35),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      if (returned != null) ...[
-                        _hair(),
-                        _tideBlock(
-                          title: 'the tide returned this',
-                          body: '\u201c${returned.tideLine}\u201d',
-                          note: 'left with a page you kept earlier',
-                        ),
-                      ] else if (waiting != null) ...[
-                        _hair(),
-                        _tideBlock(
-                          title: 'the tide is holding a line',
-                          body:
-                              'it will resurface when there has been a little distance.',
-                        ),
+                        if (returned != null) ...[
+                          _hair(),
+                          _tideBlock(
+                            title: 'the tide returned this',
+                            body: '\u201c${returned.tideLine}\u201d',
+                            note: 'left with a page you kept earlier',
+                          ),
+                        ] else if (waiting != null) ...[
+                          _hair(),
+                          _tideBlock(
+                            title: 'the tide is holding a line',
+                            body:
+                                'it will resurface when there has been a little distance.',
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),

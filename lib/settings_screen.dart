@@ -16,6 +16,8 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'app_store.dart';
+import 'core/locator.dart';
+import 'core/sea_manager.dart';
 import 'currents_engine.dart';
 import 'currents_surfaces.dart';
 import 'currents_test_seeder.dart';
@@ -182,32 +184,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Expanded(
                 child: ScrollConfiguration(
                   behavior: const ScrollBehavior().copyWith(scrollbars: false),
-                  child: ListView(
-                    controller: _scroll,
-                    padding: const EdgeInsets.fromLTRB(
-                      s24,
-                      s4,
-                      s24,
-                      kBottomNavPad,
-                    ),
-                    children: [
-                      TweenAnimationBuilder<double>(
-                        key: ValueKey(_section ?? 'menu'),
-                        tween: Tween(begin: 0, end: 1),
-                        duration: const Duration(milliseconds: 500),
-                        curve: kExhale,
-                        builder: (context, t, child) {
-                          return Opacity(
-                            opacity: t,
-                            child: Transform.translate(
-                              offset: Offset(0, 12 * (1 - t)),
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: _section == null ? _menu() : _detail(_section!),
+                  child: NotificationListener<ScrollUpdateNotification>(
+                    onNotification: (n) {
+                      locate<SeaManager>().scrollDrift(n.scrollDelta ?? 0);
+                      return false;
+                    },
+                    child: ListView(
+                      controller: _scroll,
+                      padding: const EdgeInsets.fromLTRB(
+                        s24,
+                        s4,
+                        s24,
+                        kBottomNavPad,
                       ),
-                    ],
+                      children: [
+                        TweenAnimationBuilder<double>(
+                          key: ValueKey(_section ?? 'menu'),
+                          tween: Tween(begin: 0, end: 1),
+                          duration: const Duration(milliseconds: 500),
+                          curve: kExhale,
+                          builder: (context, t, child) {
+                            return Opacity(
+                              opacity: t,
+                              child: Transform.translate(
+                                offset: Offset(0, 12 * (1 - t)),
+                                child: child,
+                              ),
+                            );
+                          },
+                          child:
+                              _section == null ? _menu() : _detail(_section!),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
