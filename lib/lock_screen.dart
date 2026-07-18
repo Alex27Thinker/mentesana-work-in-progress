@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'app_store.dart';
 import 'mood_palette.dart';
+import 'theme.dart';
 
 class LockScreen extends StatefulWidget {
   const LockScreen({
@@ -92,16 +93,13 @@ class _LockScreenState extends State<LockScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('the sea keeps this, quietly',
-                  style: GoogleFonts.alice(
-                      fontStyle: FontStyle.italic,
-                      fontSize: 19,
-                      color: ivory(.88))),
-              const SizedBox(height: 8),
+                  style: MenteType.heading.copyWith(
+                      fontStyle: FontStyle.italic, color: textPrimary)),
+              const SizedBox(height: s8),
               Text('enter your pin to continue',
-                  style: TextStyle(
-                      fontSize: 11.5,
-                      letterSpacing: .12 * 11.5,
-                      color: ivory(.5))),
+                  style: MenteType.eyebrow.copyWith(
+                      letterSpacing: .12 * 11,
+                      color: textSecondary)),
               const SizedBox(height: 26),
               GestureDetector(
                 onTap: () => _focus.requestFocus(),
@@ -160,18 +158,16 @@ class _LockScreenState extends State<LockScreen>
               SizedBox(
                 height: 18,
                 child: Text(_note,
-                    style: GoogleFonts.alice(
+                    style: MenteType.caption.copyWith(
                         fontStyle: FontStyle.italic,
-                        fontSize: 12.5,
-                        color: ivory(.6))),
+                        color: textSecondary)),
               ),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: _tryUnlock,
                 child: Text('unlock',
-                    style: GoogleFonts.alice(
+                    style: MenteType.bodySerif.copyWith(
                         fontStyle: FontStyle.italic,
-                        fontSize: 15,
                         decoration: TextDecoration.underline,
                         decorationColor: kOro.withValues(alpha: .6),
                         color: kOro)),
