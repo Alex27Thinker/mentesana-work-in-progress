@@ -21,6 +21,7 @@ import 'currents_surfaces.dart';
 import 'currents_test_seeder.dart';
 import 'mood_palette.dart';
 import 'sea_icons.dart';
+import 'theme.dart';
 
 const _riva = kRiva;
 const _latte = Color(0xFFFCFAF5);
@@ -67,8 +68,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Color _tx(double o) =>
       _day ? Color.fromRGBO(27, 42, 56, o) : ivory(o);
 
+  // Text colours that snap to the four opacity tokens, respecting day/night.
+  Color get _tPrimary => _day ? const Color(0xFF1B2A38) : textPrimary;
+  Color get _tSecondary =>
+      _day ? const Color.fromRGBO(27, 42, 56, .65) : textSecondary;
+  Color get _tFaint =>
+      _day ? const Color.fromRGBO(27, 42, 56, .42) : textFaint;
+
   TextStyle get _serif =>
-      GoogleFonts.alice(color: _tx(1));
+      GoogleFonts.alice(color: _tPrimary, fontSize: 15);
 
   @override
   void dispose() {
@@ -111,20 +119,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Text(title,
                   style: GoogleFonts.alice(
                       fontStyle: FontStyle.italic,
-                      fontSize: 16,
+                      fontSize: 15,
                       color: const Color(0xFFF3ECE0))),
-              const SizedBox(height: 12),
+              const SizedBox(height: s12),
               TextField(
                 controller: ctl,
                 autofocus: true,
                 obscureText: obscure,
                 minLines: 1,
                 maxLines: obscure ? 1 : 4,
-                style: const TextStyle(color: Color(0xFFF3ECE0), fontSize: 14),
+                style: const TextStyle(color: Color(0xFFF3ECE0), fontSize: 13),
                 decoration: InputDecoration(
                   hintText: hint,
                   hintStyle: TextStyle(
-                      color: const Color(0xFFF3ECE0).withValues(alpha: .35),
+                      color: const Color(0xFFF3ECE0).withValues(alpha: .28),
                       fontSize: 13),
                   enabledBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(color: Color(0x55F3ECE0))),
@@ -132,7 +140,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       borderSide: BorderSide(color: _riva)),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: s16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -141,9 +149,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Text('cancel',
                         style: TextStyle(
                             color: const Color(0xFFF3ECE0)
-                                .withValues(alpha: .6))),
+                                .withValues(alpha: .65))),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: s8),
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, ctl.text),
                     child: const Text('done',
@@ -207,7 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Expanded(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.fromLTRB(
-                            22, 4, 22, kBottomNavPad),
+                            s24, s4, s24, kBottomNavPad),
                         child: TweenAnimationBuilder<double>(
                           key: ValueKey(_section ?? 'menu'),
                           tween: Tween(begin: 0, end: 1),
@@ -244,8 +252,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             textAlign: TextAlign.center,
                             style: _serif.copyWith(
                                 fontStyle: FontStyle.italic,
-                                fontSize: 12.5,
-                                color: _tx(.7))),
+                                color: _tSecondary)),
                       ),
                     ),
                   ),
@@ -262,10 +269,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _head() {
     final title = _section == null ? store.t('settings') : _sectionTitle(_section!);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(26, 26, 26, 14),
+      padding: const EdgeInsets.fromLTRB(s24, s24, s24, s12),
       child: Center(
-        child: Text(title,
-            style: _serif.copyWith(fontSize: 16, color: _tx(.7))),
+        child: Text(title, style: _serif.copyWith(color: _tSecondary)),
       ),
     );
   }
@@ -292,7 +298,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           border: Border.all(color: _tx(.22)),
         ),
         child: StrokeIcon(SeaIcons.back,
-            size: 15, color: _tx(.7), strokeWidth: 1.65),
+            size: 15, color: _tSecondary, strokeWidth: 1.65),
       ),
     );
   }
@@ -322,29 +328,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
           curve: kExhale,
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(15),
+          margin: const EdgeInsets.only(bottom: s8),
+          padding: const EdgeInsets.all(s16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(r),
             border: Border.all(color: _tx(.12)),
             color: _tx(.03),
           ),
           child: Row(
             children: [
               StrokeIcon(icon, size: 19, color: _riva, strokeWidth: 1.45),
-              const SizedBox(width: 14),
+              const SizedBox(width: s12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
-                        style: _serif.copyWith(fontSize: 15, color: _tx(1))),
-                    const SizedBox(height: 2),
+                    Text(title, style: _serif.copyWith(color: _tPrimary)),
+                    const SizedBox(height: s4),
                     Text(sub,
-                        style: TextStyle(
-                            fontSize: 9,
-                            letterSpacing: .45,
-                            color: _tx(.45))),
+                        style: MenteType.eyebrow.copyWith(
+                            letterSpacing: .45, color: _tFaint)),
                   ],
                 ),
               ),
@@ -355,7 +358,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     Widget groupStart() => Padding(
-          padding: const EdgeInsets.only(top: 8, bottom: 18),
+          padding: const EdgeInsets.only(top: s8, bottom: s16),
           child: WaveDivider(color: _tx(.18), alpha: 1),
         );
 
@@ -695,14 +698,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case 'about':
         return _sectionColumn('about', [
           Padding(
-            padding: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.only(bottom: s8),
             child: Text(
                 'mentesana keeps the weather, not the score. one honest word at a time, a place to write past it, and a letter each sunday that never counts.',
-                style: _serif.copyWith(
-                    fontStyle: FontStyle.italic,
-                    fontSize: 13.5,
-                    height: 1.65,
-                    color: _tx(.7))),
+                style: MenteType.bodySerif.copyWith(
+                    fontStyle: FontStyle.italic, color: _tSecondary)),
           ),
           _subLink('crisis & support resources', 'crisis'),
           if (_aboutOpen == 'crisis') _aboutContent(_crisisContent()),
@@ -711,10 +711,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _subLink('open source licenses', 'licenses'),
           if (_aboutOpen == 'licenses') _aboutContent(_licensesContent()),
           Padding(
-            padding: const EdgeInsets.only(top: 18),
+            padding: const EdgeInsets.only(top: s16),
             child: Text('prototype v0.6.2 — saved-mood boot fix',
-                style: TextStyle(
-                    fontSize: 9.5, letterSpacing: 1.33, color: _tx(.45))),
+                style: MenteType.eyebrow.copyWith(
+                    letterSpacing: 1.33, color: _tFaint)),
           ),
         ]);
       case 'debug':
@@ -732,10 +732,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 2, bottom: 10),
+          padding: const EdgeInsets.only(top: s4, bottom: s8),
           child: Text(heading,
-              style: TextStyle(
-                  fontSize: 10, letterSpacing: .8, color: _tx(.45))),
+              style: MenteType.eyebrow.copyWith(
+                  letterSpacing: .8, color: _tFaint)),
         ),
         ...rows,
       ],
@@ -747,7 +747,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Opacity(
       opacity: muted ? .45 : 1,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: s12),
         decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: _tx(.08))),
         ),
@@ -757,19 +757,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: _serif.copyWith(fontSize: 16, color: _tx(1))),
+                  Text(label, style: _serif.copyWith(color: _tPrimary)),
                   if (sub != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: 2),
+                      padding: const EdgeInsets.only(top: s4),
                       child: Text(sub,
-                          style: TextStyle(
-                              fontSize: 10.5, color: _tx(.45))),
+                          style: MenteType.eyebrow.copyWith(
+                              letterSpacing: .45, color: _tFaint)),
                     ),
                 ],
               ),
             ),
-            if (trailing != null) ...[const SizedBox(width: 12), trailing],
+            if (trailing != null) ...[const SizedBox(width: s12), trailing],
           ],
         ),
       ),
@@ -962,12 +961,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: s8),
         child: Text(label,
-            style: TextStyle(
-                fontSize: 11,
+            style: MenteType.eyebrow.copyWith(
                 letterSpacing: 1.43,
-                color: danger ? const Color(0xFFCF8B7B) : _tx(.7))),
+                color: danger ? const Color(0xFFCF8B7B) : _tSecondary)),
       ),
     );
   }
@@ -978,37 +976,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
       onTap: () => setState(
           () => _aboutOpen = _aboutOpen == section ? null : section),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 11),
+        padding: const EdgeInsets.symmetric(vertical: s12),
         decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: _tx(.08))),
         ),
         child: Row(children: [
-          Expanded(
-            child: Text(label,
-                style: _serif.copyWith(fontSize: 14.5, color: _tx(.85))),
-          ),
+          Expanded(child: Text(label, style: _serif.copyWith(color: _tPrimary))),
           Text(_aboutOpen == section ? '−' : '+',
-              style: TextStyle(fontSize: 14, color: _tx(.45))),
+              style: MenteType.caption.copyWith(color: _tFaint)),
         ]),
       ),
     );
   }
 
   Widget _note(String text) => Padding(
-        padding: const EdgeInsets.only(top: 14),
+        padding: const EdgeInsets.only(top: s12),
         child: Text(text,
-            style: _serif.copyWith(
-                fontStyle: FontStyle.italic, fontSize: 12, color: _tx(.55))),
+            style: MenteType.bodySerif.copyWith(
+                fontStyle: FontStyle.italic, color: _tSecondary)),
       );
 
   Widget _privacyNote(String text) => Padding(
-        padding: const EdgeInsets.only(top: 14),
+        padding: const EdgeInsets.only(top: s12),
         child: Text(text,
-            style: _serif.copyWith(
-                fontStyle: FontStyle.italic,
-                fontSize: 12,
-                height: 1.6,
-                color: _tx(.55))),
+            style: MenteType.bodySerif.copyWith(
+                fontStyle: FontStyle.italic, height: 1.6, color: _tSecondary)),
       );
 
   // ---------------------------------------------------------------------
@@ -1017,26 +1009,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _aboutContent(List<InlineSpan> spans) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: s12),
       child: Text.rich(
         TextSpan(children: spans),
-        style: _serif.copyWith(
-            fontStyle: FontStyle.italic,
-            fontSize: 12.5,
-            height: 1.6,
-            color: _tx(.68)),
+        style: MenteType.bodySerif.copyWith(
+            fontStyle: FontStyle.italic, height: 1.6, color: _tSecondary),
       ),
     );
   }
 
   TextSpan _strong(String text) => TextSpan(
       text: text,
-      style: TextStyle(fontStyle: FontStyle.normal, color: _tx(.9)));
+      style: TextStyle(fontStyle: FontStyle.normal, color: _tPrimary));
 
   TextSpan _small(String text) => TextSpan(
       text: text,
-      style: TextStyle(
-          fontStyle: FontStyle.normal, fontSize: 11, color: _tx(.45)));
+      style: MenteType.eyebrow.copyWith(
+          fontStyle: FontStyle.normal, letterSpacing: 0, color: _tFaint));
 
   List<InlineSpan> _crisisContent() => [
         const TextSpan(
@@ -1111,10 +1100,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color: primary ? kRiva.withValues(alpha: .10) : null,
           ),
           child: Text(label,
-              style: TextStyle(
-                  fontSize: 11,
+              style: MenteType.eyebrow.copyWith(
                   letterSpacing: .05 * 11,
-                  color: primary ? kRivaLight : _tx(.65))),
+                  color: primary ? kRivaLight : _tSecondary)),
         ),
       );
     }
