@@ -22,27 +22,28 @@ import 'theme.dart';
 // ─────────────────────── shared small pieces ───────────────────────
 
 Widget _pill(String label, VoidCallback onTap, {bool primary = false}) {
+  final color = primary ? kRivaLight : textFaint;
   return InkWell(
     onTap: onTap,
-    borderRadius: BorderRadius.circular(16),
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: s12, vertical: s8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: primary ? kRiva.withValues(alpha: .55) : ivory(.16)),
-        color: primary ? kRiva.withValues(alpha: .10) : null,
+    borderRadius: BorderRadius.circular(4),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: s4, vertical: s4),
+      child: Text(
+        label,
+        style: GoogleFonts.alice(
+          fontStyle: FontStyle.italic,
+          fontSize: primary ? 14 : 13,
+          color: color,
+          decoration: TextDecoration.underline,
+          decorationColor: color.withValues(alpha: primary ? .6 : .35),
+        ),
       ),
-      child: Text(label,
-          style: MenteType.caption.copyWith(
-              letterSpacing: .06 * 11.5,
-              color: primary ? kRivaLight : ivory(.65))),
     ),
   );
 }
 
 Widget _capsLabel(String text, Color color) => Text(text,
-    style: MenteType.eyebrow.copyWith(letterSpacing: .22 * 10, color: color));
+    style: MenteType.caption.copyWith(color: color));
 
 // ────────────────────────── the undertow ───────────────────────────────
 
@@ -747,7 +748,7 @@ class _TideReturnsCardState extends State<TideReturnsCard> {
       child: Container(
         margin: const EdgeInsets.only(top: s12),
         padding: const EdgeInsets.all(s16),
-        decoration: seaCard(border: .16),
+        
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -879,7 +880,7 @@ class _AnchorCardState extends State<AnchorCard> {
       child: Container(
         margin: const EdgeInsets.only(top: s12),
         padding: const EdgeInsets.all(s16),
-        decoration: seaCard(border: .16),
+        
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
