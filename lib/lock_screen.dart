@@ -2,7 +2,6 @@
 // 1:1 port of #lockScreen + tryUnlock from the Vite prototype.
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_store.dart';
 import 'mood_palette.dart';
