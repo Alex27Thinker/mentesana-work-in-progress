@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_store.dart';
 import 'journal_prompts.dart';
 import 'mood_palette.dart';
+import 'theme.dart';
 
 class PromptLibraryScreen extends StatefulWidget {
   const PromptLibraryScreen({
@@ -98,12 +99,11 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                 children: [
                   Expanded(
                     child: Text(title,
-                        style: GoogleFonts.alice(
-                            fontSize: 16, color: ivory(.9))),
+                        style: MenteType.bodySerif.copyWith(color: textPrimary)),
                   ),
                   Text('${prompts.length}',
                       style:
-                          TextStyle(fontSize: 11.5, color: ivory(.42))),
+                          MenteType.caption.copyWith(color: textFaint)),
                   const SizedBox(width: 10),
                   AnimatedRotation(
                     turns: open ? .5 : 0,
@@ -133,8 +133,8 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                                 'once you have kept a few pages, this will draw from them.',
                                 style: GoogleFonts.alice(
                                     fontStyle: FontStyle.italic,
-                                    fontSize: 13,
-                                    color: ivory(.5))),
+                                fontSize: 13,
+                                color: textFaint)),
                           )
                         else
                           for (final p in prompts) _promptCard(title, p),
@@ -164,14 +164,13 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(title,
-                  style: TextStyle(
-                      fontSize: 10,
+                  style: MenteType.eyebrow.copyWith(
                       letterSpacing: .2 * 10,
-                      color: ivory(.42))),
-              const SizedBox(height: 8),
+                      color: textFaint)),
+              const SizedBox(height: s8),
               Text(plain,
-                  style: GoogleFonts.alice(
-                      fontSize: 15.5, height: 1.45, color: ivory(.88))),
+                  style: MenteType.bodySerif.copyWith(
+                      height: 1.45, color: textPrimary)),
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerRight,
@@ -184,8 +183,8 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                   ),
                   child: Center(
                       child: Text('\u2192',
-                          style: TextStyle(
-                              fontSize: 15, color: ivory(.62)))),
+                          style: MenteType.bodySerif.copyWith(
+                              color: textSecondary))),
                 ),
               ),
             ],
