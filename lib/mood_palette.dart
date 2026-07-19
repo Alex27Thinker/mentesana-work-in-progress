@@ -4,6 +4,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'sea_icons.dart';
 
@@ -84,28 +85,32 @@ Color skyTint(double v, double a, [double alpha = 1]) =>
 /// Gentle, uniform card curve — the app's soft-panel radius. No hard corners.
 const BorderRadius kSoftCardRadius = BorderRadius.all(Radius.circular(18));
 
-/// A soft, mood-tinted panel that replaces the app's old flat bordered cards.
-/// The fill is the current sea colour at low alpha with a faint diagonal
-/// gradient; the border is barely-there so nothing reads as a hard rectangle.
-/// Pass [tint] = seaTint(...) to wear the day's weather; omit for neutral ivory.
+/// v2 — a POOL OF LIGHT, not a card. The sea is the only container:
+/// content areas are defined by a soft radial pool of light falling from
+/// the upper-left (light in water), with no border and no hard edge.
+/// Pass [tint] = seaTint(...) to wear the day's weather; omit for ivory.
+/// [border] is kept for signature exceptions (defaults to 0 = none).
 BoxDecoration seaCard({
   Color? tint,
   double fill = .06,
-  double border = .10,
+  double border = 0,
   BorderRadius? radius,
 }) {
   final base = tint ?? kIvory;
   return BoxDecoration(
     borderRadius: radius ?? kSoftCardRadius,
-    gradient: LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
+    gradient: RadialGradient(
+      center: const Alignment(-.85, -1.1),
+      radius: 1.7,
       colors: [
-        base.withValues(alpha: fill + .03),
-        base.withValues(alpha: fill * .45),
+        base.withValues(alpha: fill + .05),
+        base.withValues(alpha: fill * .55),
+        base.withValues(alpha: fill * .16),
       ],
+      stops: const [0, .52, 1],
     ),
-    border: Border.all(color: base.withValues(alpha: border)),
+    border:
+        border <= 0 ? null : Border.all(color: base.withValues(alpha: border)),
   );
 }
 
@@ -290,8 +295,8 @@ class ScreenHeader extends StatelessWidget {
                 icon: StrokeIcon(SeaIcons.back, size: 20, color: ivory(.6)),
                 label: Text(backLabel,
                     style: TextStyle(
-                        fontSize: 11,
-                        letterSpacing: .18 * 11,
+                        fontSize: 12,
+                        letterSpacing: .14 * 12,
                         color: ivory(.6))),
                 style: TextButton.styleFrom(
                   minimumSize: const Size(44, 44),
@@ -303,11 +308,12 @@ class ScreenHeader extends StatelessWidget {
               const SizedBox(width: 68),
             Expanded(
               child: Center(
+                // v2 — the header speaks in the app's serif voice: Alice,
+                // no letterspacing, a touch larger. Frames every depth
+                // screen with the same quiet authority as the home lens.
                 child: Text(title,
-                    style: TextStyle(
-                        fontSize: 16,
-                        letterSpacing: .06 * 16,
-                        color: ivory(.85))),
+                    style: GoogleFonts.alice(
+                        fontSize: 20, height: 1.2, color: ivory(.92))),
               ),
             ),
             if (trailing != null) trailing! else const SizedBox(width: 68),
@@ -326,7 +332,8 @@ class BreathingCard extends StatefulWidget {
     required this.child,
     this.tint,
     this.fill = .06,
-    this.border = .10,
+    // v2 — borderless by default: a pool of light, not a boxed card.
+    this.border = 0,
     this.radius,
     this.intensity = 1,
   });

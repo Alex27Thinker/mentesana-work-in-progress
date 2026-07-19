@@ -67,7 +67,7 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
               );
             },
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
+              padding: const EdgeInsets.fromLTRB(kGutter, 4, kGutter, 28),
               children: [
                 for (final section in sections)
                   _category(section.title, section.prompts),
@@ -84,7 +84,7 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       // Wears the day's weather like every other card in the app (#6/#7).
-      decoration: seaCard(border: .12, radius: BorderRadius.circular(16)),
+      decoration: seaCard(radius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -158,7 +158,7 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
           constraints: const BoxConstraints(minHeight: 96),
           padding: const EdgeInsets.all(16),
           // Wears the day's weather, like the journal-home cards (#6/#7).
-          decoration: seaCard(border: .11, radius: BorderRadius.circular(18)),
+          decoration: seaCard(radius: BorderRadius.circular(18)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

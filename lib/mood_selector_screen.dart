@@ -9,13 +9,11 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'mood_palette.dart';
 import 'sea_icons.dart';
-import 'sea_painter.dart';
 import 'theme.dart';
 
 /// One kept check-in record (the archive shape from the prototype).
@@ -54,6 +52,9 @@ class MoodSelectorScreen extends StatefulWidget {
     this.revisitTarget,
     this.initialV,
     this.initialA,
+    this.onSteer,
+    this.onRelease,
+    this.bornAt,
   });
 
   /// Called when the mood is kept — the integration point for the archive.
@@ -80,6 +81,20 @@ class MoodSelectorScreen extends StatefulWidget {
   /// Start the field at a given mood (when reopening a kept day).
   final double? initialV;
   final double? initialA;
+
+  /// v3 — pushed every time the dot's (v, a) changes (drag, key, drift,
+  /// keep). The host feeds it to the shared SeaManager so the ambient
+  /// sea behind the home chrome is the same water the dot is stirring.
+  final ValueChanged<(double, double)>? onSteer;
+
+  /// v3 — fired when the user taps "home". The host releases the shared
+  /// sea so it relaxes back toward the day's atmosphere.
+  final VoidCallback? onRelease;
+
+  /// v3 — centre of the lens at the moment the dot was born, in local
+  /// coordinates of the field. The dot animates from here toward its
+  /// resting position when it appears.
+  final Offset? bornAt;
 
   @override
   State<MoodSelectorScreen> createState() => _MoodSelectorScreenState();
@@ -123,25 +138,21 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
   final TextEditingController _wordInput = TextEditingController();
   final FocusNode _inputFocus = FocusNode();
 
-  late final Ticker _ticker;
-  final SeaFieldModel _model = SeaFieldModel();
+  // v3 — the inner water field is gone. The selector now steers the
+  // shared SeaManager instead of running its own painter, so the water
+  // the user sees is the same water the home is suspended over.
   late final AnimationController _breathCtrl;
-
-  final math.Random _rand = math.Random();
-  late final List<double> _foamX =
-      List.generate(60, (i) => (i + .5 + (_rand.nextDouble() - .5) * .8) / 60);
-  late final List<int> _foamLayer = List.generate(60, (_) => _rand.nextInt(5));
 
   @override
   void initState() {
     super.initState();
     if (widget.initialV != null) v = widget.initialV!;
     if (widget.initialA != null) a = widget.initialA!;
-    _model.visualV = v;
-    _model.visualA = a;
     _breathCtrl = AnimationController(vsync: this, duration: kBreath);
-    _ticker = createTicker(_onTick);
     _updateWord(silent: true);
+    // v3 — push the initial mood to the shared sea so the dot appears
+    // already stirring the water beneath it.
+    widget.onSteer?.call((v, a));
     if (widget.revisitTarget != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -158,25 +169,11 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     final reduced = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    if (reduced != _reduced) {
-      _reduced = reduced;
-      _model.reduced = reduced;
-    }
-    // Reduced motion: no animation loop; a single settled frame is drawn.
-    if (_reduced) {
-      if (_ticker.isActive) _ticker.stop();
-      _model
-        ..visualV = v
-        ..visualA = a
-        ..bump();
-    } else if (!_ticker.isActive) {
-      _ticker.start();
-    }
+    _reduced = reduced;
   }
 
   @override
   void dispose() {
-    _ticker.dispose();
     _breathCtrl.dispose();
     _hesitationTimer?.cancel();
     _settleTimer?.cancel();
@@ -185,18 +182,6 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
     _wordInput.dispose();
     _inputFocus.dispose();
     super.dispose();
-  }
-
-  void _onTick(Duration elapsed) {
-    // The visual field follows the cursor with soft inertia, preserving a
-    // continuous gradient. On the selector the sea follows the pointer live —
-    // that immediate feedback is the point.
-    const follow = .085;
-    _model
-      ..t = elapsed.inMicroseconds / 1e6
-      ..visualV = _model.visualV + (v - _model.visualV) * follow
-      ..visualA = _model.visualA + (a - _model.visualA) * follow
-      ..bump();
   }
 
   // ---------- words (with hysteresis so it never flickers) ----------
@@ -329,12 +314,9 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
     _clearEdit();
     _feltIndex = 0;
     _updateWord(silent: true);
-    if (_reduced) {
-      _model
-        ..visualV = v
-        ..visualA = a
-        ..bump();
-    }
+    // v3 — push every drag change straight into the shared sea so the
+    // water the user is stirring is the same one visible at every depth.
+    widget.onSteer?.call((v, a));
     setState(() {});
   }
 
@@ -399,12 +381,8 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
     _feltIndex = 0;
     _updateWord(silent: true);
     _settleSea();
-    if (_reduced) {
-      _model
-        ..visualV = v
-        ..visualA = a
-        ..bump();
-    }
+    // v3 — keyboard arrows still steer the shared sea.
+    widget.onSteer?.call((v, a));
     setState(() {});
     return KeyEventResult.handled;
   }
@@ -476,10 +454,7 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
       v = nextV;
       a = nextA;
       _updateWord(silent: true);
-      _model
-        ..visualV = v
-        ..visualA = a
-        ..bump();
+      widget.onSteer?.call((v, a));
       setState(() {});
       _settleSea();
       return;
@@ -493,6 +468,8 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
       v = fromV + (nextV - fromV) * p;
       a = fromA + (nextA - fromA) * p;
       _updateWord(silent: true);
+      // v3 — drift keeps the sea following the dot.
+      widget.onSteer?.call((v, a));
       setState(() {});
     });
     ctrl.forward().whenComplete(() {
@@ -562,16 +539,9 @@ class _MoodSelectorScreenState extends State<MoodSelectorScreen>
         child: Stack(
           key: _stackKey,
           children: [
-            // the inner water field
-            Positioned.fill(
-              child: CustomPaint(
-                painter: SeaPainter(
-                  model: _model,
-                  foamX: _foamX,
-                  foamLayer: _foamLayer,
-                ),
-              ),
-            ),
+            // v3 — the inner water field is gone. The shell already paints
+            // the shared sea underneath; the selector is now a transparent
+            // field UI over the same water the user was just looking at.
 
             // header
             Positioned(

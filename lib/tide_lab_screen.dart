@@ -363,7 +363,7 @@ class _TideLabScreenState extends State<TideLabScreen>
                 switchOutCurve: Curves.easeInCubic,
                 child: ListView(
                   key: ValueKey(active?.id ?? 'setup'),
-                  padding: const EdgeInsets.fromLTRB(24, 6, 24, 104),
+                  padding: const EdgeInsets.fromLTRB(kGutter, 6, kGutter, 104),
                   children: [
                     _intro(active == null),
                     const SizedBox(height: 22),
@@ -820,7 +820,7 @@ class _TideLabScreenState extends State<TideLabScreen>
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+          padding: const EdgeInsets.fromLTRB(kGutter, 24, kGutter, 28),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Text('How Tide Lab works',
                 style: MenteType.title.copyWith(color: textPrimary)),

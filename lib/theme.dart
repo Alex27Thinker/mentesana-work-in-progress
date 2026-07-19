@@ -113,6 +113,12 @@ const double s32 = 32;
 /// Horizontal screen padding used by most surfaces.
 const EdgeInsets padH = EdgeInsets.symmetric(horizontal: s16);
 
+/// v2 — THE screen gutter. Screens historically mixed 22 and s16; 22 wins
+/// (it is what most surfaces already use). Screen-level scroll padding must
+/// use [kGutter] / [padScreen]; padH stays for component-internal spacing.
+const double kGutter = 22;
+const EdgeInsets padScreen = EdgeInsets.symmetric(horizontal: kGutter);
+
 // ───────────────────────── Shape ─────────────────────────
 
 /// The app's single corner radius — reserved for the ritual keep button
@@ -143,6 +149,19 @@ const Duration kMotionNormal = Duration(milliseconds: 320);
 
 /// Slow: screen-level crossfades, the keep ceremony.
 const Duration kMotionSlow = Duration(milliseconds: 550);
+
+/// The long breath — ambient type breathing (greeting, daily prompt).
+/// Mirrors the ritual ~5.8s breath (kBreath) for widgets that want the
+/// duration without importing the palette.
+const Duration kBreathe = Duration(milliseconds: 5800);
+
+// ─────────────────────── Grain (v2) ───────────────────────
+//
+// A whisper of animated film grain over every gradient surface kills the
+// flat digital look. Deliberately tiny — grain must be felt, not seen.
+
+const double kGrainOpacity = .028; // at the surface
+const double kGrainOpacityDeep = .05; // at full depth
 
 /// The ritual breath — reserved for the mood check-in lens and the keep
 /// button only (re-exported from mood_palette so screens import one place).

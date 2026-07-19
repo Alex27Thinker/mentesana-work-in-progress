@@ -1,7 +1,7 @@
 name: mentesana_mood_selector
 description: "Mentesana — full Flutter port of the journaling prototype: every screen, 1:1."
 publish_to: "none"
-version: 0.3.5
+version: 0.4.0
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

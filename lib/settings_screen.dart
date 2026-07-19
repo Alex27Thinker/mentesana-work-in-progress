@@ -187,7 +187,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: NotificationListener<ScrollUpdateNotification>(
                     onNotification: (n) {
                       locate<SeaManager>().scrollDrift(n.scrollDelta ?? 0);
-                      return false;
+                      // v2 — absorb here so the shell's global coupler
+                      // doesn't count this scroll twice.
+                      return true;
                     },
                     child: ListView(
                       controller: _scroll,

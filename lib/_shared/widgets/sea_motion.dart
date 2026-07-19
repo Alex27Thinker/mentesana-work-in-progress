@@ -170,6 +170,66 @@ class _StaggeredFadeInState extends State<StaggeredFadeIn>
   }
 }
 
+/// v2 — wraps a headline so it breathes with the sea: a barely-there
+/// scale/opacity swell on the shared ~5.8s breath. Reserved for ONE
+/// ambient line per screen (the greeting, the daily prompt) — more would
+/// tip into gimmick. Settles to stillness under reduced motion.
+class Breathing extends StatefulWidget {
+  const Breathing({
+    super.key,
+    required this.child,
+    this.intensity = 1,
+  });
+
+  final Widget child;
+  final double intensity;
+
+  @override
+  State<Breathing> createState() => _BreathingState();
+}
+
+class _BreathingState extends State<Breathing>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl =
+      AnimationController(vsync: this, duration: kBreath);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduced = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (reduced) {
+      _ctrl.stop();
+      _ctrl.value = .5;
+    } else if (!_ctrl.isAnimating) {
+      _ctrl.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (context, child) {
+        final t = kExhale.transform(_ctrl.value);
+        return Opacity(
+          opacity: .92 + t * .08 * widget.intensity,
+          child: Transform.scale(
+            scale: 1 + (t - .5) * .012 * widget.intensity,
+            child: child,
+          ),
+        );
+      },
+      child: widget.child,
+    );
+  }
+}
+
 /// A mood-tinted gradient overlay that "wears the day's weather."
 /// Use as a background for any card or panel that should feel submerged
 /// in the ambient sea colour rather than sitting on a flat surface.

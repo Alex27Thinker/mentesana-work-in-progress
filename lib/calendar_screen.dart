@@ -110,7 +110,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   child: NotificationListener<ScrollUpdateNotification>(
                     onNotification: (n) {
                       locate<SeaManager>().scrollDrift(n.scrollDelta ?? 0);
-                      return false;
+                      // v2 — absorb here so the shell's global coupler
+                      // doesn't count this scroll twice.
+                      return true;
                     },
                     child: ListView(
                       controller: _scroll,
@@ -369,7 +371,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       final dow = kDowsShort[d.date.weekday % 7].substring(0, 1);
       Widget bar;
       if (d.es.isEmpty) {
-        bar = SizedBox(
+        bar = const SizedBox(
           height: minColH,
           width: double.infinity,
         );
@@ -386,9 +388,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
           height: colH,
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.vertical(
-              top: const Radius.circular(5),
-              bottom: const Radius.circular(4),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(5),
+              bottom: Radius.circular(4),
             ),
             gradient: LinearGradient(
               begin: Alignment.topCenter,

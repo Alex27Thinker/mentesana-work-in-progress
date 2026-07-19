@@ -85,7 +85,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
         ScreenHeader(title: 'the archive', onBack: widget.onBack),
         const WaveDivider(),
         Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 4),
+          padding: const EdgeInsets.fromLTRB(kGutter, 0, kGutter, 4),
           child: TextField(
             controller: _search,
             onChanged: (_) => setState(() {}),
@@ -104,7 +104,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
         ),
         if (tags.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
+            padding: const EdgeInsets.fromLTRB(kGutter, 10, kGutter, 0),
             child: Wrap(
               spacing: 14,
               runSpacing: 8,
@@ -126,7 +126,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
               );
             },
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
+              padding: const EdgeInsets.fromLTRB(kGutter, 14, kGutter, 28),
               children: [
                 if (real.isEmpty)
                   Padding(

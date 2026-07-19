@@ -176,7 +176,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
               );
             },
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
+              padding: const EdgeInsets.fromLTRB(kGutter, 4, kGutter, 28),
               children: [
                 if (hasMood && moodTint != null)
                   Container(

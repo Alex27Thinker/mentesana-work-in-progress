@@ -11,6 +11,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '_shared/widgets/sea_motion.dart';
 import 'app_store.dart';
 import 'core/locator.dart';
 import 'core/sea_manager.dart';
@@ -178,18 +179,23 @@ class _JournalHomeScreenState extends State<JournalHomeScreen> {
                   child: NotificationListener<ScrollUpdateNotification>(
                     onNotification: (n) {
                       locate<SeaManager>().scrollDrift(n.scrollDelta ?? 0);
-                      return false;
+                      // v2 — absorb here so the shell's global coupler
+                      // doesn't count this scroll twice.
+                      return true;
                     },
                     child: ListView(
                       controller: _scroll,
                       padding: const EdgeInsets.fromLTRB(22, 6, 22, 28),
                       children: [
-                        // Sky zone: greeting.
-                        Text(
-                          journalGreeting(store),
-                          style: MenteType.display.copyWith(
-                            height: 1.18,
-                            color: textPrimary,
+                        // Sky zone: greeting — v2: it breathes with the sea.
+                        Breathing(
+                          intensity: .7,
+                          child: Text(
+                            journalGreeting(store),
+                            style: MenteType.display.copyWith(
+                              height: 1.18,
+                              color: textPrimary,
+                            ),
                           ),
                         ),
                         const SizedBox(height: s16),

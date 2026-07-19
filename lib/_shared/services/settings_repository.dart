@@ -19,6 +19,12 @@ class SettingsRepository {
 
   final SharedPreferences _prefs;
 
+  /// Create from an already-obtained SharedPreferences instance.
+  /// Used in tests where [SharedPreferences.setMockInitialValues] has been
+  /// called before [SharedPreferences.getInstance].
+  factory SettingsRepository.createFromPrefs(SharedPreferences prefs) =>
+      SettingsRepository._(prefs);
+
   /// Create and initialise the repository.
   static Future<SettingsRepository> create() async {
     final prefs = await SharedPreferences.getInstance();

@@ -200,7 +200,7 @@ class _InsightScreenState extends State<InsightScreen>
                   );
                 },
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(26, 4, 26, 28),
+                  padding: const EdgeInsets.fromLTRB(kGutter, 4, kGutter, 28),
                   children: [
                     // "your week" sublabel with a slow gold shimmer
                     AnimatedBuilder(
@@ -380,7 +380,6 @@ class _InsightScreenState extends State<InsightScreen>
       },
       child: BreathingCard(
         tint: tint,
-        border: .12,
         radius: BorderRadius.circular(14),
         intensity: .6,
         child: Padding(
@@ -428,7 +427,8 @@ class _InsightScreenState extends State<InsightScreen>
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(s16),
-          decoration: seaCard(border: .18, radius: BorderRadius.circular(12)),
+          // v2 — a pool of light, not a bordered box.
+          decoration: seaCard(fill: .075, radius: BorderRadius.circular(12)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -486,7 +486,6 @@ class _InsightScreenState extends State<InsightScreen>
       // shared kBreath rhythm, so the "pages underneath" feel alive (#6/#7).
       child: BreathingCard(
         tint: (e.v != null && e.a != null) ? seaTint(e.v!, e.a!) : null,
-        border: .12,
         radius: BorderRadius.circular(11),
         child: InkWell(
           onTap: () => widget.onOpenEntry(e),
