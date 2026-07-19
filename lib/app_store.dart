@@ -429,6 +429,9 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Notify listeners — exposed for legacy repository adapters.
+  void notify() => notifyListeners();
+
   void addEntry(JournalEntry e) {
     entries = [...entries, e];
     if (e.isMoodEntry) moodTintTs = e.ts;
