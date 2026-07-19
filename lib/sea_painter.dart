@@ -212,9 +212,8 @@ class SeaPainter extends CustomPainter {
         math.sin(main * 4.13 - t * speed * depthSlow * .22 + layer * 3.1) *
             (.015 + .03 * e);
 
-    final crossMul = sea != null
-        ? (.05 + .38 * sea.chop)
-        : (.05 + .38 * layering);
+    final crossMul =
+        sea != null ? (.05 + .38 * sea.chop) : (.05 + .38 * layering);
     final cross = (math.sin(x * k2 -
                 t * speed * depthSlow * (.34 + 1.1 * layering) +
                 layer * (2 + layering * 1.4) +
@@ -231,11 +230,9 @@ class SeaPainter extends CustomPainter {
             layer * (.65 + coherence * .8)) *
         (.04 + .30 * coherence);
 
-    final ripple = (math.sin(x * (.05 + .04 * e) +
-                t * speed * depthSlow * 2.4) +
-            .4 *
-                math.sin(x * (.11 + .07 * e) -
-                    t * speed * depthSlow * 3.1)) *
+    final ripple = (math
+                .sin(x * (.05 + .04 * e) + t * speed * depthSlow * 2.4) +
+            .4 * math.sin(x * (.11 + .07 * e) - t * speed * depthSlow * 3.1)) *
         (.02 + .09 * e) *
         (1 - .4 * coherence);
 
@@ -289,8 +286,18 @@ class SeaPainter extends CustomPainter {
     final Color atmosDeep =
         Color.lerp(atmosphere[1], const Color(0xFF10141E), dMurk * .45)!;
 
-    double wy(double x, int layer) => waveY(x, t, layer, energy, valence,
-        breathe, h, horizonY, model.wind, model.scrollDrift, model.sea,
+    double wy(double x, int layer) => waveY(
+        x,
+        t,
+        layer,
+        energy,
+        valence,
+        breathe,
+        h,
+        horizonY,
+        model.wind,
+        model.scrollDrift,
+        model.sea,
         model.depth);
 
     // Upper field: diffuse mental space with moving colour, deliberately not a literal sky.
@@ -472,8 +479,7 @@ class SeaPainter extends CustomPainter {
       // wind strength, so the blow is visible on the water itself. They ride
       // the layer's curve and point the way the sea is travelling.
       // Reuses a single _streakPath across all streaks in this layer.
-      final windMag = model.wind.abs() *
-          (.4 + .6 * model.sea.windStreaks);
+      final windMag = model.wind.abs() * (.4 + .6 * model.sea.windStreaks);
       if (windMag > .04 && !model.reduced) {
         final streakCount = 2 + (model.sea.windStreaks * 7).round();
         final dir = model.wind.sign;
@@ -505,8 +511,7 @@ class SeaPainter extends CustomPainter {
       // Fractured weather (low valence) breaks white more easily; calm,
       // coherent water keeps its surface unbroken.
       if (energy > .3 || layering > .55) {
-        final rawGain =
-            math.min(1.0, (energy - .3) / .5 + layering * .4);
+        final rawGain = math.min(1.0, (energy - .3) / .5 + layering * .4);
         final foamGain = rawGain * foamFade;
         if (foamGain > .01) {
           final thresh = 3.4 - 2.6 * energy - 1.4 * layering;
@@ -596,31 +601,32 @@ class SeaPainter extends CustomPainter {
       final bandTop = horizonY + 2;
       final bandH = h * .22;
 
-      final dashCount =
-          8 + (model.sea.glintBreakup * 18).round();
+      final dashCount = 8 + (model.sea.glintBreakup * 18).round();
       final steady = model.sea.glintSteady;
       final bright = model.sea.glintBright;
 
       for (var d = 0; d < dashCount; d++) {
         final dy = bandTop + (d / dashCount) * bandH;
-        final dashW = (right - left) *
-            (.2 + .8 * (1 - model.sea.glintBreakup * .7));
+        final dashW =
+            (right - left) * (.2 + .8 * (1 - model.sea.glintBreakup * .7));
         final flicker = steady < .9
-            ? .55 +
-                .45 *
-                    math.sin(t * (7 + (1 - steady) * 18) + d * 2.3)
+            ? .55 + .45 * math.sin(t * (7 + (1 - steady) * 18) + d * 2.3)
             : 1.0;
-        final alp =
-            bright * .7 * flicker * (1 - (dy - bandTop) / bandH).clamp(0.0, 1.0);
+        final alp = bright *
+            .7 *
+            flicker *
+            (1 - (dy - bandTop) / bandH).clamp(0.0, 1.0);
         if (alp < .005) continue;
 
-        final drift =
-            math.sin(t * .35 + d * 1.7) * glintWidth * .15;
+        final drift = math.sin(t * .35 + d * 1.7) * glintWidth * .15;
         final dx = left + (right - left) * ((d % 3) / 3.0) + drift;
 
-        final glintWarm = _mix(atmosphere[1], surface, .35).withValues(alpha: alp);
-        final glintCool = _mix(atmosphere[0], surface, .55).withValues(alpha: alp * .8);
-        final glintCol = Color.lerp(glintCool, glintWarm, model.sea.glintSteady)!;
+        final glintWarm =
+            _mix(atmosphere[1], surface, .35).withValues(alpha: alp);
+        final glintCool =
+            _mix(atmosphere[0], surface, .55).withValues(alpha: alp * .8);
+        final glintCol =
+            Color.lerp(glintCool, glintWarm, model.sea.glintSteady)!;
 
         canvas.drawPath(
           _glintPath

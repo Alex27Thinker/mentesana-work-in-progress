@@ -189,8 +189,7 @@ class HomeToCheckinShellState extends State<HomeToCheckinShell>
       return;
     }
     _out.forward(from: _out.value);
-    Future.delayed(
-        const Duration(milliseconds: _igniteHomeDelayMs), () {
+    Future.delayed(const Duration(milliseconds: _igniteHomeDelayMs), () {
       if (mounted) _in.forward(from: _in.value);
     });
   }
@@ -211,15 +210,12 @@ class HomeToCheckinShellState extends State<HomeToCheckinShell>
     // Field goes first (it sits on top), then the home cluster
     // returns. _releaseFieldMs < _releaseHomeMs so the field clears
     // the stage before the home is fully back.
-    _in.duration =
-        Duration(milliseconds: _reduced ? 0 : _releaseFieldMs);
+    _in.duration = Duration(milliseconds: _reduced ? 0 : _releaseFieldMs);
     _in.reverse(from: _in.value).whenComplete(() {
       if (!mounted) return;
-      Future.delayed(
-          const Duration(milliseconds: _releaseHomeDelayMs), () {
+      Future.delayed(const Duration(milliseconds: _releaseHomeDelayMs), () {
         if (!mounted) return;
-        _out.duration =
-            Duration(milliseconds: _reduced ? 0 : _releaseHomeMs);
+        _out.duration = Duration(milliseconds: _reduced ? 0 : _releaseHomeMs);
         _out.reverse(from: _out.value).whenComplete(() {
           if (mounted) _suppressFutureIgnites = false;
         });

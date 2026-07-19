@@ -582,8 +582,7 @@ class _MentesanaShellState extends State<MentesanaShell>
                   child: AnimatedBuilder(
                     animation: _seaManager,
                     builder: (context, child) => Opacity(
-                      opacity:
-                          (1 - _seaManager.depth * .62).clamp(0.30, 1.0),
+                      opacity: (1 - _seaManager.depth * .62).clamp(0.30, 1.0),
                       child: child,
                     ),
                     child: CustomPaint(
@@ -611,8 +610,7 @@ class _MentesanaShellState extends State<MentesanaShell>
                   },
                   child: AnimatedSwitcher(
                     duration: Duration(milliseconds: reduced ? 0 : 360),
-                    reverseDuration:
-                        Duration(milliseconds: reduced ? 0 : 240),
+                    reverseDuration: Duration(milliseconds: reduced ? 0 : 240),
                     switchInCurve: Curves.easeOutCubic,
                     switchOutCurve: Curves.easeInCubic,
                     transitionBuilder: (child, anim) {
@@ -638,8 +636,9 @@ class _MentesanaShellState extends State<MentesanaShell>
                       );
                     },
                     child: KeyedSubtree(
-                      key: ValueKey(
-                          screen == AppScreen.checkin ? AppScreen.home : screen),
+                      key: ValueKey(screen == AppScreen.checkin
+                          ? AppScreen.home
+                          : screen),
                       child: SafeArea(
                         top: screen != AppScreen.home &&
                             screen != AppScreen.checkin &&
@@ -1096,12 +1095,10 @@ class _MentesanaShellState extends State<MentesanaShell>
                       curve: kExhale,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(999),
-                        color:
-                            activeThis ? color.withValues(alpha: .12) : null,
+                        color: activeThis ? color.withValues(alpha: .12) : null,
                       ),
                       child: Center(
-                        child:
-                            StrokeIcon(icon, color: color, strokeWidth: 1.5),
+                        child: StrokeIcon(icon, color: color, strokeWidth: 1.5),
                       ),
                     ),
                   ),
@@ -1135,8 +1132,7 @@ class _MentesanaShellState extends State<MentesanaShell>
                 end: Alignment.bottomCenter,
                 colors: [
                   const Color(0xFF0B141B).withValues(alpha: 0),
-                  moodGlow.withValues(
-                      alpha: store.moodAtmosphereOn ? .06 : 0),
+                  moodGlow.withValues(alpha: store.moodAtmosphereOn ? .06 : 0),
                 ],
               ),
             ),
@@ -1182,31 +1178,30 @@ class _MentesanaShellState extends State<MentesanaShell>
                       ),
                     ),
                     child: Row(
-                  children: [
-                    item('home', SeaIcons.navHome, store.t('home'),
-                        () {
-                      if (_checkinOpen) _releaseToHome();
-                      _show(AppScreen.home);
-                    }),
-                    item('write', SeaIcons.navWrite, store.t('write'), () {
-                      if (_checkinOpen) _releaseToHome();
-                      _journalFromHome = true;
-                      _startFreeJournal();
-                    }),
-                    item('journal', SeaIcons.navJournal, store.t('journal'),
-                        () {
-                      if (_checkinOpen) _releaseToHome();
-                      _show(AppScreen.journalhome);
-                    }),
-                  ],
-                ),
+                      children: [
+                        item('home', SeaIcons.navHome, store.t('home'), () {
+                          if (_checkinOpen) _releaseToHome();
+                          _show(AppScreen.home);
+                        }),
+                        item('write', SeaIcons.navWrite, store.t('write'), () {
+                          if (_checkinOpen) _releaseToHome();
+                          _journalFromHome = true;
+                          _startFreeJournal();
+                        }),
+                        item('journal', SeaIcons.navJournal, store.t('journal'),
+                            () {
+                          if (_checkinOpen) _releaseToHome();
+                          _show(AppScreen.journalhome);
+                        }),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 }

@@ -280,7 +280,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              _door(widget.store.t('archive'),
+                              _door(
+                                  widget.store.t('archive'),
                                   'the sea, deeper',
                                   () => widget.onDoor('archive')),
                               _door('this week', 'a letter, on sundays',

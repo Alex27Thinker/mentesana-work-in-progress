@@ -49,5 +49,6 @@ app.*.map.json
 
 # Agent worktrees, temp uploads, MCP artifacts
 .kilo/worktrees/
+.kilo/plans/
 .tmp.driveupload/
 .playwright-mcp/

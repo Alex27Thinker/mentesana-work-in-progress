@@ -39,7 +39,9 @@ void main() {
 
     test('recent mood entry produces basic analysis', () {
       final ts = now - 3600000;
-      final entries = [fixtureMoodEntry(ts: ts, v: 0.5, a: -0.3, word: 'hopeful')];
+      final entries = [
+        fixtureMoodEntry(ts: ts, v: 0.5, a: -0.3, word: 'hopeful')
+      ];
       final analyzer = MoodAnalyzer(entries);
       final result = analyzer.analyze();
 
@@ -61,8 +63,11 @@ void main() {
     test('analyzes keyword frequency from recent entries', () {
       final ts = now - 3600000;
       final entries = [
-        JournalEntry(ts: ts, text: 'Today was a good day. A very good day indeed.'),
-        JournalEntry(ts: ts - 1000, text: 'Another day, another walk. The good walk helped.'),
+        JournalEntry(
+            ts: ts, text: 'Today was a good day. A very good day indeed.'),
+        JournalEntry(
+            ts: ts - 1000,
+            text: 'Another day, another walk. The good walk helped.'),
       ];
       final analyzer = TextAnalyzer(entries);
       final result = analyzer.analyzeEntries();
@@ -100,7 +105,8 @@ void main() {
     });
 
     test('undertowScan detects worry patterns in long brooding text', () {
-      final text = 'Why does this always happen to me? What if I never figure it out? '
+      final text =
+          'Why does this always happen to me? What if I never figure it out? '
           'I keep asking why and I keep getting nowhere with these thoughts. '
           'What if everything goes wrong next week? Why can I not stop thinking about this?';
       final result = undertowScan(text);

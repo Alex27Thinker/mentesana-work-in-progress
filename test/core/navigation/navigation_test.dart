@@ -27,16 +27,30 @@ void main() {
     });
 
     test('navVisible returns correct visibility', () {
-      final visible = {AppScreen.home, AppScreen.journalhome, AppScreen.archive, AppScreen.insight, AppScreen.tideLab, AppScreen.settings};
-      final notVisible = {AppScreen.checkin, AppScreen.promptlibrary, AppScreen.calendar, AppScreen.entrydetail};
+      final visible = {
+        AppScreen.home,
+        AppScreen.journalhome,
+        AppScreen.archive,
+        AppScreen.insight,
+        AppScreen.tideLab,
+        AppScreen.settings
+      };
+      final notVisible = {
+        AppScreen.checkin,
+        AppScreen.promptlibrary,
+        AppScreen.calendar,
+        AppScreen.entrydetail
+      };
 
       for (final screen in visible) {
         nav.show(screen);
-        expect(nav.navVisible, isTrue, reason: '$screen should have nav visible');
+        expect(nav.navVisible, isTrue,
+            reason: '$screen should have nav visible');
       }
       for (final screen in notVisible) {
         nav.show(screen);
-        expect(nav.navVisible, isFalse, reason: '$screen should not have nav visible');
+        expect(nav.navVisible, isFalse,
+            reason: '$screen should not have nav visible');
       }
     });
 

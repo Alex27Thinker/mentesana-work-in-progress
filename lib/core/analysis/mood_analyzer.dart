@@ -2,7 +2,7 @@
 
 import 'dart:math' as math;
 
-import '../../app_store.dart';
+import '../../features/journal/domain/models.dart';
 import 'analysis_models.dart';
 
 class _MaPoint {

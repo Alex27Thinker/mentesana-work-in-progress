@@ -35,7 +35,8 @@ void main() {
 
     test('addEntry serializes and deserializes round-trip', () {
       final store = AppStore.fromRepository(repo);
-      final entry = fixtureEntry(ts: 1000, v: 0.5, a: -0.3, word: 'calm', text: 'Hello world');
+      final entry = fixtureEntry(
+          ts: 1000, v: 0.5, a: -0.3, word: 'calm', text: 'Hello world');
 
       store.addEntry(entry);
 
@@ -227,9 +228,11 @@ void main() {
     test('latestMoodToday returns correct entry', () {
       final store = AppStore.fromRepository(repo);
       final now = DateTime.now();
-      final todayTs = DateTime(now.year, now.month, now.day, 12).millisecondsSinceEpoch;
+      final todayTs =
+          DateTime(now.year, now.month, now.day, 12).millisecondsSinceEpoch;
 
-      store.addEntry(fixtureMoodEntry(ts: todayTs, v: 0.5, a: -0.3, word: 'today-mood'));
+      store.addEntry(
+          fixtureMoodEntry(ts: todayTs, v: 0.5, a: -0.3, word: 'today-mood'));
       store.addEntry(fixtureMoodEntry(ts: 1000, v: 0.1, a: 0.1, word: 'old'));
 
       final latest = store.latestMoodToday();

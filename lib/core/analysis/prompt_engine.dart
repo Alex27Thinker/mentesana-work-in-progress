@@ -1,9 +1,8 @@
 // Mentesana — context-aware prompts from mood + text analysis.
 // Composes gentle, non-diagnostic invitations to write.
 
-import '../../app_store.dart';
 import '../../currents_engine.dart';
-
+import '../../features/journal/domain/models.dart';
 import 'analysis_models.dart';
 import 'mood_analyzer.dart';
 import 'text_analyzer.dart';

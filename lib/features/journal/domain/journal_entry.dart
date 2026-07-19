@@ -1,8 +1,12 @@
+import '_copy_with_helpers.dart';
 import 'attachment.dart';
 import 'entry_version.dart';
 
 class JournalEntry {
-  const JournalEntry({
+  static const List<Attachment> _emptyAttachments = <Attachment>[];
+  static const List<EntryVersion> _emptyVersions = <EntryVersion>[];
+
+  JournalEntry({
     required this.ts,
     this.v,
     this.a,
@@ -13,7 +17,7 @@ class JournalEntry {
     this.title = '',
     this.prompt = '',
     this.wordCount,
-    final List<Attachment>? attachments,
+    List<Attachment>? attachments,
     this.tideLine = '',
     this.tideAt,
     this.moodTs,
@@ -23,11 +27,15 @@ class JournalEntry {
     this.afterA,
     this.afterWord,
     this.afterTs,
-    final List<EntryVersion>? versions,
+    List<EntryVersion>? versions,
     this.pendingTranscription = false,
     this.pendingAudioPath,
-  })  : attachments = attachments ?? const [],
-        versions = versions ?? const [];
+  })  : attachments = attachments == null
+            ? _emptyAttachments
+            : List<Attachment>.unmodifiable(attachments),
+        versions = versions == null
+            ? _emptyVersions
+            : List<EntryVersion>.unmodifiable(versions);
 
   final int ts;
   final double? v;
@@ -62,55 +70,66 @@ class JournalEntry {
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(ts);
 
+  /// Nullable fields use the sentinel:
+  ///   * omit   → preserve;
+  ///   * null   → clear;
+  ///   * value  → replace.
+  /// List fields are defensively copied via [List.unmodifiable].
   JournalEntry copyWith({
     int? ts,
-    double? v,
-    double? a,
-    String? word,
+    Object? v = unset,
+    Object? a = unset,
+    Object? word = unset,
     bool? edited,
     String? text,
     String? tag,
     String? title,
     String? prompt,
-    int? wordCount,
+    Object? wordCount = unset,
     List<Attachment>? attachments,
     String? tideLine,
-    int? tideAt,
-    int? moodTs,
+    Object? tideAt = unset,
+    Object? moodTs = unset,
     String? texture,
     String? reflectionStep,
-    double? afterV,
-    double? afterA,
-    String? afterWord,
-    int? afterTs,
+    Object? afterV = unset,
+    Object? afterA = unset,
+    Object? afterWord = unset,
+    Object? afterTs = unset,
     List<EntryVersion>? versions,
     bool? pendingTranscription,
-    String? pendingAudioPath,
+    Object? pendingAudioPath = unset,
   }) =>
       JournalEntry(
         ts: ts ?? this.ts,
-        v: v ?? this.v,
-        a: a ?? this.a,
-        word: word ?? this.word,
+        v: isUnset(v) ? this.v : v as double?,
+        a: isUnset(a) ? this.a : a as double?,
+        word: isUnset(word) ? this.word : word as String?,
         edited: edited ?? this.edited,
         text: text ?? this.text,
         tag: tag ?? this.tag,
         title: title ?? this.title,
         prompt: prompt ?? this.prompt,
-        wordCount: wordCount ?? this.wordCount,
-        attachments: attachments ?? this.attachments,
+        wordCount: isUnset(wordCount) ? this.wordCount : wordCount as int?,
+        attachments: attachments == null
+            ? this.attachments
+            : List<Attachment>.unmodifiable(attachments),
         tideLine: tideLine ?? this.tideLine,
-        tideAt: tideAt ?? this.tideAt,
-        moodTs: moodTs ?? this.moodTs,
+        tideAt: isUnset(tideAt) ? this.tideAt : tideAt as int?,
+        moodTs: isUnset(moodTs) ? this.moodTs : moodTs as int?,
         texture: texture ?? this.texture,
         reflectionStep: reflectionStep ?? this.reflectionStep,
-        afterV: afterV ?? this.afterV,
-        afterA: afterA ?? this.afterA,
-        afterWord: afterWord ?? this.afterWord,
-        afterTs: afterTs ?? this.afterTs,
-        versions: versions ?? this.versions,
+        afterV: isUnset(afterV) ? this.afterV : afterV as double?,
+        afterA: isUnset(afterA) ? this.afterA : afterA as double?,
+        afterWord: isUnset(afterWord) ? this.afterWord : afterWord as String?,
+        afterTs: isUnset(afterTs) ? this.afterTs : afterTs as int?,
+        versions: versions == null
+            ? this.versions
+            : List<EntryVersion>.unmodifiable(versions),
         pendingTranscription: pendingTranscription ?? this.pendingTranscription,
-        pendingAudioPath: pendingAudioPath ?? this.pendingAudioPath,
+        pendingAudioPath: isUnset(pendingAudioPath)
+            ? this.pendingAudioPath
+            : pendingAudioPath as String?,
       );
 
   Map<String, dynamic> toJson() => {

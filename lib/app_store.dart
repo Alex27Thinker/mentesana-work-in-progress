@@ -176,10 +176,7 @@ class AppStore extends ChangeNotifier {
     try {
       final raw = jsonDecode(_repo.entriesJson);
       entries = raw is List
-          ? raw
-              .map(JournalEntry.fromJson)
-              .whereType<JournalEntry>()
-              .toList()
+          ? raw.map(JournalEntry.fromJson).whereType<JournalEntry>().toList()
           : [];
     } catch (_) {
       entries = const [];
@@ -193,8 +190,8 @@ class AppStore extends ChangeNotifier {
       }
       if (isSystemPageTitle(migrated.title) && migrated.text.isNotEmpty) {
         final t = titleFromPage(migrated.text);
-        migrated = migrated.copyWith(
-            title: t.isNotEmpty ? t : 'a page from this day');
+        migrated =
+            migrated.copyWith(title: t.isNotEmpty ? t : 'a page from this day');
         entriesMigrated = true;
       }
       if (migrated.isMoodEntry) {
@@ -315,11 +312,7 @@ class AppStore extends ChangeNotifier {
     _saveParkedWorries();
   }
 
-  void _saveParkedWorries() {
-    _repo.parkedWorriesJson =
-        jsonEncode(parkedWorries.map((w) => w.toJson()).toList());
-    notifyListeners();
-  }
+  void _saveParkedWorries() => persistParkedWorries();
 
   // Public wrapper for seeder to save parked worries.
   void saveParkedWorries() {
@@ -370,10 +363,7 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _saveAnchors() {
-    _repo.anchorsJson = jsonEncode(anchors.map((a) => a.toJson()).toList());
-    notifyListeners();
-  }
+  void _saveAnchors() => persistAnchors();
 
   // Public wrapper for seeder to save anchors.
   void saveAnchors() {
@@ -417,11 +407,24 @@ class AppStore extends ChangeNotifier {
 
   // ---------- entries ----------
 
-  void _replaceEntry(JournalEntry oldEntry, JournalEntry newEntry) {
+  /// Replace [oldEntry] with [newEntry] in the entries list.
+  /// Entries are uniquely identified by their [JournalEntry.ts] timestamp.
+  ///
+  /// Returns `true` when the entry was found and replaced. Returns `false`
+  /// when no entry with that timestamp exists; in that case the entries
+  /// list is not modified.
+  ///
+  /// Persistence and listener notification are NOT triggered by this method
+  /// — the caller is responsible for one explicit `saveEntries()` and one
+  /// notification cycle per logical update. Centralising the side effects
+  /// outside the helper keeps persistence and observation single-shot.
+  bool _replaceEntry(JournalEntry oldEntry, JournalEntry newEntry) {
+    assert(oldEntry.ts == newEntry.ts,
+        'replacement must preserve timestamp identity');
     final idx = entries.indexWhere((e) => e.ts == oldEntry.ts);
-    if (idx >= 0) {
-      entries = [...entries]..[idx] = newEntry;
-    }
+    if (idx < 0) return false;
+    entries = [...entries]..[idx] = newEntry;
+    return true;
   }
 
   void saveEntries() {
@@ -429,8 +432,45 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Notify listeners — exposed for legacy repository adapters.
-  void notify() => notifyListeners();
+  /// Public replacement operation used by feature widgets and adapters.
+  ///
+  /// Persists exactly once and notifies exactly once on a successful
+  /// replacement. Throws a [StateError] if no entry with [oldEntry.ts]
+  /// exists — the explicit policy is to fail loudly rather than silently
+  /// no-op. This keeps callers from believing an update succeeded when
+  /// it was applied to stale data.
+  bool updateEntry(JournalEntry oldEntry, JournalEntry newEntry) {
+    if (oldEntry.ts != newEntry.ts) {
+      throw StateError(
+          'updateEntry must preserve ts identity (${oldEntry.ts} → ${newEntry.ts})');
+    }
+    final replaced = _replaceEntry(oldEntry, newEntry);
+    if (!replaced) {
+      throw StateError('updateEntry: no entry with ts=${oldEntry.ts}');
+    }
+    saveEntries();
+    return true;
+  }
+
+  /// Persist parked worries to settings and notify listeners once.
+  void persistParkedWorries() {
+    _repo.parkedWorriesJson =
+        jsonEncode(parkedWorries.map((w) => w.toJson()).toList());
+    notifyListeners();
+  }
+
+  /// Persist anchors to settings and notify listeners once.
+  void persistAnchors() {
+    _repo.anchorsJson = jsonEncode(anchors.map((a) => a.toJson()).toList());
+    notifyListeners();
+  }
+
+  /// Persist tide experiments to settings and notify listeners once.
+  void persistTideExperiments() {
+    _repo.tideExperimentsJson =
+        jsonEncode(tideExperiments.map((e) => e.toJson()).toList());
+    notifyListeners();
+  }
 
   void addEntry(JournalEntry e) {
     entries = [...entries, e];
@@ -684,8 +724,8 @@ class AppStore extends ChangeNotifier {
     final active = activeTideExperiment;
     if (active != null) {
       tideExperiments = tideExperiments.map((e) {
-        if (e.id == active.id) return e.copyWith(
-            completedAt: DateTime.now().millisecondsSinceEpoch);
+        if (e.id == active.id)
+          return e.copyWith(completedAt: DateTime.now().millisecondsSinceEpoch);
         return e;
       }).toList();
     }
@@ -696,7 +736,8 @@ class AppStore extends ChangeNotifier {
   void recordTideObservation(String experimentId, String response) {
     if (!const {'did', 'not', 'skipped'}.contains(response)) return;
     tideExperiments = tideExperiments.map((experiment) {
-      if (experiment.id != experimentId || experiment.isComplete) return experiment;
+      if (experiment.id != experimentId || experiment.isComplete)
+        return experiment;
       final now = DateTime.now();
       final filtered = experiment.observations.where((observation) {
         final day = DateTime.fromMillisecondsSinceEpoch(observation.ts);
@@ -725,11 +766,7 @@ class AppStore extends ChangeNotifier {
     _saveTideExperiments();
   }
 
-  void _saveTideExperiments() {
-    _repo.tideExperimentsJson =
-        jsonEncode(tideExperiments.map((e) => e.toJson()).toList());
-    notifyListeners();
-  }
+  void _saveTideExperiments() => persistTideExperiments();
 
   // ---------- derived ----------
   /// Auto room: day between 07:00 and 19:00, matching JS `applyAutoRoom()`.
@@ -923,13 +960,6 @@ class AppStore extends ChangeNotifier {
     saveEntries();
   }
 
-  /// Replace an entry in the list by timestamp. Used by external code
-  /// that needs to apply immutable copyWith updates.
-  void updateEntry(JournalEntry oldEntry, JournalEntry newEntry) {
-    _replaceEntry(oldEntry, newEntry);
-    saveEntries();
-  }
-
   // ---------- background voice transcription ----------
   // A recorded-then-transcribed voice note no longer has to finish
   // transcribing before its page can be kept. The journal editor hands a
@@ -949,8 +979,8 @@ class AppStore extends ChangeNotifier {
   /// it right away — the entry is safe to leave even though the
   /// transcript has not landed yet.
   void beginPendingTranscription(JournalEntry entry, String audioPath) {
-    final updated = entry.copyWith(
-        pendingTranscription: true, pendingAudioPath: audioPath);
+    final updated =
+        entry.copyWith(pendingTranscription: true, pendingAudioPath: audioPath);
     if (!entries.any((e) => e.ts == entry.ts)) {
       entries = [...entries, updated];
     } else {
@@ -990,14 +1020,14 @@ class AppStore extends ChangeNotifier {
     final e = findByTs(ts);
     if (e == null) return;
     final t = transcript.trim();
-    var updated = e.copyWith(
-        pendingTranscription: false, pendingAudioPath: null);
+    var updated =
+        e.copyWith(pendingTranscription: false, pendingAudioPath: null);
     if (t.isNotEmpty) {
       final newText = _appendTranscript(e.text, t);
       updated = updated.copyWith(
         text: newText,
-        wordCount: newText.split(RegExp(r'\s+'))
-            .where((w) => w.isNotEmpty).length,
+        wordCount:
+            newText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length,
       );
     }
     _replaceEntry(e, updated);
@@ -1009,8 +1039,8 @@ class AppStore extends ChangeNotifier {
   void failTranscription(int ts) {
     final e = findByTs(ts);
     if (e == null) return;
-    _replaceEntry(e, e.copyWith(
-        pendingTranscription: false, pendingAudioPath: null));
+    _replaceEntry(
+        e, e.copyWith(pendingTranscription: false, pendingAudioPath: null));
     saveEntries();
   }
 

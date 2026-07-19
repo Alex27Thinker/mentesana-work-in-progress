@@ -1,7 +1,11 @@
+import '_copy_with_helpers.dart';
 import 'tide_observation.dart';
 
 class TideExperiment {
-  const TideExperiment({
+  static const List<int> _emptyEvidence = <int>[];
+  static const List<TideObservation> _emptyObservations = <TideObservation>[];
+
+  TideExperiment({
     required this.id,
     required this.title,
     required this.hypothesis,
@@ -9,11 +13,15 @@ class TideExperiment {
     required this.theme,
     required this.startedAt,
     this.durationDays = 7,
-    final List<int>? evidenceTs,
-    final List<TideObservation>? observations,
+    List<int>? evidenceTs,
+    List<TideObservation>? observations,
     this.completedAt,
-  })  : evidenceTs = evidenceTs ?? const [],
-        observations = observations ?? const [];
+  })  : evidenceTs = evidenceTs == null
+            ? _emptyEvidence
+            : List<int>.unmodifiable(evidenceTs),
+        observations = observations == null
+            ? _emptyObservations
+            : List<TideObservation>.unmodifiable(observations);
 
   final String id;
   final String title;
@@ -28,6 +36,8 @@ class TideExperiment {
 
   bool get isComplete => completedAt != null;
 
+  /// Sentinel-based copyWith so [completedAt] can be explicitly cleared.
+  /// List arguments are defensively copied to keep this model immutable.
   TideExperiment copyWith({
     String? id,
     String? title,
@@ -38,7 +48,7 @@ class TideExperiment {
     int? durationDays,
     List<int>? evidenceTs,
     List<TideObservation>? observations,
-    int? completedAt,
+    Object? completedAt = unset,
   }) =>
       TideExperiment(
         id: id ?? this.id,
@@ -48,9 +58,14 @@ class TideExperiment {
         theme: theme ?? this.theme,
         startedAt: startedAt ?? this.startedAt,
         durationDays: durationDays ?? this.durationDays,
-        evidenceTs: evidenceTs ?? this.evidenceTs,
-        observations: observations ?? this.observations,
-        completedAt: completedAt ?? this.completedAt,
+        evidenceTs: evidenceTs == null
+            ? this.evidenceTs
+            : List<int>.unmodifiable(evidenceTs),
+        observations: observations == null
+            ? this.observations
+            : List<TideObservation>.unmodifiable(observations),
+        completedAt:
+            isUnset(completedAt) ? this.completedAt : completedAt as int?,
       );
 
   Map<String, dynamic> toJson() => {

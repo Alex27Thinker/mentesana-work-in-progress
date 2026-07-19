@@ -41,8 +41,8 @@ class CheckinOverlayChrome extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text('home',
-                      style: MenteType.eyebrow.copyWith(
-                          letterSpacing: .72, color: textFaint)),
+                      style: MenteType.eyebrow
+                          .copyWith(letterSpacing: .72, color: textFaint)),
                 ],
               ),
             ),

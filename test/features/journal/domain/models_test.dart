@@ -4,7 +4,8 @@ import 'package:mentesana_mood_selector/app_store.dart';
 void main() {
   group('Attachment', () {
     test('toJson produces correct map', () {
-      final a = Attachment(name: 'test.jpg', type: 'image/jpeg', size: 1024, data: 'abc123');
+      final a = Attachment(
+          name: 'test.jpg', type: 'image/jpeg', size: 1024, data: 'abc123');
       expect(a.toJson(), {
         'name': 'test.jpg',
         'type': 'image/jpeg',
@@ -14,7 +15,8 @@ void main() {
     });
 
     test('fromJson parses valid map', () {
-      final result = Attachment.fromJson({'name': 'a.jpg', 'type': 'image/png', 'size': 2048, 'data': 'xyz'});
+      final result = Attachment.fromJson(
+          {'name': 'a.jpg', 'type': 'image/png', 'size': 2048, 'data': 'xyz'});
       expect(result, isNotNull);
       expect(result!.name, 'a.jpg');
       expect(result.type, 'image/png');
@@ -100,7 +102,9 @@ void main() {
         edited: true,
         prompt: 'How was today?',
         wordCount: 3,
-        attachments: [Attachment(name: 'img.jpg', type: 'image/jpeg', data: 'base64')],
+        attachments: [
+          Attachment(name: 'img.jpg', type: 'image/jpeg', data: 'base64')
+        ],
         tideLine: 'evening tide',
         tideAt: 2000,
         moodTs: 1500,
@@ -110,7 +114,9 @@ void main() {
         afterA: -0.2,
         afterWord: 'content',
         afterTs: 1600,
-        versions: [EntryVersion(editedAt: 900, text: 'first draft', title: 'Today')],
+        versions: [
+          EntryVersion(editedAt: 900, text: 'first draft', title: 'Today')
+        ],
         pendingTranscription: true,
         pendingAudioPath: '/tmp/audio.webm',
       );
@@ -189,7 +195,8 @@ void main() {
     });
 
     test('strips markdown markers', () {
-      expect(titleFromPage('*italic* and **bold** and #hash'), 'italic and bold and hash');
+      expect(titleFromPage('*italic* and **bold** and #hash'),
+          'italic and bold and hash');
     });
 
     test('capped at 9 words and 84 characters', () {
@@ -209,7 +216,10 @@ void main() {
   group('isSystemPageTitle', () {
     test('detects system page titles', () {
       expect(isSystemPageTitle('a page for whatever is here'), isTrue);
-      expect(isSystemPageTitle('a page for whatever is here \u2014 no weather required.'), isTrue);
+      expect(
+          isSystemPageTitle(
+              'a page for whatever is here \u2014 no weather required.'),
+          isTrue);
       expect(isSystemPageTitle('Custom Title'), isFalse);
     });
   });
@@ -225,7 +235,9 @@ void main() {
         prompt: 'How are you?',
         ts: 5000,
         activeEntryTs: 4000,
-        attachments: [Attachment(name: 'img.jpg', type: 'image/jpeg', data: 'base64')],
+        attachments: [
+          Attachment(name: 'img.jpg', type: 'image/jpeg', data: 'base64')
+        ],
         v: 0.3,
         a: -0.1,
         word: 'calm',
@@ -273,7 +285,8 @@ void main() {
     });
 
     test('fromJson rejects invalid responses', () {
-      expect(TideObservation.fromJson({'ts': 1000, 'response': 'invalid'}), isNull);
+      expect(TideObservation.fromJson({'ts': 1000, 'response': 'invalid'}),
+          isNull);
     });
   });
 
@@ -314,28 +327,46 @@ void main() {
 
     test('durationDays clamps to 3-21', () {
       final exp = TideExperiment.fromJson({
-        'id': 'e1', 'startedAt': 1000, 'durationDays': 100,
+        'id': 'e1',
+        'startedAt': 1000,
+        'durationDays': 100,
       });
       expect(exp!.durationDays, 21);
 
       final exp2 = TideExperiment.fromJson({
-        'id': 'e2', 'startedAt': 1000, 'durationDays': 1,
+        'id': 'e2',
+        'startedAt': 1000,
+        'durationDays': 1,
       });
       expect(exp2!.durationDays, 3);
     });
 
     test('isComplete reflects completedAt', () {
-      final open = TideExperiment(id: 'e1', title: '', hypothesis: '', action: '', theme: '', startedAt: 1000);
+      final open = TideExperiment(
+          id: 'e1',
+          title: '',
+          hypothesis: '',
+          action: '',
+          theme: '',
+          startedAt: 1000);
       expect(open.isComplete, isFalse);
 
-      final done = TideExperiment(id: 'e2', title: '', hypothesis: '', action: '', theme: '', startedAt: 1000, completedAt: 2000);
+      final done = TideExperiment(
+          id: 'e2',
+          title: '',
+          hypothesis: '',
+          action: '',
+          theme: '',
+          startedAt: 1000,
+          completedAt: 2000);
       expect(done.isComplete, isTrue);
     });
   });
 
   group('ParkedWorry', () {
     test('toJson round-trip', () {
-      final w = ParkedWorry(ts: 1000, text: 'Worried about work', returnAt: 2000, settled: true);
+      final w = ParkedWorry(
+          ts: 1000, text: 'Worried about work', returnAt: 2000, settled: true);
       final json = w.toJson();
       final restored = ParkedWorry.fromJson(json);
       expect(restored, isNotNull);
@@ -346,15 +377,23 @@ void main() {
     });
 
     test('fromJson validates required fields', () {
-      final result = ParkedWorry.fromJson(<String, dynamic>{'ts': 1, 'text': 'hi'});
+      final result =
+          ParkedWorry.fromJson(<String, dynamic>{'ts': 1, 'text': 'hi'});
       expect(result, isNull);
-      expect(ParkedWorry.fromJson(<String, dynamic>{'ts': 1, 'text': 'hi', 'returnAt': 'string'}), isNull);
+      expect(
+          ParkedWorry.fromJson(
+              <String, dynamic>{'ts': 1, 'text': 'hi', 'returnAt': 'string'}),
+          isNull);
     });
   });
 
   group('Anchor', () {
     test('toJson round-trip', () {
-      final a = Anchor(setAt: 1000, text: 'Deep breath', theme: 'calm', forDay: '2026-07-19');
+      final a = Anchor(
+          setAt: 1000,
+          text: 'Deep breath',
+          theme: 'calm',
+          forDay: '2026-07-19');
       final json = a.toJson();
       final restored = Anchor.fromJson(json);
       expect(restored, isNotNull);
@@ -366,14 +405,16 @@ void main() {
 
     test('fromJson validates required fields', () {
       expect(Anchor.fromJson(<String, dynamic>{}), isNull);
-      expect(Anchor.fromJson(<String, dynamic>{'setAt': 1, 'text': 'hi'}), isNull);
+      expect(
+          Anchor.fromJson(<String, dynamic>{'setAt': 1, 'text': 'hi'}), isNull);
     });
 
     test('isOpen reflects reflection status', () {
       final open = Anchor(setAt: 1, text: 'a', theme: 'b', forDay: 'c');
       expect(open.isOpen, isTrue);
 
-      final reflected = Anchor(setAt: 1, text: 'a', theme: 'b', forDay: 'c', reflectedAt: 2000);
+      final reflected = Anchor(
+          setAt: 1, text: 'a', theme: 'b', forDay: 'c', reflectedAt: 2000);
       expect(reflected.isOpen, isFalse);
     });
   });

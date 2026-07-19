@@ -1,54 +1,52 @@
 #!/usr/bin/env bash
 # Mentesana — Phase Verification Script
 # Usage: ./tool/verify.sh [phase-name]
+#
+# Runs dart format, flutter analyze, and flutter test. Fails on any
+# non-zero exit code. The phase-name argument is recorded in the
+# banner but is not required.
+#
+# LF line endings only. Run from the repository root.
 
 set -euo pipefail
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-NC='\033[0m'
 
 phase="${1:-current}"
 
 echo "=== Phase: $phase ==="
 echo ""
 
-# 1. Format
 echo "--- dart format ---"
-dart format --output=none --set-exit-if-changed . 2>&1 || {
-    echo -e "${RED}FAILED${NC}"
+dart format --output=none --set-exit-if-changed lib test 2>&1 || {
+    echo "FAILED"
     echo "Run 'dart format .' to fix."
     exit 1
 }
-echo -e "${GREEN}PASS${NC}"
+echo "PASS"
 echo ""
 
-# 2. Analyze
 echo "--- flutter analyze ---"
 flutter analyze 2>&1 || {
-    echo -e "${RED}FAILED${NC}"
+    echo "FAILED"
     exit 1
 }
-echo -e "${GREEN}PASS${NC}"
+echo "PASS"
 echo ""
 
-# 3. Tests
 echo "--- flutter test ---"
 flutter test 2>&1 || {
-    echo -e "${RED}FAILED${NC}"
+    echo "FAILED"
     exit 1
 }
-echo -e "${GREEN}PASS${NC}"
+echo "PASS"
 echo ""
 
-# 4. Integration tests (if present)
 if [ -d "integration_test" ]; then
     echo "--- flutter test integration_test ---"
     flutter test integration_test 2>&1 || {
-        echo -e "${RED}FAILED${NC}"
+        echo "FAILED"
         exit 1
     }
-    echo -e "${GREEN}PASS${NC}"
+    echo "PASS"
     echo ""
 fi
 

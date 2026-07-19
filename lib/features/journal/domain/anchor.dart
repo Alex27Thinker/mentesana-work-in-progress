@@ -1,3 +1,5 @@
+import '_copy_with_helpers.dart';
+
 class Anchor {
   const Anchor({
     required this.setAt,
@@ -17,12 +19,16 @@ class Anchor {
 
   bool get isOpen => reflectedAt == null;
 
+  /// [reflectedAt] is nullable. Sentinel semantics let callers:
+  ///   * omit the argument → preserve current value;
+  ///   * pass `null`        → explicitly clear the reflection time;
+  ///   * pass a timestamp  → set the reflection time.
   Anchor copyWith({
     int? setAt,
     String? text,
     String? theme,
     String? forDay,
-    int? reflectedAt,
+    Object? reflectedAt = unset,
     String? outcome,
   }) =>
       Anchor(
@@ -30,7 +36,8 @@ class Anchor {
         text: text ?? this.text,
         theme: theme ?? this.theme,
         forDay: forDay ?? this.forDay,
-        reflectedAt: reflectedAt ?? this.reflectedAt,
+        reflectedAt:
+            isUnset(reflectedAt) ? this.reflectedAt : reflectedAt as int?,
         outcome: outcome ?? this.outcome,
       );
 

@@ -1,28 +1,31 @@
 import 'package:mentesana_mood_selector/app_store.dart';
 import 'package:mentesana_mood_selector/core/backup/backup_service.dart';
 
+/// Adapter that delegates the asynchronous [BackupService] API to the
+/// existing synchronous AppStore methods. The envelope format (MSNA1
+/// + JSON) and import semantics are preserved.
 class LegacyBackupService implements BackupService {
+  const LegacyBackupService(this._store);
+
   final AppStore _store;
 
-  LegacyBackupService(this._store);
+  @override
+  Future<String> exportJson() async => _store.exportJson();
 
   @override
-  String exportJson() => _store.exportJson();
+  Future<int?> importJson(String raw) async => _store.importJson(raw);
 
   @override
-  int? importJson(String raw) => _store.importJson(raw);
-
-  @override
-  String exportEncrypted(String passphrase) =>
+  Future<String> exportEncrypted(String passphrase) async =>
       _store.exportEncrypted(passphrase);
 
   @override
-  int? importEncrypted(String blob, String passphrase) =>
+  Future<int?> importEncrypted(String blob, String passphrase) async =>
       _store.importEncrypted(blob, passphrase);
 
   @override
-  String exportText() => _store.exportText();
+  Future<String> exportText() async => _store.exportText();
 
   @override
-  int storageBytes() => _store.storageBytes();
+  Future<int> storageBytes() async => _store.storageBytes();
 }

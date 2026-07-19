@@ -9,6 +9,14 @@ import 'package:watch_it/watch_it.dart';
 import '../_shared/services/attachment_service.dart';
 import '../_shared/services/settings_repository.dart';
 import '../app_store.dart';
+import '../core/attachment_storage.dart';
+import '../core/backup/backup_service.dart';
+import '../core/backup/legacy_backup_service.dart';
+import '../features/journal/data/legacy_attachment_storage.dart';
+import '../features/journal/data/legacy_currents_repository.dart';
+import '../features/journal/data/legacy_journal_repository.dart';
+import '../features/journal/domain/currents_repository.dart';
+import '../features/journal/domain/journal_repository.dart';
 import 'navigation_manager.dart';
 import 'sea_manager.dart';
 
@@ -39,6 +47,23 @@ void configureDependencies() {
       return AppStore.fromRepository(repo);
     },
     dependsOn: [SettingsRepository],
+  );
+
+  // -- Domain interfaces (boundaries available for future controller
+  // migration). Each is registered as a lazy singleton so it shares the
+  // same AppStore instance as the UI. Current screens still depend on
+  // AppStore during the transition.
+  di.registerLazySingleton<JournalRepository>(
+    () => LegacyJournalRepository(di<AppStore>()),
+  );
+  di.registerLazySingleton<CurrentsRepository>(
+    () => LegacyCurrentsRepository(di<AppStore>()),
+  );
+  di.registerLazySingleton<AttachmentStorage>(
+    () => const LegacyAttachmentStorage(),
+  );
+  di.registerLazySingleton<BackupService>(
+    () => LegacyBackupService(di<AppStore>()),
   );
 }
 

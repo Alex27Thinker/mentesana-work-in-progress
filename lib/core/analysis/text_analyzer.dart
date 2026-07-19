@@ -2,9 +2,11 @@
 // No external APIs. Uses a sentiment lexicon, stop-word filtering,
 // keyword extraction, and simple theme clustering.
 
-import '../../app_store.dart';
-import '../../text_lexicons.dart';
+import '../../features/journal/domain/models.dart';
 import 'analysis_models.dart';
+import 'sentiment_lexicon.dart';
+import 'stop_words.dart';
+import 'theme_lexicon.dart';
 
 class TextAnalyzer {
   const TextAnalyzer(this.entries);
@@ -93,7 +95,7 @@ class TextAnalyzer {
         .where(
             (e) => e.text.trim().length > 10 && (days == 0 || e.ts >= cutoff))
         .toList();
-    if (withText.isEmpty) return const TextAnalysis(hasData: false, count: 0);
+    if (withText.isEmpty) return TextAnalysis(hasData: false, count: 0);
     final allKeywords = <String, int>{};
     final allThemes = <String, int>{};
     var totalSentiment = 0.0;

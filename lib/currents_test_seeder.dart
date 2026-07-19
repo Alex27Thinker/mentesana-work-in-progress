@@ -176,7 +176,8 @@ class CurrentsTestSeeder {
     if (syntheticTs.isEmpty) return 0;
 
     // Remove entries that are synthetic.
-    store.entries = store.entries.where((e) => !syntheticTs.contains(e.ts)).toList();
+    store.entries =
+        store.entries.where((e) => !syntheticTs.contains(e.ts)).toList();
     store.saveEntries();
 
     // Clear synthetic timestamps.
@@ -184,13 +185,15 @@ class CurrentsTestSeeder {
 
     // Also clear parked worries that were generated synthetically.
     store.parkedWorries = store.parkedWorries
-        .where((w) => !w.text.contains('[TEST]') && !w.text.contains('fixture worry'))
+        .where((w) =>
+            !w.text.contains('[TEST]') && !w.text.contains('fixture worry'))
         .toList();
     store.saveParkedWorries();
 
     // Also clear synthetic anchors.
     store.anchors = store.anchors
-        .where((a) => !a.text.contains('[TEST]') && !a.text.contains('fixture anchor'))
+        .where((a) =>
+            !a.text.contains('[TEST]') && !a.text.contains('fixture anchor'))
         .toList();
     store.saveAnchors();
 

@@ -249,8 +249,9 @@ class _JournalEditorState extends State<JournalEditor> {
     final nextWordCount =
         nextText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
     final nextTag = _tag.text.trim().toLowerCase();
-    final trimmedTag =
-        nextTag.isNotEmpty ? (nextTag.length > 18 ? nextTag.substring(0, 18) : nextTag) : '';
+    final trimmedTag = nextTag.isNotEmpty
+        ? (nextTag.length > 18 ? nextTag.substring(0, 18) : nextTag)
+        : '';
     final tideLine = _bottle.text.trim();
     final nextTideAt = tideLine.isNotEmpty
         ? DateTime.now().millisecondsSinceEpoch + 14 * 24 * 60 * 60 * 1000
@@ -282,8 +283,9 @@ class _JournalEditorState extends State<JournalEditor> {
           tideLine: _activeEntry!.tideLine,
         ),
       ];
-      final trimmedVersions =
-          versions.length > 5 ? versions.sublist(versions.length - 5) : versions;
+      final trimmedVersions = versions.length > 5
+          ? versions.sublist(versions.length - 5)
+          : versions;
       current = current.copyWith(versions: trimmedVersions);
     }
 
@@ -625,148 +627,149 @@ class _JournalEditorState extends State<JournalEditor> {
             ),
             Expanded(
               child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(30, 6, 30, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _animatedRecede(
-                    recede,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(_dateLine,
-                            style:
-                                MenteType.caption.copyWith(color: textFaint)),
-                        AnimatedOpacity(
-                          duration: const Duration(milliseconds: 400),
-                          opacity: _heldSaving ? .95 : .55,
-                          child: Text(_heldText,
-                              style: GoogleFonts.alice(
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: 11.5,
-                                  color: textSecondary)),
-                        ),
-                      ],
+                padding: const EdgeInsets.fromLTRB(30, 6, 30, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _animatedRecede(
+                      recede,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(_dateLine,
+                              style:
+                                  MenteType.caption.copyWith(color: textFaint)),
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 400),
+                            opacity: _heldSaving ? .95 : .55,
+                            child: Text(_heldText,
+                                style: GoogleFonts.alice(
+                                    fontStyle: FontStyle.italic,
+                                    fontSize: 11.5,
+                                    color: textSecondary)),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  _animatedRecede(
-                    recede,
-                    Text(_promptText,
-                        style: GoogleFonts.alice(
-                            fontStyle: FontStyle.italic,
-                            fontSize: 16,
-                            height: 1.48,
-                            color: textSecondary)),
-                  ),
-                  const SizedBox(height: 18),
-                  _animatedRecede(
-                    recede,
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('title',
-                            style:
-                                MenteType.caption.copyWith(color: textFaint)),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 98),
-                          child: TextField(
-                            controller: _title,
-                            focusNode: _titleFocus,
-                            maxLength: 120,
-                            maxLines: null,
-                            textInputAction: TextInputAction.next,
-                            onSubmitted: (_) => _textFocus.requestFocus(),
-                            style: MenteType.title.copyWith(color: textPrimary),
-                            cursorColor: kRiva,
-                            decoration: InputDecoration(
-                              counterText: '',
-                              isCollapsed: true,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 6),
-                              border: InputBorder.none,
-                              hintText: 'name this page — or don\'t',
-                              hintStyle: MenteType.heading
-                                  .copyWith(height: 1.3, color: textDisabled),
+                    const SizedBox(height: 14),
+                    _animatedRecede(
+                      recede,
+                      Text(_promptText,
+                          style: GoogleFonts.alice(
+                              fontStyle: FontStyle.italic,
+                              fontSize: 16,
+                              height: 1.48,
+                              color: textSecondary)),
+                    ),
+                    const SizedBox(height: 18),
+                    _animatedRecede(
+                      recede,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('title',
+                              style:
+                                  MenteType.caption.copyWith(color: textFaint)),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 98),
+                            child: TextField(
+                              controller: _title,
+                              focusNode: _titleFocus,
+                              maxLength: 120,
+                              maxLines: null,
+                              textInputAction: TextInputAction.next,
+                              onSubmitted: (_) => _textFocus.requestFocus(),
+                              style:
+                                  MenteType.title.copyWith(color: textPrimary),
+                              cursorColor: kRiva,
+                              decoration: InputDecoration(
+                                counterText: '',
+                                isCollapsed: true,
+                                contentPadding:
+                                    const EdgeInsets.symmetric(vertical: 6),
+                                border: InputBorder.none,
+                                hintText: 'name this page — or don\'t',
+                                hintStyle: MenteType.heading
+                                    .copyWith(height: 1.3, color: textDisabled),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    child: showFormatBar
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: s8),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: showFormatBar
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: s8),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _FormatButton(
+                                    label: 'emphasize',
+                                    onTap: _emphasizeSelection),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _text,
+                      focusNode: _textFocus,
+                      maxLines: null,
+                      minLines: 8,
+                      keyboardType: TextInputType.multiline,
+                      style: MenteType.heading
+                          .copyWith(height: 1.62, color: textPrimary),
+                      cursorColor: kRiva,
+                      decoration: InputDecoration(
+                        isCollapsed: true,
+                        border: InputBorder.none,
+                        hintText: _stepChosen
+                            ? stepPrompt(_journalStep, _v, _a)
+                            : 'start anywhere.',
+                        hintStyle: MenteType.heading
+                            .copyWith(height: 1.62, color: textDisabled),
+                      ),
+                    ),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      child: showPivot
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: s12),
                               child: _FormatButton(
-                                  label: 'emphasize',
-                                  onTap: _emphasizeSelection),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _text,
-                    focusNode: _textFocus,
-                    maxLines: null,
-                    minLines: 8,
-                    keyboardType: TextInputType.multiline,
-                    style: MenteType.heading
-                        .copyWith(height: 1.62, color: textPrimary),
-                    cursorColor: kRiva,
-                    decoration: InputDecoration(
-                      isCollapsed: true,
-                      border: InputBorder.none,
-                      hintText: _stepChosen
-                          ? stepPrompt(_journalStep, _v, _a)
-                          : 'start anywhere.',
-                      hintStyle: MenteType.heading
-                          .copyWith(height: 1.62, color: textDisabled),
+                                label:
+                                    'you have named a lot — add what you need next',
+                                onTap: () {
+                                  setState(() {
+                                    _journalStep = 'need';
+                                    _stepChosen = true;
+                                  });
+                                  _textFocus.requestFocus();
+                                },
+                              ),
+                            )
+                          : const SizedBox.shrink(),
                     ),
-                  ),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    child: showPivot
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: s12),
-                            child: _FormatButton(
-                              label:
-                                  'you have named a lot — add what you need next',
-                              onTap: () {
-                                setState(() {
-                                  _journalStep = 'need';
-                                  _stepChosen = true;
-                                });
-                                _textFocus.requestFocus();
-                              },
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    child: showSafety
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: s12),
-                            child: Text(
-                              kSafetyText,
-                              style: MenteType.caption
-                                  .copyWith(height: 1.55, color: textSecondary),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                ],
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      child: showSafety
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: s12),
+                              child: Text(
+                                kSafetyText,
+                                style: MenteType.caption.copyWith(
+                                    height: 1.55, color: textSecondary),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          _buildShelf(),
-        ],
-      ),
+            _buildShelf(),
+          ],
+        ),
       ),
     );
   }

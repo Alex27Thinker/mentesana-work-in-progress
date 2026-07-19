@@ -1,5 +1,7 @@
 // Mentesana — shared analysis result models.
 // Pure data classes with no UI or persistence dependencies.
+// Maps and lists exposed from these result objects are defensive
+// unmodifiable views so callers cannot mutate analyzer state.
 
 /// Month labels (short English) shared by SeasonSummary and PromptEngine.
 const kMonthsShortAE = [
@@ -68,14 +70,21 @@ class MoodShift {
   final String description;
 }
 
+/// Time-of-day distribution. The [slots] map is an unmodifiable view
+/// at construction time so external code cannot mutate the analyzer's
+/// state.
 class TimePattern {
-  const TimePattern(this.slots, this.dominant);
+  TimePattern(Map<String, int> slots, this.dominant)
+      : slots = Map<String, int>.unmodifiable(slots);
   final Map<String, int> slots;
   final String? dominant;
 }
 
 class MoodAnalysis {
-  const MoodAnalysis({
+  static const Map<String, double> _emptyQuadrant = <String, double>{};
+  static const List<WordCount> _emptyFrequentWords = <WordCount>[];
+
+  MoodAnalysis({
     required this.hasData,
     required this.count,
     this.totalEntries = 0,
@@ -83,13 +92,18 @@ class MoodAnalysis {
     this.avgV = 0,
     this.avgA = 0,
     this.volatility = 0,
-    this.quadrantDistribution = const {},
+    Map<String, double>? quadrantDistribution,
     this.dominantQuadrant,
     this.trajectory,
-    this.frequentWords = const [],
+    List<WordCount>? frequentWords,
     this.timePattern,
     this.shift,
-  });
+  })  : quadrantDistribution = quadrantDistribution == null
+            ? _emptyQuadrant
+            : Map<String, double>.unmodifiable(quadrantDistribution),
+        frequentWords = frequentWords == null
+            ? _emptyFrequentWords
+            : List<WordCount>.unmodifiable(frequentWords);
 
   final bool hasData;
   final int count;
@@ -117,8 +131,11 @@ class Sentiment {
 }
 
 class TextEntryAnalysis {
-  const TextEntryAnalysis(
-      this.keywords, this.sentiment, this.themes, this.wordCount);
+  TextEntryAnalysis(List<WordCount> keywords, this.sentiment,
+      List<ThemeHits> themes, this.wordCount)
+      : keywords = List<WordCount>.unmodifiable(keywords),
+        themes = List<ThemeHits>.unmodifiable(themes);
+
   final List<WordCount> keywords;
   final Sentiment sentiment;
   final List<ThemeHits> themes;
@@ -126,16 +143,24 @@ class TextEntryAnalysis {
 }
 
 class TextAnalysis {
-  const TextAnalysis({
+  static const List<WordCount> _emptyKeywords = <WordCount>[];
+  static const List<ThemeHits> _emptyThemes = <ThemeHits>[];
+
+  TextAnalysis({
     required this.hasData,
     required this.count,
     this.totalWords = 0,
     this.avgWordsPerEntry = 0,
-    this.topKeywords = const [],
-    this.topThemes = const [],
+    List<WordCount>? topKeywords,
+    List<ThemeHits>? topThemes,
     this.avgSentiment = 0,
     this.sentimentLabel = 'mixed',
-  });
+  })  : topKeywords = topKeywords == null
+            ? _emptyKeywords
+            : List<WordCount>.unmodifiable(topKeywords),
+        topThemes = topThemes == null
+            ? _emptyThemes
+            : List<ThemeHits>.unmodifiable(topThemes);
 
   final bool hasData;
   final int count;
@@ -158,7 +183,8 @@ class InsightParts {
     this.crisis = false,
     this.crisisMessage,
     this.fromAI = false,
-  }) : patterns = patterns ?? [];
+  }) : patterns =
+            patterns == null ? <String>[] : List<String>.unmodifiable(patterns);
 
   String headline;
   String count;

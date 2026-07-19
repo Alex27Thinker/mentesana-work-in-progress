@@ -1,30 +1,32 @@
-import '../../journal/domain/tide_experiment.dart';
-import '../../journal/domain/parked_worry.dart';
-import '../../journal/domain/anchor.dart';
+import 'anchor.dart';
+import 'parked_worry.dart';
+import 'tide_experiment.dart';
 
-abstract class CurrentsRepository {
-  List<TideExperiment> get tideExperiments;
-  set tideExperiments(List<TideExperiment> v);
-  List<ParkedWorry> get parkedWorries;
-  set parkedWorries(List<ParkedWorry> v);
-  List<Anchor> get anchors;
-  set anchors(List<Anchor> v);
+/// Persistence boundary for the currents features (tide experiments,
+/// parked worries, anchors).
+///
+/// The interface is asynchronous. Mutation operations persist and
+/// emit through the adapter; no separate `save...` methods are part
+/// of the public surface. The legacy adapter delegates to focused
+/// AppStore operations that combine persistence and notification.
+abstract interface class CurrentsRepository {
+  Future<List<TideExperiment>> getExperiments();
+  Stream<List<TideExperiment>> watchExperiments();
+  TideExperiment? activeExperiment();
+  Future<void> startExperiment(TideExperiment experiment);
+  Future<void> completeExperiment(String experimentId);
+  Future<void> recordObservation(String experimentId, String response);
 
-  TideExperiment? get activeTideExperiment;
-  void startExperiment(TideExperiment experiment);
-  void completeExperiment(String experimentId);
-  void recordObservation(String experimentId, String response);
+  Future<List<ParkedWorry>> getParkedWorries();
+  Stream<List<ParkedWorry>> watchParkedWorries();
+  List<ParkedWorry> dueParkedWorries();
+  Future<void> parkWorry(String text);
+  Future<void> settleWorry(ParkedWorry worry);
 
-  void parkWorry(String text);
-  void settleWorry(ParkedWorry worry);
-  List<ParkedWorry> get dueParkedWorries;
-
-  void setAnchor({required String text, required String theme});
-  void reflectAnchor(Anchor anchor, String outcome);
-  Anchor? get openAnchor;
-  void quietAnchorInvites({int days = 3});
-
-  void saveParkedWorries();
-  void saveAnchors();
-  void saveTideExperiments();
+  Future<List<Anchor>> getAnchors();
+  Stream<List<Anchor>> watchAnchors();
+  Anchor? openAnchor();
+  Future<void> setAnchor({required String text, required String theme});
+  Future<void> reflectAnchor(Anchor anchor, String outcome);
+  Future<void> quietAnchorInvites({int days = 3});
 }

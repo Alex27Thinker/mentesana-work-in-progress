@@ -58,6 +58,26 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
   String _exportNote = '';
   Timer? _exportNoteTimer;
 
+  /// Local mirror of [widget.entry] so version restoration, edits, and
+  /// deletes see the current entry. The screen no longer reads the
+  /// immutable widget field after the parent has replaced the entry
+  /// in the store.
+  late JournalEntry _entry;
+
+  @override
+  void initState() {
+    super.initState();
+    _entry = widget.entry;
+  }
+
+  @override
+  void didUpdateWidget(EntryDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.entry, widget.entry)) {
+      _entry = widget.entry;
+    }
+  }
+
   @override
   void dispose() {
     _armTimer?.cancel();
@@ -94,12 +114,12 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
 
   void _deleteEntry() {
     _disarmDelete();
-    widget.store.deleteEntry(widget.entry);
+    widget.store.deleteEntry(_entry);
     widget.onDeleted();
   }
 
   void _restoreVersion(int index) {
-    final e = widget.entry;
+    final e = _entry;
     if (index < 0 || index >= e.versions.length) return;
     final v = e.versions[index];
     final updated = e.copyWith(
@@ -107,7 +127,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
       title: v.title,
       tag: v.tag,
       tideLine: v.tideLine,
-      versions: [
+      versions: List<EntryVersion>.unmodifiable([
         ...e.versions,
         EntryVersion(
           editedAt: DateTime.now().millisecondsSinceEpoch,
@@ -116,14 +136,14 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
           tag: e.tag,
           tideLine: e.tideLine,
         ),
-      ],
+      ]),
     );
     widget.store.updateEntry(e, updated);
-    setState(() {});
+    setState(() => _entry = updated);
   }
 
   void _exportPage() {
-    final e = widget.entry;
+    final e = _entry;
     final text = '${e.word ?? 'journal'}\n'
         '${e.date}\n\n'
         '${e.text.isNotEmpty ? e.text : 'A weather kept without words.'}';
@@ -137,7 +157,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final e = widget.entry;
+    final e = _entry;
     final hasMood = e.v != null && e.a != null;
     final prompt = e.prompt.isNotEmpty
         ? e.prompt
@@ -354,7 +374,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
   // #8: a faint wave stroke replaces the flat 1px rule; it wears the page's
   // own kept weather when there is one.
   Widget _rule() {
-    final e = widget.entry;
+    final e = _entry;
     final hasMood = e.v != null && e.a != null;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -456,7 +476,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
   }
 
   Widget _versionRow(int index) {
-    final v = widget.entry.versions[index];
+    final v = _entry.versions[index];
     final d = DateTime.fromMillisecondsSinceEpoch(v.editedAt);
     return Padding(
       padding: const EdgeInsets.only(bottom: s12),
