@@ -12,6 +12,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import '_shared/widgets/sea_atmosphere.dart';
 import 'ai_service.dart';
 import 'analysis_engine.dart';
 import 'app_store.dart';
@@ -23,7 +24,7 @@ import 'core/sea_manager.dart';
 import 'currents_engine.dart';
 import 'currents_surfaces.dart';
 import 'entry_detail_screen.dart';
-import 'home_screen.dart';
+import 'features/home/home_to_checkin_shell.dart';
 import 'insight_screen.dart';
 import 'journal_editor.dart';
 import 'journal_home_screen.dart';
@@ -55,6 +56,15 @@ class _MentesanaShellState extends State<MentesanaShell>
   // -- Injected managers --
   late final NavigationManager _navManager = locate<NavigationManager>();
   late final SeaManager _seaManager = locate<SeaManager>();
+
+  // v2 — cached atmosphere for the ambient sea (recomputed on store
+  // changes, read by the sea ticker every frame at zero cost).
+  MoodAtmosphere _atmo = (valence: 0.0, arousal: 0.0);
+
+  // v2 — navigation direction through the water column, for descend /
+  // ascend screen transitions.
+  double _lastNavDepth = 0;
+  bool _navDescending = true;
 
   bool _welcomeOpen = false;
   bool _welcomeTesting = false;
@@ -95,7 +105,14 @@ class _MentesanaShellState extends State<MentesanaShell>
   double? _checkinInitialV, _checkinInitialA;
   bool _checkinAfterCheck = false;
   bool _checkinJournaledSubline = false;
-  int _checkinNonce = 0;
+
+  // v3 — the unified home <-> check-in shell. The shell holds the
+  // whole experience (home cluster + lens + check-in field) as a
+  // single screen; the host flips between its idle and check-in
+  // states via the controller, never by swapping the screen.
+  final GlobalKey<HomeToCheckinShellState> _homeShellKey =
+      GlobalKey<HomeToCheckinShellState>();
+  bool _checkinOpen = false;
 
   // entry detail (JS detailReads — session-only re-reading counter)
   JournalEntry? _detailEntry;
@@ -114,6 +131,11 @@ class _MentesanaShellState extends State<MentesanaShell>
     store.addListener(_onStore);
     // Connect the sea manager to this state's ticker provider.
     _seaManager.attachVsync(this);
+    // v2 — the ambient sea wears the day's kept weather, everywhere.
+    // (The old private no-op in SeaManager silently dropped this coupling.)
+    _refreshAtmosphere();
+    _seaManager.moodSource = () => _atmo;
+    _seaManager.setDepth(_navManager.depth / 2.25);
     // Boot condition: first visit — not welcomed and nothing kept yet.
     _welcomeOpen = !store.welcomed && store.entries.isEmpty;
     // The sea keeps this, quietly — the PIN veil at boot.
@@ -129,11 +151,48 @@ class _MentesanaShellState extends State<MentesanaShell>
   }
 
   void _onStore() {
+    _refreshAtmosphere();
     if (mounted) setState(() {});
   }
 
   void _onNavChanged() {
+    // v2 — navigating is descending/ascending the one water column: the
+    // manager eases the global depth, and the screen transition slides in
+    // the direction of travel.
+    final d = _navManager.depth / 2.25;
+    _navDescending = d >= _lastNavDepth;
+    _lastNavDepth = d;
+    _seaManager.setDepth(d);
     if (mounted) setState(() {});
+  }
+
+  /// v2 — the atmosphere the ambient sea wears: the most recent kept
+  /// weather, fading over three days. The sea remembers, gently, and lets
+  /// go. Weather, never a verdict — and off with one switch in settings.
+  void _refreshAtmosphere() {
+    if (!store.moodAtmosphereOn) {
+      _atmo = (valence: 0.0, arousal: 0.0);
+      return;
+    }
+    JournalEntry? last;
+    for (final e in store.entries) {
+      if (e.v == null || e.a == null) continue;
+      if (last == null || e.ts > last.ts) last = e;
+    }
+    if (last == null) {
+      _atmo = (valence: 0.0, arousal: 0.0);
+      return;
+    }
+    final ageDays =
+        (DateTime.now().millisecondsSinceEpoch - last.ts) / 86400000.0;
+    final memory = ageDays <= 1
+        ? 1.0
+        : ageDays <= 2
+            ? .55
+            : ageDays <= 3
+                ? .28
+                : 0.0;
+    _atmo = (valence: last.v! * memory, arousal: last.a! * memory);
   }
 
   @override
@@ -197,7 +256,7 @@ class _MentesanaShellState extends State<MentesanaShell>
   }
 
   /// JS homeCheckin — a fresh check-in; today's earlier weather leaves a trace.
-  void _homeCheckin() {
+  void _startHomeCheckin() {
     final earlier = store.todaysEntry();
     store.sessionFresh = false;
     _activeEntry = null;
@@ -205,7 +264,6 @@ class _MentesanaShellState extends State<MentesanaShell>
     _journalKept = false;
     _lastKeptEntry = null;
     setState(() {
-      _checkinNonce++;
       _checkinEarlier =
           earlier != null && earlier.v != null && earlier.a != null
               ? (earlier.v!, earlier.a!)
@@ -216,11 +274,44 @@ class _MentesanaShellState extends State<MentesanaShell>
       _checkinAfterCheck = false;
       _checkinJournaledSubline = false;
     });
-    _show(AppScreen.checkin);
+    _openCheckinField();
+  }
+
+  /// v3 — open the check-in field over the unified shell WITHOUT
+  /// navigating the AnimatedSwitcher to AppScreen.checkin. Both the
+  /// home and checkin cases build HomeToCheckinShell with the same
+  /// GlobalKey, so a home -> checkin switch would cross-fade two live
+  /// copies of that key and trip the framework's
+  /// _elements.contains(element) assertion. Seed the _checkin* context
+  /// fields BEFORE calling this.
+  void _openCheckinField() {
+    setState(() => _checkinOpen = true);
+    if (_navManager.screen == AppScreen.home ||
+        _navManager.screen == AppScreen.checkin) {
+      _homeShellKey.currentState?.ignite();
+    } else {
+      // Not on the unified shell — travel home; the shell mounts with
+      // initialOpen true and arrives already in the field state.
+      _show(AppScreen.home);
+    }
+  }
+
+  /// v3 — called by the unified shell's "home" chip and by the system
+  /// back handler. Reverses the transition and hands the sea back to
+  /// its ambient source.
+  void _releaseToHome() {
+    if (!_checkinOpen) return;
+    setState(() => _checkinOpen = false);
+    _seaManager.releaseSea();
+    _homeShellKey.currentState?.release();
   }
 
   // ---------- keep (JS keep() routing) ----------
   void _onKept(MoodEntry m) {
+    // v2 — keeping a mood sends a wave through the ambient sea, so the
+    // ceremony is felt on the water you return to.
+    final keepSize = MediaQuery.of(context).size;
+    _seaManager.ripple(Offset(keepSize.width * .5, keepSize.height * .58));
     final cameFromSavedJournal = _suppressMoodWriteInvite &&
         _activeEntry != null &&
         _activeEntry!.text.isNotEmpty;
@@ -253,10 +344,7 @@ class _MentesanaShellState extends State<MentesanaShell>
     // The invite arrives after the ceremony; both exits are costless.
     _inviteTimer?.cancel();
     _inviteTimer = Timer(Duration(milliseconds: _reduced ? 700 : 2100), () {
-      if (!mounted ||
-          _journalKept ||
-          _journalOpen ||
-          _navManager.screen != AppScreen.checkin) {
+      if (!mounted || _journalKept || _journalOpen || !_checkinOpen) {
         return;
       }
       setState(() {
@@ -298,7 +386,6 @@ class _MentesanaShellState extends State<MentesanaShell>
       initialBottle: e.tideLine,
       attachments: [...e.attachments],
     ));
-    if (_navManager.screen != AppScreen.checkin) _show(AppScreen.checkin);
   }
 
   /// JS startFreeJournal(resume, prompt) — a page with no weather required.
@@ -326,7 +413,6 @@ class _MentesanaShellState extends State<MentesanaShell>
       initialBottle: bottle,
       attachments: draft != null ? [...draft.attachments] : [],
     ));
-    if (_navManager.screen != AppScreen.checkin) _show(AppScreen.checkin);
   }
 
   /// JS homeWrite — today's page from the Home button.
@@ -356,7 +442,6 @@ class _MentesanaShellState extends State<MentesanaShell>
       initialTag: e.tag,
       attachments: [],
     ));
-    if (_navManager.screen != AppScreen.checkin) _show(AppScreen.checkin);
   }
 
   /// JS closeJournal — fades and settles the page down before the home
@@ -431,7 +516,6 @@ class _MentesanaShellState extends State<MentesanaShell>
     _activeEntry = null;
     _suppressMoodWriteInvite = false;
     setState(() {
-      _checkinNonce++;
       _checkinEarlier = null;
       _checkinRevisit = (e.v!, e.a!);
       _checkinInitialV = null;
@@ -439,7 +523,7 @@ class _MentesanaShellState extends State<MentesanaShell>
       _checkinAfterCheck = false;
       _checkinJournaledSubline = false;
     });
-    _show(AppScreen.checkin);
+    _openCheckinField();
   }
 
   // ---------- AI daily prompt (JS _aiCachedPrompt) ----------
@@ -460,10 +544,10 @@ class _MentesanaShellState extends State<MentesanaShell>
     final mq = MediaQuery.of(context);
     final reduced = mq.disableAnimations || store.reducedMotionOn;
     final screen = _navManager.screen;
-    final depth = _navManager.depth;
 
     return PopScope(
       canPop: screen == AppScreen.home &&
+          !_checkinOpen &&
           !_journalOpen &&
           !_welcomeOpen &&
           !_inviteOpen &&
@@ -483,11 +567,21 @@ class _MentesanaShellState extends State<MentesanaShell>
           child: Stack(
             children: [
               const Positioned.fill(child: ColoredBox(color: kInkDeep)),
-              // The living sea, behind Home at full intensity. The check-in
-              // screen carries its own inner sea field (the one the dot rides).
-              if (screen == AppScreen.home)
-                Positioned.fill(
-                  child: RepaintBoundary(
+              // v2 — ONE persistent living sea under every screen. The same
+              // water is continuously visible everywhere: it recedes as you
+              // descend (eased frame-by-frame by SeaManager, never swapped
+              // per navigation) and wears the day's kept weather at every
+              // depth. The check-in screen still carries its own inner
+              // field (the one the dot rides).
+              Positioned.fill(
+                child: RepaintBoundary(
+                  child: AnimatedBuilder(
+                    animation: _seaManager,
+                    builder: (context, child) => Opacity(
+                      opacity:
+                          (1 - _seaManager.depth * .62).clamp(0.30, 1.0),
+                      child: child,
+                    ),
                     child: CustomPaint(
                       painter: SeaPainter(
                         model: _seaManager.model,
@@ -497,82 +591,58 @@ class _MentesanaShellState extends State<MentesanaShell>
                     ),
                   ),
                 ),
-              // Deeper screens still sit in the same sea, just quieter and dimmer
-              // with depth — continuity instead of a flat backdrop swap.
-              if (depth > 0)
-                Positioned.fill(
-                  child: RepaintBoundary(
-                    child: Opacity(
-                      // #4: keep the living sea clearly present on deep screens,
-                      // not a faint ghost — the sea is a character everywhere.
-                      opacity: (0.44 - depth * 0.06).clamp(0.18, 0.44),
-                      child: CustomPaint(
-                        painter: SeaPainter(
-                          model: _seaManager.model,
-                          foamX: _seaManager.foamX,
-                          foamLayer: _seaManager.foamLayer,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              // Depth ambience — the water darkens as you descend (JS SCREEN_DEPTH).
-              if (depth > 0)
-                Positioned.fill(
-                  child: AnimatedContainer(
-                    duration: Duration(milliseconds: reduced ? 0 : 700),
-                    decoration: BoxDecoration(
-                      // Kept translucent (not opaque) so the mood-tinted sea
-                      // underneath still shows through on every screen depth,
-                      // not just Home.
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          // #4: lighter scrim so the sea reads through, rather than
-                          // being crushed to near-black on deeper screens.
-                          const Color(0xFF060B12).withValues(
-                              alpha: (depth / 2.25 * .34).clamp(0.0, .34)),
-                          const Color(0xFF04080D).withValues(
-                              alpha: (depth / 2.25 * .5).clamp(0.0, .5)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+              ),
+              // v2 — the water darkens continuously as you descend, moving
+              // with the eased depth instead of a one-shot 700ms tween.
+              Positioned.fill(child: DepthVeil(manager: _seaManager)),
               // Screens.
+              // v2 — one global scroll coupler: any scrolling surface on
+              // any screen nudges the living sea beneath it, so the water
+              // and the content always move together.
               Positioned.fill(
-                child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: reduced ? 0 : 360),
-                  reverseDuration: Duration(milliseconds: reduced ? 0 : 240),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  transitionBuilder: (child, anim) {
-                    final curve = CurvedAnimation(
-                        parent: anim, curve: Curves.easeOutCubic);
-                    return FadeTransition(
-                      opacity: curve,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, .025),
-                          end: Offset.zero,
-                        ).animate(curve),
-                        child: ScaleTransition(
-                          scale: Tween<double>(begin: .985, end: 1.0)
-                              .animate(curve),
-                          child: child,
-                        ),
-                      ),
-                    );
+                child: NotificationListener<ScrollUpdateNotification>(
+                  onNotification: (n) {
+                    _seaManager.scrollDrift(n.scrollDelta ?? 0);
+                    return false;
                   },
-                  child: KeyedSubtree(
-                    key: ValueKey(screen),
-                    child: SafeArea(
-                      top: screen != AppScreen.home &&
-                          screen != AppScreen.checkin &&
-                          screen != AppScreen.settings,
-                      bottom: false,
-                      child: _screenWidget(),
+                  child: AnimatedSwitcher(
+                    duration: Duration(milliseconds: reduced ? 0 : 360),
+                    reverseDuration:
+                        Duration(milliseconds: reduced ? 0 : 240),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (child, anim) {
+                      final curve = CurvedAnimation(
+                          parent: anim, curve: Curves.easeOutCubic);
+                      return FadeTransition(
+                        opacity: curve,
+                        child: SlideTransition(
+                          // v2 — screens arrive from the direction of travel
+                          // through the water column: descending pulls the
+                          // new screen up from below; ascending lets it
+                          // settle down from above.
+                          position: Tween<Offset>(
+                            begin: Offset(0, _navDescending ? .035 : -.035),
+                            end: Offset.zero,
+                          ).animate(curve),
+                          child: ScaleTransition(
+                            scale: Tween<double>(begin: .985, end: 1.0)
+                                .animate(curve),
+                            child: child,
+                          ),
+                        ),
+                      );
+                    },
+                    child: KeyedSubtree(
+                      key: ValueKey(
+                          screen == AppScreen.checkin ? AppScreen.home : screen),
+                      child: SafeArea(
+                        top: screen != AppScreen.home &&
+                            screen != AppScreen.checkin &&
+                            screen != AppScreen.settings,
+                        bottom: false,
+                        child: _screenWidget(),
+                      ),
                     ),
                   ),
                 ),
@@ -636,8 +706,8 @@ class _MentesanaShellState extends State<MentesanaShell>
                         _welcomeTesting = false;
                       });
                       if (to == 'checkin') {
-                        store.sessionFresh = false;
-                        _navManager.show(AppScreen.checkin);
+                        _navManager.show(AppScreen.home);
+                        _startHomeCheckin();
                       } else {
                         _navManager.show(AppScreen.home);
                       }
@@ -690,6 +760,10 @@ class _MentesanaShellState extends State<MentesanaShell>
   }
 
   void _handleSystemBack() {
+    if (_checkinOpen) {
+      _releaseToHome();
+      return;
+    }
     _navManager.handleBack(
       journalOpen: _journalOpen,
       undertowOpen: _undertowOpen,
@@ -702,7 +776,12 @@ class _MentesanaShellState extends State<MentesanaShell>
     );
   }
 
-  bool get _navVisible => !_journalOpen && _navManager.navVisible;
+  // v3 — the check-in field has its own chrome (the "home" chip), so
+  // the bottom nav must hide while the field is open; _navManager
+  // stays on AppScreen.home during a check-in and can no longer make
+  // that call on its own.
+  bool get _navVisible =>
+      !_journalOpen && !_checkinOpen && _navManager.navVisible;
 
   List<MoodEntry> _recentMoodTrail() {
     final moods = store.entries.where((entry) => entry.isMoodEntry).toList()
@@ -722,57 +801,52 @@ class _MentesanaShellState extends State<MentesanaShell>
   Widget _screenWidget() {
     switch (_navManager.screen) {
       case AppScreen.home:
-        return HomeScreen(
-          store: store,
-          onCheckin: _homeCheckin,
-          onSettings: () => _show(AppScreen.settings),
-          onWrite: _homeWrite,
-          onDoor: (door) => _show(door == 'archive'
-              ? AppScreen.archive
-              : door == 'tideLab'
-                  ? AppScreen.tideLab
-                  : AppScreen.insight),
-        );
       case AppScreen.checkin:
-        return Stack(
-          children: [
-            MoodSelectorScreen(
-              key: ValueKey('checkin-$_checkinNonce'),
-              onKept: _onKept,
-              onSayMore: _checkinAfterCheck
-                  ? null
-                  : () {
-                      final e = _lastKeptEntry;
-                      if (e != null) _openEditorForEntry(e, mode: 'mood');
-                    },
-              afterCheck: _checkinAfterCheck,
-              journaledSubline: _checkinJournaledSubline,
-              moodTrail: _recentMoodTrail(),
-              earlierTrace: _checkinEarlier,
-              revisitTarget: _checkinRevisit,
-              initialV: _checkinInitialV,
-              initialA: _checkinInitialA,
-            ),
-            // #toHome — overlaid at shell level, exactly like the prototype.
-            SafeArea(
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: s16, left: s12),
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _show(AppScreen.home),
-                    child: Padding(
-                      padding: const EdgeInsets.all(s8),
-                      child: Text('home',
-                          style: MenteType.eyebrow
-                              .copyWith(letterSpacing: .72, color: textFaint)),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+        // v3 — one screen, two states. The host flips the open state
+        // via _homeShellKey.currentState.ignite() / .release() and
+        // _navManager stays on AppScreen.home throughout; the only
+        // time _navManager.screen is AppScreen.checkin is when the
+        // field is shown as a destination (a back-resume or external
+        // deep link) — initialOpen then seeds the right state on
+        // first build.
+        final openedViaNav = _navManager.screen == AppScreen.checkin;
+        return HomeToCheckinShell(
+          key: _homeShellKey,
+          store: store,
+          initialOpen: _checkinOpen || openedViaNav,
+          checkinEarlier: _checkinEarlier,
+          checkinRevisit: _checkinRevisit,
+          checkinInitialV: _checkinInitialV,
+          checkinInitialA: _checkinInitialA,
+          checkinAfterCheck: _checkinAfterCheck,
+          checkinJournaledSubline: _checkinJournaledSubline,
+          moodTrail: _recentMoodTrail(),
+          onKept: _onKept,
+          onSteer: (va) => _seaManager.tintSea(va.$1, va.$2),
+          onSayMore: _checkinAfterCheck
+              ? null
+              : () {
+                  final e = _lastKeptEntry;
+                  if (e != null) _openEditorForEntry(e, mode: 'mood');
+                },
+          onCheckinIntent: _startHomeCheckin,
+          onWrite: _homeWrite,
+          onDoor: (door) {
+            // Leaving the unified shell for a deeper screen tears
+            // down the field. Hand the sea back to the ambient source
+            // and let the AnimatedSwitcher swap to the new screen.
+            if (_checkinOpen) _releaseToHome();
+            _show(door == 'archive'
+                ? AppScreen.archive
+                : door == 'tideLab'
+                    ? AppScreen.tideLab
+                    : AppScreen.insight);
+          },
+          onSettings: () {
+            if (_checkinOpen) _releaseToHome();
+            _show(AppScreen.settings);
+          },
+          onRelease: _releaseToHome,
         );
       case AppScreen.settings:
         return SettingsScreen(
@@ -957,7 +1031,6 @@ class _MentesanaShellState extends State<MentesanaShell>
                         _activeEntry = entry;
                         setState(() {
                           _postJournalOpen = false;
-                          _checkinNonce++;
                           _checkinEarlier = null;
                           _checkinRevisit = null;
                           _checkinInitialV = null;
@@ -965,7 +1038,7 @@ class _MentesanaShellState extends State<MentesanaShell>
                           _checkinAfterCheck = true;
                           _checkinJournaledSubline = false;
                         });
-                        _show(AppScreen.checkin);
+                        _openCheckinField();
                       },
                     ),
                     const SizedBox(width: s12),
@@ -1000,7 +1073,7 @@ class _MentesanaShellState extends State<MentesanaShell>
             duration: Duration(milliseconds: reduced ? 0 : 220),
             curve: kExhale,
             constraints: const BoxConstraints(minHeight: 44),
-            padding: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.only(top: 6),
             child: AnimatedScale(
               duration: Duration(milliseconds: reduced ? 0 : 220),
               curve: kExhale,
@@ -1008,15 +1081,25 @@ class _MentesanaShellState extends State<MentesanaShell>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AnimatedContainer(
-                    duration: Duration(milliseconds: reduced ? 0 : 220),
-                    curve: kExhale,
-                    padding: EdgeInsets.all(activeThis ? 6 : 0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(999),
-                      color: activeThis ? color.withValues(alpha: .12) : null,
+                  // Fixed 32x32 icon slot: the active pill paints inside
+                  // it instead of padding the layout, so the item's height
+                  // never changes and the bar cannot overflow.
+                  SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: reduced ? 0 : 220),
+                      curve: kExhale,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        color:
+                            activeThis ? color.withValues(alpha: .12) : null,
+                      ),
+                      child: Center(
+                        child:
+                            StrokeIcon(icon, color: color, strokeWidth: 1.5),
+                      ),
                     ),
-                    child: StrokeIcon(icon, color: color, strokeWidth: 1.5),
                   ),
                   const SizedBox(height: s4),
                   Text(label,
@@ -1032,41 +1115,94 @@ class _MentesanaShellState extends State<MentesanaShell>
 
     final moodGlow =
         kSea.bilerp(_seaManager.model.visualV, _seaManager.model.visualA)[0];
-    // A soft blur behind the bar, plus a graduated (not hard-edged) tint,
-    // so the nav reads as part of the scene instead of a pasted-on strip.
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          height: 62 + MediaQuery.of(context).padding.bottom,
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: const [0, .35, 1],
-              colors: [
-                moodGlow.withValues(alpha: store.moodAtmosphereOn ? .06 : 0),
-                const Color(0xFF0B141B).withValues(alpha: .30),
-                const Color(0xFF0B141B).withValues(alpha: .46),
-              ],
+    // A soft blur behind the bar with a gradient fade at the top so the nav
+    // reads as part of the scene instead of a pasted-on strip.
+    final bottomPad = MediaQuery.of(context).padding.bottom;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Gradient fade — no blur, so content shows through naturally.
+        SizedBox(
+          height: 28,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  const Color(0xFF0B141B).withValues(alpha: 0),
+                  moodGlow.withValues(
+                      alpha: store.moodAtmosphereOn ? .06 : 0),
+                ],
+              ),
             ),
           ),
-          child: Row(
-            children: [
-              item('home', SeaIcons.navHome, store.t('home'),
-                  () => _show(AppScreen.home)),
-              item('write', SeaIcons.navWrite, store.t('write'), () {
-                _journalFromHome = true;
-                _startFreeJournal();
-              }),
-              item('journal', SeaIcons.navJournal, store.t('journal'),
-                  () => _show(AppScreen.journalhome)),
+        ),
+        // Blur applies only to the bar itself, not the fade zone above.
+        ClipRect(
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: SizedBox(
+              height: 62 + bottomPad,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            moodGlow.withValues(
+                                alpha: store.moodAtmosphereOn ? .06 : 0),
+                            const Color(0xFF0B141B).withValues(alpha: .30),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 62 + bottomPad,
+                    padding: EdgeInsets.only(bottom: bottomPad),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: const [0, .35, 1],
+                        colors: [
+                          moodGlow.withValues(
+                              alpha: store.moodAtmosphereOn ? .06 : 0),
+                          const Color(0xFF0B141B).withValues(alpha: .30),
+                          const Color(0xFF0B141B).withValues(alpha: .46),
+                        ],
+                      ),
+                    ),
+                    child: Row(
+                  children: [
+                    item('home', SeaIcons.navHome, store.t('home'),
+                        () {
+                      if (_checkinOpen) _releaseToHome();
+                      _show(AppScreen.home);
+                    }),
+                    item('write', SeaIcons.navWrite, store.t('write'), () {
+                      if (_checkinOpen) _releaseToHome();
+                      _journalFromHome = true;
+                      _startFreeJournal();
+                    }),
+                    item('journal', SeaIcons.navJournal, store.t('journal'),
+                        () {
+                      if (_checkinOpen) _releaseToHome();
+                      _show(AppScreen.journalhome);
+                    }),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
+      ),
+    ],
+  );
+}
 }

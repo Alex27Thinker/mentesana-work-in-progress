@@ -603,16 +603,18 @@ class _JournalEditorState extends State<JournalEditor> {
     final showFormatBar = sel.isValid && !sel.isCollapsed;
     final recede = _writing ? 0.34 : 1.0;
 
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: _backlink('close', widget.onClose),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
+    return ColoredBox(
+      color: kInkDeep,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _backlink('close', widget.onClose),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(30, 6, 30, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -754,6 +756,7 @@ class _JournalEditorState extends State<JournalEditor> {
           ),
           _buildShelf(),
         ],
+      ),
       ),
     );
   }

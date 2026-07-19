@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '_shared/widgets/sea_motion.dart';
 import 'app_store.dart';
 import 'mood_palette.dart';
 import 'theme.dart';
@@ -35,6 +36,7 @@ class HomeScreen extends StatefulWidget {
     required this.onSettings,
     required this.onWrite,
     required this.onDoor,
+    this.outProgress = 0,
   });
 
   final AppStore store;
@@ -46,6 +48,12 @@ class HomeScreen extends StatefulWidget {
 
   /// 'archive' or 'insight' ("this week").
   final ValueChanged<String> onDoor;
+
+  /// v3 — when non-null, the host (HomeToCheckinShell) sets this to
+  /// fade the cluster out (1 = fully invisible). The shell passes the
+  /// current value on every rebuild via its own ListenableBuilder; no
+  /// AnimatedBuilder needed inside HomeScreen itself.
+  final double outProgress;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -83,9 +91,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   TextStyle get _serif => GoogleFonts.alice(color: kIvory);
 
   @override
+  void initState() {
+    super.initState();
+    widget.store.addListener(_callSyncMotionLater);
+    _callSyncMotionLater();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _syncMotion();
+    _callSyncMotionLater();
+  }
+
+  /// Defer [_syncMotion] to after the current build frame so we don't
+  /// mutate AnimationController internals (duration setter fires
+  /// listeners) while the framework is still in the build phase.
+  void _callSyncMotionLater() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _syncMotion();
+    });
   }
 
   /// JS tempo: 1 + (0.72 + 0.56 * ((a + 1) / 2) - 1) * strength.
@@ -151,18 +175,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (_dissolving) return;
     HapticFeedback.lightImpact();
     setState(() => _dissolving = true);
-    Future.delayed(Duration(milliseconds: _reduced ? 0 : 420), () {
-      if (!mounted) return;
-      widget.onCheckin();
-      // Reset for the next visit home.
-      Future.delayed(const Duration(milliseconds: 600), () {
-        if (mounted) setState(() => _dissolving = false);
-      });
+    // v3 — ignite immediately; the parent starts the parallel fade-out
+    // in the same frame. The lens's own scale dissolve runs alongside.
+    widget.onCheckin();
+    Future.delayed(const Duration(milliseconds: 700), () {
+      if (mounted) setState(() => _dissolving = false);
     });
   }
 
   @override
   void dispose() {
+    widget.store.removeListener(_callSyncMotionLater);
     _breath.dispose();
     _shape.dispose();
     _currents.dispose();
@@ -171,13 +194,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    _syncMotion();
     final store = widget.store;
     final today = store.latestMoodToday();
     final fresh = store.sessionFresh && today == null;
     final lensSize = fresh ? 124.0 : 112.0;
     final colors = _lensColors();
     final otd = store.findOnThisDay();
+    final p = widget.outProgress.clamp(0.0, 1.0);
 
     return SafeArea(
       bottom: false,
@@ -192,20 +215,84 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return Stack(
           clipBehavior: Clip.none,
           children: [
-            // ---------- masthead ----------
-            Positioned(
-              top: 30,
-              left: 26,
-              right: 26,
-              child: _masthead(),
-            ),
-            // ---------- the day's weather ----------
-            Positioned(
-              top: h * .24,
-              left: 26,
-              right: 26,
-              child: _homeCenter(today),
-            ),
+            // ---------- home cluster (faded by outProgress) ----------
+            if (p < 1)
+              Positioned.fill(
+                child: Opacity(
+                  opacity: 1 - p,
+                  child: Transform.translate(
+                    offset: Offset(0, 18.0 * p),
+                    child: Stack(
+                      children: [
+                        // masthead
+                        Positioned(
+                          top: 30,
+                          left: 26,
+                          right: 26,
+                          child: _masthead(),
+                        ),
+                        // the day's weather
+                        Positioned(
+                          top: h * .24,
+                          left: 26,
+                          right: 26,
+                          child: Breathing(
+                              intensity: .7, child: _homeCenter(today)),
+                        ),
+                        // write invitation
+                        Positioned(
+                          top: clusterTop + 128 + (fresh ? 12 : 0),
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: widget.onWrite,
+                              child: Padding(
+                                padding: const EdgeInsets.all(s8),
+                                child: Text(
+                                  today != null
+                                      ? 'write another page'
+                                      : 'a page, without a weather',
+                                  style: MenteType.caption.copyWith(
+                                    letterSpacing: 1.05,
+                                    color: textSecondary,
+                                    shadows: kHomeShadow,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        // on this day
+                        if (otd != null)
+                          Positioned(
+                            left: 26,
+                            right: 26,
+                            bottom: kNavClearance + 118,
+                            child: _onThisDay(otd),
+                          ),
+                        // doors
+                        Positioned(
+                          left: 26,
+                          right: 26,
+                          bottom: kNavClearance,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _door(widget.store.t('archive'),
+                                  'the sea, deeper',
+                                  () => widget.onDoor('archive')),
+                              _door('this week', 'a letter, on sundays',
+                                  () => widget.onDoor('insight')),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             // ---------- ripples (under the lens) ----------
             for (final r in _ripples)
               _rippleWidget(r, Offset(lensLeft, clusterTop)),
@@ -214,53 +301,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               top: clusterTop,
               left: lensLeft,
               child: _lens(lensSize, colors, today),
-            ),
-            // ---------- write invitation ----------
-            Positioned(
-              top: clusterTop + 128 + (fresh ? 12 : 0),
-              left: 0,
-              right: 0,
-              child: Center(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: widget.onWrite,
-                  child: Padding(
-                    padding: const EdgeInsets.all(s8),
-                    child: Text(
-                      today != null
-                          ? 'write another page'
-                          : 'a page, without a weather',
-                      style: MenteType.caption.copyWith(
-                        letterSpacing: 1.05,
-                        color: textSecondary,
-                        shadows: kHomeShadow,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // ---------- on this day ----------
-            if (otd != null)
-              Positioned(
-                left: 26,
-                right: 26,
-                bottom: kNavClearance + 118,
-                child: _onThisDay(otd),
-              ),
-            // ---------- doors ----------
-            Positioned(
-              left: 26,
-              right: 26,
-              bottom: kNavClearance,
-              child: Column(
-                children: [
-                  _door(widget.store.t('archive'), 'the sea, deeper',
-                      () => widget.onDoor('archive')),
-                  _door('this week', 'a letter, on sundays',
-                      () => widget.onDoor('insight')),
-                ],
-              ),
             ),
           ],
         );
@@ -277,6 +317,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(dow,
@@ -382,13 +423,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 shadows: kHomeShadow)),
       ]);
     }
-    return Column(children: [
-      for (final c in children) Center(child: c),
-    ]);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [for (final c in children) Center(child: c)],
+    );
   }
 
   // ---------- the lens ----------
   Widget _lens(double size, _LensColors colors, JournalEntry? today) {
+    // v3 — outProgress drives the exit; _dissolving only matters when
+    // the shell is not fading (p ≈ 0). This avoids double-gating during
+    // the transition.
+    final p = widget.outProgress.clamp(0.0, 1.0);
+    final lensOp = p > 0.01 ? (1 - p) : (_dissolving ? 0.0 : 1.0);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (d) {
@@ -401,7 +448,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       onTapCancel: () => setState(() => _pressed = false),
       onTap: _tapLens,
       child: AnimatedOpacity(
-        opacity: _dissolving ? 0 : 1,
+        opacity: lensOp,
         duration: Duration(milliseconds: _reduced ? 0 : 550),
         curve: kExhale,
         child: AnimatedScale(
@@ -611,6 +658,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             Border(top: BorderSide(color: Color.fromRGBO(242, 238, 230, .14))),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('on this day',

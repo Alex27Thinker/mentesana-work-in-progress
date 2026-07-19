@@ -31,11 +31,67 @@ class SeaFieldModel extends ChangeNotifier {
   /// painter's existing rendering is unchanged when screens don't feed it.
   double scrollDrift = 0;
 
+  /// Depth 0 (surface) … 1 (deepest). Set by SeaManager each tick so deeper
+  /// views slow wave motion, darken colours, and suppress foam.
+  double depth = 0;
+
+  /// Eased sea-state physics (mood → wave character). Mutable instance,
+  /// never replaced — advanceSeaState() eases fields toward targets.
+  final SeaState sea = SeaState();
+
+  double _lastSeaT = -1;
+
   /// One-shot ripple impulses the painter expands as wave rings radiating
   /// from [origin]. Empty = no effect (existing rendering unchanged).
   final List<SeaRipple> ripples = [];
 
   void bump() => notifyListeners();
+
+  /// Compute target sea-state from visualV, visualA, depth and ease toward
+  /// it with ~12 s inertia so mood changes feel like weather rolling in.
+  void advanceSeaState() {
+    final visualV = this.visualV;
+    final visualA = this.visualA;
+    final energy = (visualA + 1) / 2;
+    final coherenceTarget = (visualV + 1) / 2;
+    final layering = 1 - coherenceTarget;
+
+    final tAmp = energy.clamp(0.0, 1.0);
+    final tChop = (energy * .4 + layering * .6).clamp(0.0, 1.0);
+    final tFoam = ((energy - .3) / .7 + layering * .35).clamp(0.0, 1.0);
+    final tCoherence = coherenceTarget;
+    final tSmooth = (visualV * .5 + .5).clamp(0.0, 1.0);
+    final tWindStreaks = (energy * .85 + .15).clamp(0.0, 1.0);
+    final tBreathPeriod = (5.8 + (1 - energy) * 2.2).clamp(4.0, 9.0);
+    final tBreathIrreg = (energy * .5).clamp(0.0, 0.5);
+    final tGlintWidth = (.15 + (visualV + 1) / 2 * .35).clamp(0.06, 0.5);
+    final tGlintBright = (.04 + (visualV + 1) / 2 * .10).clamp(0.02, 0.16);
+    final tGlintSteady = ((visualV + 1) / 2).clamp(0.0, 1.0);
+    final tGlintBreakup = energy.clamp(0.0, 1.0);
+    final tV = visualV;
+    final tA = visualA;
+
+    final dt = t - _lastSeaT;
+    final snap = reduced || dt <= 0 || dt > 1.0;
+    final f = snap ? 1.0 : (1 - math.exp(-dt / 12.0)).clamp(0.0, 1.0);
+
+    sea.amp += (tAmp - sea.amp) * f;
+    sea.chop += (tChop - sea.chop) * f;
+    sea.foam += (tFoam - sea.foam) * f;
+    sea.coherence += (tCoherence - sea.coherence) * f;
+    sea.smoothness += (tSmooth - sea.smoothness) * f;
+    sea.windStreaks += (tWindStreaks - sea.windStreaks) * f;
+    sea.breathPeriod += (tBreathPeriod - sea.breathPeriod) * f;
+    sea.breathIrreg += (tBreathIrreg - sea.breathIrreg) * f;
+    sea.glintWidth += (tGlintWidth - sea.glintWidth) * f;
+    sea.glintBright += (tGlintBright - sea.glintBright) * f;
+    sea.glintSteady += (tGlintSteady - sea.glintSteady) * f;
+    sea.glintBreakup += (tGlintBreakup - sea.glintBreakup) * f;
+    sea.v += (tV - sea.v) * f;
+    sea.a += (tA - sea.a) * f;
+
+    _lastSeaT = t;
+  }
 }
 
 /// A single ripple impulse on the sea — an expanding wave ring from
@@ -43,12 +99,38 @@ class SeaFieldModel extends ChangeNotifier {
 /// by the painter once it has fully expanded and faded. No-op under reduced
 /// motion (the manager never pushes one when reduced).
 class SeaRipple {
-  SeaRipple({required this.origin, required this.startT});
+  SeaRipple({
+    required this.origin,
+    required this.startT,
+    required this.valence,
+    required this.arousal,
+  });
   final Offset origin;
   final double startT;
+  final double valence;
+  final double arousal;
 
   static const Duration lifetime = Duration(milliseconds: 1600);
   static const double maxRadius = 320;
+}
+
+/// Eased sea‑state physics — mutable fields that SeaFieldModel eases every
+/// frame so mood changes read as weather rolling in, not as a hard cut.
+class SeaState {
+  double amp = 0.5;
+  double chop = 0.5;
+  double foam = 0.5;
+  double coherence = 0.5;
+  double smoothness = 0.5;
+  double windStreaks = 0.3;
+  double breathPeriod = 5.8;
+  double breathIrreg = 0.0;
+  double glintWidth = 0.25;
+  double glintBright = 0.08;
+  double glintSteady = 1.0;
+  double glintBreakup = 0.5;
+  double v = 0;
+  double a = 0;
 }
 
 class SeaPainter extends CustomPainter {
@@ -71,6 +153,11 @@ class SeaPainter extends CustomPainter {
   final List<Path> _crestPaths = List.generate(4, (_) => Path());
   final Path _markPath = Path();
   final Path _streakPath = Path();
+  final Path _glintPath = Path();
+
+  // Reusable point lists — allocated once, cleared per frame so wave sampling
+  // never allocates on the hot path.
+  final List<List<Offset>> _ptsLists = List.generate(4, (_) => []);
 
   static Color _mix(Color a, Color b, double t) =>
       Color.lerp(a, b, t.clamp(0.0, 1.0))!;
@@ -79,101 +166,112 @@ class SeaPainter extends CustomPainter {
   /// Valence changes its character, never its worth.
   /// [wind] is a steady directional drift (-1…1); gusts are derived from [t]
   /// and arousal so the field never blows perfectly steady.
+  /// [sea] (optional) provides eased sea‑state; when null behaviour is
+  /// identical to the pre‑v2 code.
+  /// [depth] (optional) slows wave motion in deeper views.
   static double waveY(double x, double t, int layer, double energy,
       double valence, double breathe, double h, double horizonY,
-      [double wind = 0, double scrollDrift = 0]) {
-    // First movement is already present inside the dissolve zone; no static horizon is drawn.
+      [double wind = 0,
+      double scrollDrift = 0,
+      SeaState? sea,
+      double depth = 0]) {
     final base =
         horizonY - 12 + layer * (h - horizonY) / 5.15 + scrollDrift * 4;
-    final coherence = (valence + 1) / 2, layering = 1 - coherence;
-    // Arousal lifts amplitude; unpleasant weather (low valence) runs a touch
-    // taller and more restless, pleasant weather settles lower and longer.
+    final coherence = sea != null ? sea.coherence : (valence + 1) / 2;
+    final layering = 1 - coherence;
+    t = t % 100000;
+    final e = sea != null ? sea.amp : energy;
+    final depthSlow = 1 - 0.55 * depth;
     final amp = (3.15 + layer * 2.9) *
-        (.25 + 1.38 * energy) *
+        (.25 + 1.38 * e) *
         breathe *
         (1 + .35 * layering);
-    final k1 = .009 + .010 * energy;
-    // Cross-wave frequency opens up sharply as weather fractures (low valence):
-    // the water reads clearly choppier. High valence keeps it long and coherent.
-    final k2 = (.017 + .014 * energy) * (1 + .85 * layering);
-    final k3 = (.029 + .022 * energy) * (1 - .11 * layering);
-    final speed = (.11 + 1.05 * energy) * (.62 + layer * .12);
+    final k1 = .009 + .010 * e;
+    final k2 = (.017 + .014 * e) * (1 + .85 * layering);
+    final k3 = (.029 + .022 * e) * (1 - .11 * layering);
+    final speed = (.11 + 1.05 * e) * (.62 + layer * .12);
 
-    // Wind: a steady lean plus slow, irregular gusts. Gusts grow with arousal
-    // and with fractured weather, so a restless sea is also a gusty one. The
-    // wind pushes the wave phase (crests travel downwind) and tilts the whole
-    // layer, deeper layers leaning a touch more — like fetch building.
     final gust = wind *
         (.6 +
-            .4 * math.sin(t * (.25 + .5 * energy) + layer * 1.7) +
-            .25 * math.sin(t * (.7 + .9 * energy) + layer * 4.3)) *
+            .4 * math.sin(t * (.25 + .5 * e) + layer * 1.7) +
+            .25 * math.sin(t * (.7 + .9 * e) + layer * 4.3)) *
         (1 + .5 * layering);
-    // Horizontal advection: the stronger the wind, the faster crests travel
-    // sideways. This is what makes the wave direction visibly follow the wind.
-    final windPhase = x * .022 * gust + t * speed * gust * 2.2;
-    // A few px of scroll parallax — heavy damping keeps this a whisper.
-    // scrollDrift defaults to 0, so existing rendering is unchanged when
-    // screens don't feed it.
+
+    final windPhase = x * .022 * gust + t * speed * depthSlow * gust * 2.2;
     final driftPhase = scrollDrift * 6;
     final main = x * k1 +
-        t * speed +
+        t * speed * depthSlow +
         layer * (1.15 + coherence * 1.12) +
         windPhase +
         driftPhase;
 
-    // Organic swell: a few incommensurate octaves summed per layer, each with
-    // its own drift, so the surface never repeats on a clean period. This is
-    // what keeps the water from reading as a synthetic sine.
     final swell = math.sin(main) * .68 -
-        math.cos(main * 2 + layer * .7) * (.045 + .115 * energy) +
-        math.sin(main * 2.37 + t * speed * .31 + layer * 1.9) *
-            (.03 + .05 * energy) +
-        math.sin(main * 4.13 - t * speed * .22 + layer * 3.1) *
-            (.015 + .03 * energy);
+        math.cos(main * 2 + layer * .7) * (.045 + .115 * e) +
+        math.sin(main * 2.37 + t * speed * depthSlow * .31 + layer * 1.9) *
+            (.03 + .05 * e) +
+        math.sin(main * 4.13 - t * speed * depthSlow * .22 + layer * 3.1) *
+            (.015 + .03 * e);
 
-    // Cross-chop grows strongly with fractured weather; its phase tumbles
-    // faster there, so unpleasant water visibly breaks apart. Two offset
-    // octaves keep the chop from looking like a single ruled line. Wind carries
-    // the chop downwind too.
+    final crossMul = sea != null
+        ? (.05 + .38 * sea.chop)
+        : (.05 + .38 * layering);
     final cross = (math.sin(x * k2 -
-                t * speed * (.34 + 1.1 * layering) +
+                t * speed * depthSlow * (.34 + 1.1 * layering) +
                 layer * (2 + layering * 1.4) +
                 windPhase * 1.4) +
             .5 *
                 math.sin(x * k2 * 1.7 +
-                    t * speed * (.5 + 1.3 * layering) +
+                    t * speed * depthSlow * (.5 + 1.3 * layering) +
                     layer * 3.3 +
                     windPhase * 1.4)) *
-        (.05 + .55 * layering);
-    // Coherent braid is the signature of calm, pleasant water; it all but
-    // vanishes when the weather is unpleasant, leaving the surface unbraided.
+        crossMul;
+
     final braid = math.sin(x * k3 +
-            t * speed * (.55 + .22 * coherence) +
+            t * speed * depthSlow * (.55 + .22 * coherence) +
             layer * (.65 + coherence * .8)) *
         (.04 + .30 * coherence);
-    // Arousal adds a fine, quick, irregular ripple that sharpens crests
-    // without changing their worth — restless water, not angry water.
-    final ripple = (math.sin(x * (.05 + .04 * energy) + t * speed * 2.4) +
-            .4 * math.sin(x * (.11 + .07 * energy) - t * speed * 3.1)) *
-        (.02 + .09 * energy) *
+
+    final ripple = (math.sin(x * (.05 + .04 * e) +
+                t * speed * depthSlow * 2.4) +
+            .4 *
+                math.sin(x * (.11 + .07 * e) -
+                    t * speed * depthSlow * 3.1)) *
+        (.02 + .09 * e) *
         (1 - .4 * coherence);
-    // A constant, gentle tilt from the mean wind — the sea leans the way it blows.
+
     final lean = wind * (2.5 + 4 * layer) * (1 - .3 * coherence);
-    return base + lean + amp * (swell + cross + braid + ripple);
+
+    var y = base + lean + amp * (swell + cross + braid + ripple);
+
+    if (sea != null && sea.smoothness < 0.6) {
+      final noiseScale = (0.6 - sea.smoothness) / 0.6 * 3;
+      y += math.sin(x * .17 + t * .7) *
+          math.sin(t * .43 + layer * 1.3) *
+          noiseScale;
+    }
+
+    return y;
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width, h = size.height;
     if (w <= 0 || h <= 0) return;
-    // This is an emergence zone for water, not a literal horizon line.
     final horizonY = h * .48;
+
+    model.advanceSeaState();
 
     final t = model.t;
     final visualV = model.visualV, visualA = model.visualA;
     final energy = (visualA + 1) / 2;
-    final breathe =
-        model.reduced ? 1.0 : 1 + .035 * math.sin(t * 2 * math.pi / 5.5);
+    final breathe = model.reduced
+        ? 1.0
+        : 1 +
+            .04 * math.sin(t * 2 * math.pi / model.sea.breathPeriod) +
+            model.sea.breathIrreg *
+                .025 *
+                math.sin(
+                    t * 2 * math.pi / (model.sea.breathPeriod * .71) + 1.2);
     final atmosphere = kSky.bilerp(visualV, visualA);
     final seaCol = kSea.bilerp(visualV, visualA);
     final valence = visualV;
@@ -181,8 +279,19 @@ class SeaPainter extends CustomPainter {
     final chromaPulse =
         model.reduced ? 0.0 : .045 * math.sin(t * .22 + visualV * 1.7);
 
+    // Depth murk: lerp sea & atmosphere colours toward kInkDeep.
+    final dMurk = model.depth.clamp(0.0, 1.0);
+    final foamFade = (1 - dMurk / .5).clamp(0.0, 1.0);
+    final Color surface =
+        Color.lerp(seaCol[0], const Color(0xFF10141E), dMurk * .72)!;
+    final Color deep =
+        Color.lerp(seaCol[1], const Color(0xFF10141E), dMurk * .82)!;
+    final Color atmosDeep =
+        Color.lerp(atmosphere[1], const Color(0xFF10141E), dMurk * .45)!;
+
     double wy(double x, int layer) => waveY(x, t, layer, energy, valence,
-        breathe, h, horizonY, model.wind, model.scrollDrift);
+        breathe, h, horizonY, model.wind, model.scrollDrift, model.sea,
+        model.depth);
 
     // Upper field: diffuse mental space with moving colour, deliberately not a literal sky.
     final driftX = w * (.18 + .12 * math.sin(t * .11));
@@ -193,9 +302,9 @@ class SeaPainter extends CustomPainter {
           Offset(driftX, 0),
           Offset(w - driftX * .35, h),
           [
-            _mix(atmosphere[0], atmosphere[1], math.max(0, .12 + chromaPulse)),
-            _mix(atmosphere[0], atmosphere[1], .72),
-            _mix(atmosphere[1], seaCol[0], .50),
+            _mix(atmosphere[0], atmosDeep, math.max(0, .12 + chromaPulse)),
+            _mix(atmosphere[0], atmosDeep, .72),
+            _mix(atmosDeep, surface, .50),
           ],
           [0, .52, 1],
         ),
@@ -204,7 +313,7 @@ class SeaPainter extends CustomPainter {
     // Two soft colour pools travel slowly through the field; these are light in water, not sun or clouds.
     final hazeX =
         w * (.22 + coherence * .50) + math.sin(t * .12) * (7 + energy * 10);
-    final pool = _mix(atmosphere[1], seaCol[0], .25);
+    final pool = _mix(atmosDeep, surface, .25);
     canvas.drawRect(
       Offset.zero & size,
       Paint()
@@ -213,7 +322,7 @@ class SeaPainter extends CustomPainter {
           w * .76,
           [
             pool.withValues(alpha: .12 + .06 * energy),
-            _mix(atmosphere[0], atmosphere[1], .5)
+            _mix(atmosphere[0], atmosDeep, .5)
                 .withValues(alpha: .045 + .025 * layering),
             pool.withValues(alpha: 0),
           ],
@@ -227,9 +336,9 @@ class SeaPainter extends CustomPainter {
           Offset(w - hazeX * .65, h * .70),
           w * .62,
           [
-            _mix(seaCol[0], atmosphere[0], .42)
+            _mix(surface, atmosphere[0], .42)
                 .withValues(alpha: .055 + .025 * coherence),
-            seaCol[0].withValues(alpha: 0),
+            surface.withValues(alpha: 0),
           ],
           [0, 1],
         ),
@@ -243,10 +352,10 @@ class SeaPainter extends CustomPainter {
           Offset(0, horizonY - 150),
           Offset(0, h),
           [
-            _mix(atmosphere[1], seaCol[0], .60).withValues(alpha: 0),
-            _mix(atmosphere[1], seaCol[0], .70).withValues(alpha: .16),
-            seaCol[0].withValues(alpha: .82),
-            seaCol[1],
+            _mix(atmosDeep, surface, .60).withValues(alpha: 0),
+            _mix(atmosDeep, surface, .70).withValues(alpha: .16),
+            surface.withValues(alpha: .82),
+            deep,
           ],
           [0, .34, .64, 1],
         ),
@@ -257,14 +366,20 @@ class SeaPainter extends CustomPainter {
     // crest sheen, surface marks, foam — is clipped to its own polygon, so
     // nothing ever floats above or behind the surface that's actually painted.
     for (var layer = 0; layer < 4; layer++) {
-      final depth = layer / 3;
-      final col = _mix(seaCol[0], seaCol[1], .25 + .75 * depth);
+      final layerDepth = layer / 3;
+      final col = _mix(surface, deep, .25 + .75 * layerDepth);
 
       // Pre-compute wave sample points ONCE per layer — reused for both the
       // silhouette fill and the crest stroke, avoiding redundant wy() calls.
-      final pts = <Offset>[];
-      for (double x = -6; x <= w + 6; x += 4) {
-        pts.add(Offset(x, wy(x, layer)));
+      // Reuses a pre-allocated list so paint() never allocates on the hot path.
+      final pts = _ptsLists[layer];
+      final nPts = ((w + 12) / 4).ceil() + 1;
+      while (pts.length < nPts) {
+        pts.add(Offset.zero);
+      }
+      for (var i = 0; i < nPts; i++) {
+        final x = -6 + i * 4.0;
+        pts[i] = Offset(x, wy(x, layer));
       }
 
       // Reusable silhouette path — reset instead of allocating new Path().
@@ -272,13 +387,13 @@ class SeaPainter extends CustomPainter {
       silhouette
         ..moveTo(-6, h + 4)
         ..lineTo(pts[0].dx, pts[0].dy);
-      for (var i = 0; i < pts.length - 1; i++) {
+      for (var i = 0; i < nPts - 1; i++) {
         final mx = (pts[i].dx + pts[i + 1].dx) / 2;
         final my = (pts[i].dy + pts[i + 1].dy) / 2;
         silhouette.quadraticBezierTo(pts[i].dx, pts[i].dy, mx, my);
       }
       silhouette
-        ..lineTo(pts.last.dx, pts.last.dy)
+        ..lineTo(pts[nPts - 1].dx, pts[nPts - 1].dy)
         ..lineTo(w + 6, h + 4)
         ..close();
 
@@ -295,14 +410,13 @@ class SeaPainter extends CustomPainter {
           [0, .42, 1],
         );
       } else {
-        // Cache wy(0, layer) to avoid computing the same value twice.
         final crestY = wy(0, layer);
         fill.shader = ui.Gradient.linear(
           Offset(0, crestY - 6),
           Offset(0, crestY + 120),
           [
-            _mix(col, seaCol[1], .18).withValues(alpha: .92),
-            col.withValues(alpha: .86 + .06 * depth),
+            _mix(col, deep, .18).withValues(alpha: .92),
+            col.withValues(alpha: .86 + .06 * layerDepth),
           ],
         );
       }
@@ -315,7 +429,7 @@ class SeaPainter extends CustomPainter {
       // Reusable crest path — reset instead of allocating new Path().
       final crest = _crestPaths[layer]..reset();
       crest.moveTo(pts[0].dx, pts[0].dy);
-      for (var i = 0; i < pts.length - 1; i++) {
+      for (var i = 0; i < nPts - 1; i++) {
         final mx = (pts[i].dx + pts[i + 1].dx) / 2;
         final my = (pts[i].dy + pts[i + 1].dy) / 2;
         crest.quadraticBezierTo(pts[i].dx, pts[i].dy, mx, my);
@@ -324,11 +438,9 @@ class SeaPainter extends CustomPainter {
         crest,
         Paint()
           ..style = PaintingStyle.stroke
-          // Choppy, restless water (low valence / high arousal) earns a
-          // brighter, slightly thicker crest; calm water keeps it whisper-thin.
           ..strokeWidth = .7 + .5 * layering + .35 * energy
           ..color =
-              ivory(.014 + .020 * depth + .022 * energy + .020 * layering),
+              ivory(.014 + .020 * layerDepth + .022 * energy + .020 * layering),
       );
 
       // Surface handwriting: linked light marks at one end, interwoven marks at
@@ -360,9 +472,10 @@ class SeaPainter extends CustomPainter {
       // wind strength, so the blow is visible on the water itself. They ride
       // the layer's curve and point the way the sea is travelling.
       // Reuses a single _streakPath across all streaks in this layer.
-      final windMag = model.wind.abs();
+      final windMag = model.wind.abs() *
+          (.4 + .6 * model.sea.windStreaks);
       if (windMag > .04 && !model.reduced) {
-        final streakCount = 3 + (windMag * 6).round();
+        final streakCount = 2 + (model.sea.windStreaks * 7).round();
         final dir = model.wind.sign;
         for (var s = 0; s < streakCount; s++) {
           final seed = math.sin((s + 1) * 53.3 + layer * 9.1);
@@ -371,7 +484,7 @@ class SeaPainter extends CustomPainter {
                   (w + 40) -
               20;
           final sy = wy(sx, layer) + 4 + (s % 3) * (3 + layer);
-          final len = (10 + windMag * 34) * (1 - depth * .3);
+          final len = (10 + windMag * 34) * (1 - layerDepth * .3);
           final drift = math.sin(t * .5 + s) * 2;
           canvas.drawPath(
             _streakPath
@@ -382,7 +495,7 @@ class SeaPainter extends CustomPainter {
             Paint()
               ..style = PaintingStyle.stroke
               ..strokeWidth = .6 + windMag * .8
-              ..color = ivory((.03 + .05 * windMag) * (1 - depth * .4)),
+              ..color = ivory((.03 + .05 * windMag) * (1 - layerDepth * .4)),
           );
         }
       }
@@ -392,30 +505,33 @@ class SeaPainter extends CustomPainter {
       // Fractured weather (low valence) breaks white more easily; calm,
       // coherent water keeps its surface unbroken.
       if (energy > .3 || layering > .55) {
-        final foamGain = math.min(1.0, (energy - .3) / .5 + layering * .4);
-        final thresh = 3.4 - 2.6 * energy - 1.4 * layering;
-        for (var i = 0; i < foamX.length; i++) {
-          if (foamLayer[i] != layer) continue;
-          final fx = foamX[i] * w;
-          const d = 6.0;
-          // Cache wy(fx, layer) — used 3× in curvature + 1× for fy.
-          final fy0 = wy(fx, layer);
-          final curv = wy(fx - d, layer) - 2 * fy0 + wy(fx + d, layer);
-          final sharp = math.max(0.0, curv - thresh);
-          final foaminess = math.min(1.0, sharp / 5.5);
-          if (foaminess < .05) continue;
-          final fy = fy0 - 2;
-          final churn = .55 + .45 * math.sin(t * 1.7 + fx * .045);
-          final alp = foamGain * foaminess * churn * .65;
-          if (alp < .02) continue;
-          // Spray is blown downwind: foam rides slightly off the crest in the
-          // wind direction, more so when the wind is stronger.
-          final fxw = fx + model.wind * (2 + foaminess * 4);
-          canvas.drawCircle(
-            Offset(fxw, fy),
-            1.1 + foaminess * 1.5,
-            Paint()..color = ivory(alp.clamp(0.0, 1.0)),
-          );
+        final rawGain =
+            math.min(1.0, (energy - .3) / .5 + layering * .4);
+        final foamGain = rawGain * foamFade;
+        if (foamGain > .01) {
+          final thresh = 3.4 - 2.6 * energy - 1.4 * layering;
+          for (var i = 0; i < foamX.length; i++) {
+            if (foamLayer[i] != layer) continue;
+            final fx = foamX[i] * w;
+            const d = 6.0;
+            final fy0 = wy(fx, layer);
+            final curv = wy(fx - d, layer) - 2 * fy0 + wy(fx + d, layer);
+            final sharp = math.max(0.0, curv - thresh);
+            final foaminess = math.min(1.0, sharp / 5.5);
+            if (foaminess < .05) continue;
+            final fy = fy0 - 2;
+            final churn = .55 + .45 * math.sin(t * 1.7 + fx * .045);
+            final alp = foamGain * foaminess * churn * .65;
+            if (alp < .02) continue;
+            // Spray is blown downwind: foam rides slightly off the crest in the
+            // wind direction, more so when the wind is stronger.
+            final fxw = fx + model.wind * (2 + foaminess * 4);
+            canvas.drawCircle(
+              Offset(fxw, fy),
+              1.1 + foaminess * 1.5,
+              Paint()..color = ivory(alp.clamp(0.0, 1.0)),
+            );
+          }
         }
       }
 
@@ -427,32 +543,96 @@ class SeaPainter extends CustomPainter {
     // SeaManager.ripple(Offset), and pruned here once they have fully grown.
     // No-op under reduced motion (the manager never pushes one then) and the
     // list is empty by default, so existing rendering is unchanged.
-    if (model.ripples.isNotEmpty) {
+    if (!model.reduced && model.ripples.isNotEmpty) {
       final lifetimeS = SeaRipple.lifetime.inMilliseconds / 1000.0;
       for (var i = model.ripples.length - 1; i >= 0; i--) {
         final r = model.ripples[i];
+        final riEnergy = (r.arousal + 1) / 2;
+        final ringCount = 1 + (riEnergy * 2).round();
+        final ringSpacing = 6 - riEnergy * 4.5;
+        final lifetimeScale = 1.3 - riEnergy;
+
         final age = t - r.startT;
-        if (age >= lifetimeS) {
+        final scaledLifetime = lifetimeS * lifetimeScale;
+        if (age >= scaledLifetime) {
           model.ripples.removeAt(i);
           continue;
         }
-        final p = age / lifetimeS;
+        final p = age / scaledLifetime;
+        if (p >= 1 || p < 0) {
+          model.ripples.removeAt(i);
+          continue;
+        }
+
         final ease = 1 - math.pow(1 - p, 3).toDouble();
-        final radius = ease * SeaRipple.maxRadius;
-        final alpha = (.46 * (1 - p)).clamp(0.0, .46);
-        if (radius < 1 || alpha <= 0) continue;
-        // Two slightly offset soft rings read as a wave front, not a hard
-        // circle. Drawn as strokes so the living sea stays visible through them.
-        for (final off in const [0.0, -2.5]) {
+        final baseRadius = ease * SeaRipple.maxRadius * (1 + riEnergy * .3);
+        final alpha = ((.36 + riEnergy * .2) * (1 - p)).clamp(0.0, .56);
+        final strokeW = 1.1 + (1 - riEnergy) * 1.4;
+
+        for (var ring = 0; ring < ringCount; ring++) {
+          final radius =
+              (baseRadius - ring * ringSpacing).clamp(0.0, SeaRipple.maxRadius);
+          if (radius < 1) continue;
           canvas.drawCircle(
-            r.origin + Offset(0, off),
-            math.max(0, radius + off),
+            r.origin,
+            radius,
             Paint()
               ..style = PaintingStyle.stroke
-              ..strokeWidth = 1.1 + (1 - p) * .8
+              ..strokeWidth = strokeW
               ..color = Color.fromRGBO(242, 238, 230, alpha),
           );
         }
+      }
+    }
+
+    // Glint: shimmer band of broken horizontal light below the horizon —
+    // the sea's breath made visible as light on water. Skipped under reduced
+    // motion; warm when valence is positive, cool when negative.
+    if (!model.reduced) {
+      final glintWidth = w * model.sea.glintWidth;
+      final centerX = hazeX;
+      final left = (centerX - glintWidth / 2).clamp(0.0, w);
+      final right = (centerX + glintWidth / 2).clamp(0.0, w);
+      final bandTop = horizonY + 2;
+      final bandH = h * .22;
+
+      final dashCount =
+          8 + (model.sea.glintBreakup * 18).round();
+      final steady = model.sea.glintSteady;
+      final bright = model.sea.glintBright;
+
+      for (var d = 0; d < dashCount; d++) {
+        final dy = bandTop + (d / dashCount) * bandH;
+        final dashW = (right - left) *
+            (.2 + .8 * (1 - model.sea.glintBreakup * .7));
+        final flicker = steady < .9
+            ? .55 +
+                .45 *
+                    math.sin(t * (7 + (1 - steady) * 18) + d * 2.3)
+            : 1.0;
+        final alp =
+            bright * .7 * flicker * (1 - (dy - bandTop) / bandH).clamp(0.0, 1.0);
+        if (alp < .005) continue;
+
+        final drift =
+            math.sin(t * .35 + d * 1.7) * glintWidth * .15;
+        final dx = left + (right - left) * ((d % 3) / 3.0) + drift;
+
+        final glintWarm = _mix(atmosphere[1], surface, .35).withValues(alpha: alp);
+        final glintCool = _mix(atmosphere[0], surface, .55).withValues(alpha: alp * .8);
+        final glintCol = Color.lerp(glintCool, glintWarm, model.sea.glintSteady)!;
+
+        canvas.drawPath(
+          _glintPath
+            ..reset()
+            ..moveTo(dx - dashW / 2, dy)
+            ..lineTo(dx + dashW / 2, dy),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = .7 + (1 - steady) * .5
+            ..strokeCap = StrokeCap.round
+            ..color = glintCol,
+        );
       }
     }
 
