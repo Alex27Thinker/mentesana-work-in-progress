@@ -94,8 +94,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
 
   void _deleteEntry() {
     _disarmDelete();
-    widget.store.entries.remove(widget.entry);
-    widget.store.saveEntries();
+    widget.store.deleteEntry(widget.entry);
     widget.onDeleted();
   }
 
@@ -103,21 +102,23 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
     final e = widget.entry;
     if (index < 0 || index >= e.versions.length) return;
     final v = e.versions[index];
-    e.versions = [
-      ...e.versions,
-      EntryVersion(
-        editedAt: DateTime.now().millisecondsSinceEpoch,
-        text: e.text,
-        title: e.title,
-        tag: e.tag,
-        tideLine: e.tideLine,
-      ),
-    ];
-    e.text = v.text;
-    e.title = v.title;
-    e.tag = v.tag;
-    e.tideLine = v.tideLine;
-    widget.store.saveEntries();
+    final updated = e.copyWith(
+      text: v.text,
+      title: v.title,
+      tag: v.tag,
+      tideLine: v.tideLine,
+      versions: [
+        ...e.versions,
+        EntryVersion(
+          editedAt: DateTime.now().millisecondsSinceEpoch,
+          text: e.text,
+          title: e.title,
+          tag: e.tag,
+          tideLine: e.tideLine,
+        ),
+      ],
+    );
+    widget.store.updateEntry(e, updated);
     setState(() {});
   }
 

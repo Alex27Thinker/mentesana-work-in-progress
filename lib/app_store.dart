@@ -10,539 +10,12 @@ import 'package:encrypt/encrypt.dart' as enc;
 import 'package:flutter/foundation.dart';
 
 import '_shared/services/settings_repository.dart';
+import 'features/journal/domain/models.dart';
+export 'features/journal/domain/models.dart';
 import 'notification_service.dart';
 import 'voice_transcription_service.dart';
 
-/// One page attachment (image or voice note), stored as a data URL —
-/// the exact shape the prototype keeps in localStorage.
-class Attachment {
-  Attachment({
-    required this.name,
-    required this.type,
-    this.size = 0,
-    this.data = '',
-  });
-
-  final String name;
-  final String type; // MIME, e.g. image/png or audio/webm
-  final int size;
-  final String data; // data URL (base64)
-
-  bool get isImage => type.startsWith('image/');
-  bool get isAudio => type.startsWith('audio/');
-
-  Map<String, dynamic> toJson() =>
-      {'name': name, 'type': type, 'size': size, 'data': data};
-
-  static Attachment? fromJson(dynamic raw) {
-    if (raw is! Map) return null;
-    return Attachment(
-      name: (raw['name'] ?? '').toString(),
-      type: (raw['type'] ?? '').toString(),
-      size: raw['size'] is num ? (raw['size'] as num).toInt() : 0,
-      data: (raw['data'] ?? '').toString(),
-    );
-  }
-}
-
-/// One earlier version of a page (JS keeps the last 5 on edit).
-class EntryVersion {
-  EntryVersion({
-    required this.editedAt,
-    required this.text,
-    required this.title,
-    this.tag = '',
-    this.tideLine = '',
-  });
-
-  final int editedAt;
-  final String text;
-  final String title;
-  final String tag;
-  final String tideLine;
-
-  Map<String, dynamic> toJson() => {
-        'editedAt': editedAt,
-        'text': text,
-        'title': title,
-        'tag': tag,
-        'tideLine': tideLine,
-      };
-
-  static EntryVersion? fromJson(dynamic raw) {
-    if (raw is! Map) return null;
-    final at = raw['editedAt'];
-    if (at is! num) return null;
-    return EntryVersion(
-      editedAt: at.toInt(),
-      text: (raw['text'] ?? '').toString(),
-      title: (raw['title'] ?? '').toString(),
-      tag: (raw['tag'] ?? '').toString(),
-      tideLine: (raw['tideLine'] ?? '').toString(),
-    );
-  }
-}
-
-/// One kept page — the archive shape from the prototype. Mutable, exactly
-/// like the JS objects the prototype edits in place:
-/// `{ ts, v, a, word, edited, text, tag, title, prompt, wordCount,
-///    attachments, tideLine, tideAt, moodTs, texture, reflectionStep,
-///    afterV, afterA, afterWord, afterTs, versions }`.
-class JournalEntry {
-  JournalEntry({
-    required this.ts,
-    this.v,
-    this.a,
-    this.word,
-    this.edited = false,
-    this.text = '',
-    this.tag = '',
-    this.title = '',
-    this.prompt = '',
-    this.wordCount,
-    List<Attachment>? attachments,
-    this.tideLine = '',
-    this.tideAt,
-    this.moodTs,
-    this.texture = '',
-    this.reflectionStep = '',
-    this.afterV,
-    this.afterA,
-    this.afterWord,
-    this.afterTs,
-    List<EntryVersion>? versions,
-    this.pendingTranscription = false,
-    this.pendingAudioPath,
-  })  : attachments = attachments ?? [],
-        versions = versions ?? [];
-
-  /// Milliseconds since epoch (JS `Date.now()`).
-  int ts;
-  double? v;
-  double? a;
-
-  /// The kept weather word. Null for a page without a weather
-  /// (the prototype migrated the old `'journal'` placeholder to null).
-  String? word;
-  bool edited;
-  String text;
-  String tag;
-  String title;
-  String prompt;
-  int? wordCount;
-  List<Attachment> attachments;
-
-  /// A line left for a later tide; resurfaces after `tideAt`.
-  String tideLine;
-  int? tideAt;
-
-  /// When the weather on this page was last kept (mood edited after writing).
-  int? moodTs;
-  String texture;
-  String reflectionStep;
-
-  /// The after-writing weather (JS `keepAfterWeather()`).
-  double? afterV;
-  double? afterA;
-  String? afterWord;
-  int? afterTs;
-  List<EntryVersion> versions;
-
-  /// True while a voice-note transcription is still finishing in the
-  /// background for this page — set the moment the page is kept if
-  /// recording finished before transcribing did (see
-  /// AppStore.transcribeInBackground). Screens can show a small
-  /// "transcribing…" indicator while this is true.
-  bool pendingTranscription;
-
-  /// The temp audio file a pending background transcription is working
-  /// from. Cleared (and the file deleted) once that transcription lands
-  /// or fails — never persisted past that point.
-  String? pendingAudioPath;
-
-  /// JS `isMoodEntry()`: v & a are numbers, word present and not 'journal'.
-  bool get isMoodEntry =>
-      v != null &&
-      a != null &&
-      word != null &&
-      word!.isNotEmpty &&
-      word != 'journal';
-
-  DateTime get date => DateTime.fromMillisecondsSinceEpoch(ts);
-
-  Map<String, dynamic> toJson() => {
-        'ts': ts,
-        if (v != null) 'v': v,
-        if (a != null) 'a': a,
-        'word': word,
-        'edited': edited,
-        if (text.isNotEmpty) 'text': text,
-        if (tag.isNotEmpty) 'tag': tag,
-        if (title.isNotEmpty) 'title': title,
-        if (prompt.isNotEmpty) 'prompt': prompt,
-        if (wordCount != null) 'wordCount': wordCount,
-        if (attachments.isNotEmpty)
-          'attachments': attachments.map((a) => a.toJson()).toList(),
-        if (tideLine.isNotEmpty) 'tideLine': tideLine,
-        if (tideAt != null) 'tideAt': tideAt,
-        if (moodTs != null) 'moodTs': moodTs,
-        if (texture.isNotEmpty) 'texture': texture,
-        if (reflectionStep.isNotEmpty) 'reflectionStep': reflectionStep,
-        if (afterV != null) 'afterV': afterV,
-        if (afterA != null) 'afterA': afterA,
-        if (afterWord != null) 'afterWord': afterWord,
-        if (afterTs != null) 'afterTs': afterTs,
-        if (versions.isNotEmpty)
-          'versions': versions.map((v) => v.toJson()).toList(),
-        if (pendingTranscription) 'pendingTranscription': true,
-        if (pendingAudioPath != null) 'pendingAudioPath': pendingAudioPath,
-      };
-
-  static JournalEntry? fromJson(dynamic raw) {
-    if (raw is! Map) return null;
-    final ts = raw['ts'];
-    if (ts is! num) return null;
-    double? numOrNull(dynamic x) => x is num ? x.toDouble() : null;
-    String? strOrNull(dynamic x) =>
-        x == null ? null : (x.toString().isEmpty ? null : x.toString());
-    return JournalEntry(
-      ts: ts.toInt(),
-      v: numOrNull(raw['v']),
-      a: numOrNull(raw['a']),
-      word: strOrNull(raw['word']),
-      edited: raw['edited'] == true,
-      text: (raw['text'] ?? '').toString(),
-      tag: (raw['tag'] ?? '').toString(),
-      title: (raw['title'] ?? '').toString(),
-      prompt: (raw['prompt'] ?? '').toString(),
-      wordCount:
-          raw['wordCount'] is num ? (raw['wordCount'] as num).toInt() : null,
-      attachments: raw['attachments'] is List
-          ? (raw['attachments'] as List)
-              .map(Attachment.fromJson)
-              .whereType<Attachment>()
-              .toList()
-          : null,
-      tideLine: (raw['tideLine'] ?? '').toString(),
-      tideAt: raw['tideAt'] is num ? (raw['tideAt'] as num).toInt() : null,
-      moodTs: raw['moodTs'] is num ? (raw['moodTs'] as num).toInt() : null,
-      texture: (raw['texture'] ?? '').toString(),
-      reflectionStep: (raw['reflectionStep'] ?? '').toString(),
-      afterV: numOrNull(raw['afterV']),
-      afterA: numOrNull(raw['afterA']),
-      afterWord: strOrNull(raw['afterWord']),
-      afterTs: raw['afterTs'] is num ? (raw['afterTs'] as num).toInt() : null,
-      versions: raw['versions'] is List
-          ? (raw['versions'] as List)
-              .map(EntryVersion.fromJson)
-              .whereType<EntryVersion>()
-              .toList()
-          : null,
-      pendingTranscription: raw['pendingTranscription'] == true,
-      pendingAudioPath: strOrNull(raw['pendingAudioPath']),
-    );
-  }
-}
-
-/// JS `titleFromPage()`: first non-empty line, markup stripped,
-/// first nine words, capped at 84 characters.
-String titleFromPage(String? text) {
-  final first = (text ?? '')
-      .split(RegExp(r'\n+'))
-      .map((x) => x.trim())
-      .firstWhere((x) => x.isNotEmpty, orElse: () => '');
-  final clean = first
-      .replaceAll(RegExp(r'[*_#>`]'), '')
-      .replaceAll(RegExp(r'\s+'), ' ')
-      .trim();
-  if (clean.isEmpty) return '';
-  final words = clean.split(' ');
-  final joined = words.take(9).join(' ') + (words.length > 9 ? '…' : '');
-  return joined.length > 84 ? joined.substring(0, 84) : joined;
-}
-
-/// JS `SYSTEM_PAGE_TITLES` — placeholder titles migrated to real ones.
-const kSystemPageTitles = [
-  'a page for whatever is here',
-  'a page for whatever is here — no weather required.',
-  'a page for whatever is here — no weather required',
-];
-
-bool isSystemPageTitle(String? title) =>
-    kSystemPageTitles.contains((title ?? '').trim().toLowerCase());
-
-/// The unsaved page (JS journal draft, key `mentesana-journal-draft`).
-class JournalDraft {
-  JournalDraft({
-    this.text = '',
-    this.title = '',
-    this.tag = '',
-    this.bottle = '',
-    this.mode = 'free',
-    this.prompt,
-    required this.ts,
-    this.activeEntryTs,
-    List<Attachment>? attachments,
-    this.v,
-    this.a,
-    this.word,
-  }) : attachments = attachments ?? [];
-
-  final String text;
-  final String title;
-  final String tag;
-  final String bottle;
-  final String mode; // 'mood' | 'free'
-  final String? prompt;
-  final int ts;
-  final int? activeEntryTs;
-  final List<Attachment> attachments;
-  final double? v;
-  final double? a;
-  final String? word;
-
-  Map<String, dynamic> toJson() => {
-        'text': text,
-        'title': title,
-        'tag': tag,
-        'bottle': bottle,
-        'mode': mode,
-        'prompt': prompt,
-        'ts': ts,
-        'activeEntryTs': activeEntryTs,
-        'attachments': attachments.map((a) => a.toJson()).toList(),
-        'v': v,
-        'a': a,
-        'word': word,
-      };
-
-  static JournalDraft? fromJson(dynamic raw) {
-    if (raw is! Map) return null;
-    double? numOrNull(dynamic x) => x is num ? x.toDouble() : null;
-    return JournalDraft(
-      text: (raw['text'] ?? '').toString(),
-      title: (raw['title'] ?? '').toString(),
-      tag: (raw['tag'] ?? '').toString(),
-      bottle: (raw['bottle'] ?? '').toString(),
-      mode: (raw['mode'] ?? 'free').toString(),
-      prompt: raw['prompt']?.toString(),
-      ts: raw['ts'] is num ? (raw['ts'] as num).toInt() : 0,
-      activeEntryTs: raw['activeEntryTs'] is num
-          ? (raw['activeEntryTs'] as num).toInt()
-          : null,
-      attachments: raw['attachments'] is List
-          ? (raw['attachments'] as List)
-              .map(Attachment.fromJson)
-              .whereType<Attachment>()
-              .toList()
-          : null,
-      v: numOrNull(raw['v']),
-      a: numOrNull(raw['a']),
-      word: raw['word']?.toString(),
-    );
-  }
-}
-
-/// One daily note inside a Tide Lab experiment. The only question Tide Lab
-/// asks is whether the small action found the user today (`did`, `not`, or
-/// `skipped`) — the mood measurement is borrowed from the ordinary daily
-/// check-in, never rated twice.
-class TideObservation {
-  const TideObservation({required this.ts, required this.response});
-
-  final int ts;
-  final String response;
-
-  Map<String, dynamic> toJson() => {'ts': ts, 'response': response};
-
-  static TideObservation? fromJson(dynamic raw) {
-    if (raw is! Map || raw['ts'] is! num) return null;
-    var response = (raw['response'] ?? '').toString();
-    // Early prototypes stored 'paired'/'lower'/'same'/'higher' responses —
-    // all of them meant the action happened that day.
-    const legacy = {
-      'paired': 'did',
-      'lower': 'did',
-      'same': 'did',
-      'higher': 'did',
-    };
-    response = legacy[response] ?? response;
-    if (!const {'did', 'not', 'skipped'}.contains(response)) return null;
-    return TideObservation(ts: (raw['ts'] as num).toInt(), response: response);
-  }
-}
-
-/// A user-owned N-of-1 reflection. It stores a hypothesis and observations,
-/// never a diagnosis, causal claim, score, or success state.
-class TideExperiment {
-  TideExperiment({
-    required this.id,
-    required this.title,
-    required this.hypothesis,
-    required this.action,
-    required this.theme,
-    required this.startedAt,
-    this.durationDays = 7,
-    List<int>? evidenceTs,
-    List<TideObservation>? observations,
-    this.completedAt,
-  })  : evidenceTs = evidenceTs ?? [],
-        observations = observations ?? [];
-
-  final String id;
-  final String title;
-  final String hypothesis;
-  final String action;
-  final String theme;
-  final int startedAt;
-  final int durationDays;
-  final List<int> evidenceTs;
-  final List<TideObservation> observations;
-  int? completedAt;
-
-  bool get isComplete => completedAt != null;
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'hypothesis': hypothesis,
-        'action': action,
-        'theme': theme,
-        'startedAt': startedAt,
-        'durationDays': durationDays,
-        'evidenceTs': evidenceTs,
-        'observations': observations.map((o) => o.toJson()).toList(),
-        if (completedAt != null) 'completedAt': completedAt,
-      };
-
-  static TideExperiment? fromJson(dynamic raw) {
-    if (raw is! Map || raw['startedAt'] is! num) return null;
-    final id = (raw['id'] ?? '').toString();
-    if (id.isEmpty) return null;
-    return TideExperiment(
-      id: id,
-      title: (raw['title'] ?? 'a small experiment').toString(),
-      hypothesis: (raw['hypothesis'] ?? '').toString(),
-      action: (raw['action'] ?? '').toString(),
-      theme: (raw['theme'] ?? 'daily life').toString(),
-      startedAt: (raw['startedAt'] as num).toInt(),
-      durationDays: raw['durationDays'] is num
-          ? (raw['durationDays'] as num).toInt().clamp(3, 21).toInt()
-          : 7,
-      evidenceTs: raw['evidenceTs'] is List
-          ? (raw['evidenceTs'] as List)
-              .whereType<num>()
-              .map((x) => x.toInt())
-              .toList()
-          : null,
-      observations: raw['observations'] is List
-          ? (raw['observations'] as List)
-              .map(TideObservation.fromJson)
-              .whereType<TideObservation>()
-              .toList()
-          : null,
-      completedAt: raw['completedAt'] is num
-          ? (raw['completedAt'] as num).toInt()
-          : null,
-    );
-  }
-}
-
-/// A worry set down on purpose, to be looked at later on the user's own
-/// terms — worry postponement, with the tide holding it in the meantime.
-/// It returns on the journal home once its time comes; nothing pushes.
-class ParkedWorry {
-  ParkedWorry({
-    required this.ts,
-    required this.text,
-    required this.returnAt,
-    this.settled = false,
-  });
-
-  int ts;
-  String text;
-  int returnAt;
-  bool settled;
-
-  static ParkedWorry? fromJson(dynamic j) {
-    if (j is! Map) return null;
-    final ts = j['ts'], text = j['text'], returnAt = j['returnAt'];
-    if (ts is! int || text is! String || returnAt is! int) return null;
-    return ParkedWorry(
-      ts: ts,
-      text: text,
-      returnAt: returnAt,
-      settled: j['settled'] == true,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'ts': ts,
-        'text': text,
-        'returnAt': returnAt,
-        'settled': settled,
-      };
-}
-
-/// One tiny planned action, mined from the user's own gentler days —
-/// behavioural activation at the smallest possible scale. At most one is
-/// open at a time; skipping is costless; nothing is ever counted.
-class Anchor {
-  Anchor({
-    required this.setAt,
-    required this.text,
-    required this.theme,
-    required this.forDay,
-    this.reflectedAt,
-    this.outcome = '',
-  });
-
-  int setAt;
-  String text;
-  String theme;
-
-  /// Local calendar key ('yyyy-mm-dd') of the day the anchor is held for.
-  String forDay;
-  int? reflectedAt;
-  String outcome; // '' | 'written' | 'passed'
-
-  bool get isOpen => reflectedAt == null;
-
-  static Anchor? fromJson(dynamic j) {
-    if (j is! Map) return null;
-    final setAt = j['setAt'], text = j['text'], forDay = j['forDay'];
-    if (setAt is! int || text is! String || forDay is! String) return null;
-    return Anchor(
-      setAt: setAt,
-      text: text,
-      theme: j['theme'] is String ? j['theme'] as String : '',
-      forDay: forDay,
-      reflectedAt: j['reflectedAt'] is int ? j['reflectedAt'] as int : null,
-      outcome: j['outcome'] is String ? j['outcome'] as String : '',
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'setAt': setAt,
-        'text': text,
-        'theme': theme,
-        'forDay': forDay,
-        if (reflectedAt != null) 'reflectedAt': reflectedAt,
-        'outcome': outcome,
-      };
-}
-
-/// Local calendar key, zero-padded 'yyyy-mm-dd' — sorts and compares
-/// lexicographically. Used by the currents engine and anchors.
-String dayKeyOf(int ts) {
-  final d = DateTime.fromMillisecondsSinceEpoch(ts);
-  final mm = d.month.toString().padLeft(2, '0');
-  final dd = d.day.toString().padLeft(2, '0');
-  return '${d.year}-$mm-$dd';
-}
-
 /// Interface language table — ported verbatim from the prototype's I18N map.
-/// (The prototype only translates these strings; detail rows stay English.)
 const kI18n = <String, Map<String, String>>{
   'en': {
     'greetingNight': 'Good night',
@@ -605,6 +78,15 @@ const kI18n = <String, Map<String, String>>{
 /// MOOD DECAY: the lens and ambient tint let go of the last mood over ~4h,
 /// same as the prototype's applyMoodAtmosphere (MOOD_DECAY_MS = 14400000).
 const kMoodDecayMs = 14400000;
+
+/// Local calendar key, zero-padded 'yyyy-mm-dd' — sorts and compares
+/// lexicographically. Used by the currents engine and anchors.
+String dayKeyOf(int ts) {
+  final d = DateTime.fromMillisecondsSinceEpoch(ts);
+  final mm = d.month.toString().padLeft(2, '0');
+  final dd = d.day.toString().padLeft(2, '0');
+  return '${d.year}-$mm-$dd';
+}
 
 /// App-wide state + persistence. Mirrors the prototype's settings variables,
 /// their defaults, and the entries array.
@@ -697,39 +179,35 @@ class AppStore extends ChangeNotifier {
           ? raw
               .map(JournalEntry.fromJson)
               .whereType<JournalEntry>()
-              .toList(growable: true)
+              .toList()
           : [];
     } catch (_) {
-      entries = [];
+      entries = const [];
     }
-    // JS boot migration: the old 'journal' word becomes null; system page
-    // titles become real titles from the text.
     var entriesMigrated = false;
-    for (final e in entries) {
-      if (e.word == 'journal') {
-        e.word = null;
+    entries = entries.map((e) {
+      var migrated = e;
+      if (migrated.word == 'journal') {
+        migrated = migrated.copyWith(word: null);
         entriesMigrated = true;
       }
-      if (isSystemPageTitle(e.title) && e.text.isNotEmpty) {
-        e.title = titleFromPage(e.text);
-        if (e.title.isEmpty) e.title = 'a page from this day';
+      if (isSystemPageTitle(migrated.title) && migrated.text.isNotEmpty) {
+        final t = titleFromPage(migrated.text);
+        migrated = migrated.copyWith(
+            title: t.isNotEmpty ? t : 'a page from this day');
         entriesMigrated = true;
       }
-      // Restore the mood-tint timestamp from the newest mood entry (boot fix).
-      if (e.isMoodEntry) {
-        final t = e.moodTs ?? e.ts;
+      if (migrated.isMoodEntry) {
+        final t = migrated.moodTs ?? migrated.ts;
         if (t > (moodTintTs ?? 0)) moodTintTs = t;
       }
-      // A background transcription that never landed (e.g. the app was
-      // closed mid-run) can't resume across a restart in this version —
-      // clear the flag rather than leave a "transcribing…" badge stuck
-      // forever. Whatever text had already been kept is untouched.
-      if (e.pendingTranscription) {
-        e.pendingTranscription = false;
-        e.pendingAudioPath = null;
+      if (migrated.pendingTranscription) {
+        migrated = migrated.copyWith(
+            pendingTranscription: false, pendingAudioPath: null);
         entriesMigrated = true;
       }
-    }
+      return migrated;
+    }).toList();
     if (entriesMigrated) {
       _repo.entriesJson = jsonEncode(entries.map((e) => e.toJson()).toList());
     }
@@ -811,11 +289,14 @@ class AppStore extends ChangeNotifier {
   void parkWorry(String text) {
     final now = DateTime.now();
     final returns = DateTime(now.year, now.month, now.day + 1, 18);
-    parkedWorries.add(ParkedWorry(
-      ts: now.millisecondsSinceEpoch,
-      text: text,
-      returnAt: returns.millisecondsSinceEpoch,
-    ));
+    parkedWorries = [
+      ...parkedWorries,
+      ParkedWorry(
+        ts: now.millisecondsSinceEpoch,
+        text: text,
+        returnAt: returns.millisecondsSinceEpoch,
+      ),
+    ];
     _saveParkedWorries();
   }
 
@@ -827,7 +308,10 @@ class AppStore extends ChangeNotifier {
   }
 
   void settleWorry(ParkedWorry w) {
-    w.settled = true;
+    parkedWorries = parkedWorries.map((pw) {
+      if (pw.ts == w.ts && pw.text == w.text) return pw.copyWith(settled: true);
+      return pw;
+    }).toList();
     _saveParkedWorries();
   }
 
@@ -853,18 +337,29 @@ class AppStore extends ChangeNotifier {
   void setAnchor({required String text, required String theme}) {
     final now = DateTime.now();
     final tomorrow = DateTime(now.year, now.month, now.day + 1);
-    anchors.add(Anchor(
-      setAt: now.millisecondsSinceEpoch,
-      text: text,
-      theme: theme,
-      forDay: dayKeyOf(tomorrow.millisecondsSinceEpoch),
-    ));
+    anchors = [
+      ...anchors,
+      Anchor(
+        setAt: now.millisecondsSinceEpoch,
+        text: text,
+        theme: theme,
+        forDay: dayKeyOf(tomorrow.millisecondsSinceEpoch),
+      ),
+    ];
     _saveAnchors();
   }
 
   void reflectAnchor(Anchor a, String outcome) {
-    a.reflectedAt = DateTime.now().millisecondsSinceEpoch;
-    a.outcome = outcome;
+    anchors = anchors.map((anchor) {
+      if (anchor.setAt == a.setAt &&
+          anchor.forDay == a.forDay &&
+          anchor.text == a.text) {
+        return anchor.copyWith(
+            reflectedAt: DateTime.now().millisecondsSinceEpoch,
+            outcome: outcome);
+      }
+      return anchor;
+    }).toList();
     _saveAnchors();
   }
 
@@ -908,9 +403,12 @@ class AppStore extends ChangeNotifier {
   void appendToEntry(JournalEntry e, String addition) {
     final add = addition.trim();
     if (add.isEmpty) return;
-    e.text = e.text.trim().isEmpty ? add : '${e.text.trimRight()}\n\n$add';
-    e.wordCount =
-        e.text.trim().isEmpty ? 0 : e.text.trim().split(RegExp(r'\s+')).length;
+    final newText =
+        e.text.trim().isEmpty ? add : '${e.text.trimRight()}\n\n$add';
+    final newCount = newText.trim().isEmpty
+        ? 0
+        : newText.trim().split(RegExp(r'\s+')).length;
+    _replaceEntry(e, e.copyWith(text: newText, wordCount: newCount));
     saveEntries();
   }
 
@@ -918,19 +416,27 @@ class AppStore extends ChangeNotifier {
   String t(String key) => kI18n[language]?[key] ?? kI18n['en']![key] ?? key;
 
   // ---------- entries ----------
+
+  void _replaceEntry(JournalEntry oldEntry, JournalEntry newEntry) {
+    final idx = entries.indexWhere((e) => e.ts == oldEntry.ts);
+    if (idx >= 0) {
+      entries = [...entries]..[idx] = newEntry;
+    }
+  }
+
   void saveEntries() {
     _repo.entriesJson = jsonEncode(entries.map((e) => e.toJson()).toList());
     notifyListeners();
   }
 
   void addEntry(JournalEntry e) {
-    entries.add(e);
+    entries = [...entries, e];
     if (e.isMoodEntry) moodTintTs = e.ts;
     saveEntries();
   }
 
   void resetEntries() {
-    entries = [];
+    entries = const [];
     saveEntries();
   }
 
@@ -1174,39 +680,45 @@ class AppStore extends ChangeNotifier {
   void startTideExperiment(TideExperiment experiment) {
     final active = activeTideExperiment;
     if (active != null) {
-      active.completedAt = DateTime.now().millisecondsSinceEpoch;
+      tideExperiments = tideExperiments.map((e) {
+        if (e.id == active.id) return e.copyWith(
+            completedAt: DateTime.now().millisecondsSinceEpoch);
+        return e;
+      }).toList();
     }
-    tideExperiments.add(experiment);
+    tideExperiments = [...tideExperiments, experiment];
     _saveTideExperiments();
   }
 
   void recordTideObservation(String experimentId, String response) {
     if (!const {'did', 'not', 'skipped'}.contains(response)) return;
-    TideExperiment? experiment;
-    for (final item in tideExperiments) {
-      if (item.id == experimentId) experiment = item;
-    }
-    if (experiment == null || experiment.isComplete) return;
-    final now = DateTime.now();
-    experiment.observations.removeWhere((observation) {
-      final day = DateTime.fromMillisecondsSinceEpoch(observation.ts);
-      return day.year == now.year &&
-          day.month == now.month &&
-          day.day == now.day;
-    });
-    experiment.observations.add(TideObservation(
-      ts: now.millisecondsSinceEpoch,
-      response: response,
-    ));
+    tideExperiments = tideExperiments.map((experiment) {
+      if (experiment.id != experimentId || experiment.isComplete) return experiment;
+      final now = DateTime.now();
+      final filtered = experiment.observations.where((observation) {
+        final day = DateTime.fromMillisecondsSinceEpoch(observation.ts);
+        return !(day.year == now.year &&
+            day.month == now.month &&
+            day.day == now.day);
+      }).toList();
+      return experiment.copyWith(
+        observations: [
+          ...filtered,
+          TideObservation(ts: now.millisecondsSinceEpoch, response: response),
+        ],
+      );
+    }).toList();
     _saveTideExperiments();
   }
 
   void completeTideExperiment(String experimentId) {
-    for (final experiment in tideExperiments) {
+    tideExperiments = tideExperiments.map((experiment) {
       if (experiment.id == experimentId && !experiment.isComplete) {
-        experiment.completedAt = DateTime.now().millisecondsSinceEpoch;
+        return experiment.copyWith(
+            completedAt: DateTime.now().millisecondsSinceEpoch);
       }
-    }
+      return experiment;
+    }).toList();
     _saveTideExperiments();
   }
 
@@ -1404,7 +916,14 @@ class AppStore extends ChangeNotifier {
   }
 
   void deleteEntry(JournalEntry e) {
-    entries.remove(e);
+    entries = entries.where((x) => x.ts != e.ts).toList();
+    saveEntries();
+  }
+
+  /// Replace an entry in the list by timestamp. Used by external code
+  /// that needs to apply immutable copyWith updates.
+  void updateEntry(JournalEntry oldEntry, JournalEntry newEntry) {
+    _replaceEntry(oldEntry, newEntry);
     saveEntries();
   }
 
@@ -1427,9 +946,13 @@ class AppStore extends ChangeNotifier {
   /// it right away — the entry is safe to leave even though the
   /// transcript has not landed yet.
   void beginPendingTranscription(JournalEntry entry, String audioPath) {
-    entry.pendingTranscription = true;
-    entry.pendingAudioPath = audioPath;
-    if (!entries.contains(entry)) entries.add(entry);
+    final updated = entry.copyWith(
+        pendingTranscription: true, pendingAudioPath: audioPath);
+    if (!entries.any((e) => e.ts == entry.ts)) {
+      entries = [...entries, updated];
+    } else {
+      _replaceEntry(entry, updated);
+    }
     saveEntries();
   }
 
@@ -1463,14 +986,18 @@ class AppStore extends ChangeNotifier {
   void completeTranscription(int ts, String transcript) {
     final e = findByTs(ts);
     if (e == null) return;
-    e.pendingTranscription = false;
-    e.pendingAudioPath = null;
     final t = transcript.trim();
+    var updated = e.copyWith(
+        pendingTranscription: false, pendingAudioPath: null);
     if (t.isNotEmpty) {
-      e.text = _appendTranscript(e.text, t);
-      e.wordCount =
-          e.text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+      final newText = _appendTranscript(e.text, t);
+      updated = updated.copyWith(
+        text: newText,
+        wordCount: newText.split(RegExp(r'\s+'))
+            .where((w) => w.isNotEmpty).length,
+      );
     }
+    _replaceEntry(e, updated);
     saveEntries();
   }
 
@@ -1479,8 +1006,8 @@ class AppStore extends ChangeNotifier {
   void failTranscription(int ts) {
     final e = findByTs(ts);
     if (e == null) return;
-    e.pendingTranscription = false;
-    e.pendingAudioPath = null;
+    _replaceEntry(e, e.copyWith(
+        pendingTranscription: false, pendingAudioPath: null));
     saveEntries();
   }
 

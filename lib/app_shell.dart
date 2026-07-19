@@ -318,12 +318,16 @@ class _MentesanaShellState extends State<MentesanaShell>
     if (cameFromSavedJournal) {
       // The after-writing check updates the page's weather in place.
       final e = _activeEntry!;
-      e.v = m.v;
-      e.a = m.a;
-      e.word = m.word;
-      e.edited = m.edited;
-      e.moodTs = DateTime.now().millisecondsSinceEpoch;
-      store.saveEntries();
+      store.updateEntry(
+        e,
+        e.copyWith(
+          v: m.v,
+          a: m.a,
+          word: m.word,
+          edited: m.edited,
+          moodTs: DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
       _suppressMoodWriteInvite = false;
       setState(() => _checkinJournaledSubline = true);
       _keptNavTimer?.cancel();

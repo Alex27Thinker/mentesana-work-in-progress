@@ -236,19 +236,41 @@ class _JournalEditorState extends State<JournalEditor> {
     }
     setState(() => _kept = true);
     final store = widget.store;
-    final current =
+    var current =
         _activeEntry ?? JournalEntry(ts: DateTime.now().millisecondsSinceEpoch);
-    if (!store.entries.contains(current)) store.entries.add(current);
+    final isNew = !store.entries.any((e) => e.ts == current.ts);
     final nextText = _text.text.trim();
     final nextTitle = _title.text.trim().isNotEmpty
         ? _title.text.trim()
         : (titleFromPage(nextText).isNotEmpty
             ? titleFromPage(nextText)
             : 'a page from this day');
+
+    final nextWordCount =
+        nextText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+    final nextTag = _tag.text.trim().toLowerCase();
+    final trimmedTag =
+        nextTag.isNotEmpty ? (nextTag.length > 18 ? nextTag.substring(0, 18) : nextTag) : '';
+    final tideLine = _bottle.text.trim();
+    final nextTideAt = tideLine.isNotEmpty
+        ? DateTime.now().millisecondsSinceEpoch + 14 * 24 * 60 * 60 * 1000
+        : null;
+
+    current = current.copyWith(
+      text: nextText,
+      title: nextTitle,
+      prompt: _promptText,
+      wordCount: nextWordCount,
+      tag: trimmedTag,
+      attachments: _pending,
+      tideLine: tideLine,
+      tideAt: nextTideAt,
+    );
+
     if (_activeEntry != null &&
         _activeEntry!.text.isNotEmpty &&
         (_activeEntry!.text != nextText || _activeEntry!.title != nextTitle)) {
-      current.versions = [
+      final versions = [
         ...current.versions,
         EntryVersion(
           editedAt: DateTime.now().millisecondsSinceEpoch,
@@ -260,32 +282,20 @@ class _JournalEditorState extends State<JournalEditor> {
           tideLine: _activeEntry!.tideLine,
         ),
       ];
-      if (current.versions.length > 5) {
-        current.versions =
-            current.versions.sublist(current.versions.length - 5);
-      }
+      final trimmedVersions =
+          versions.length > 5 ? versions.sublist(versions.length - 5) : versions;
+      current = current.copyWith(versions: trimmedVersions);
     }
-    current.text = nextText;
-    current.title = nextTitle;
-    current.prompt = _promptText;
-    current.wordCount =
-        nextText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
-    final tg = _tag.text.trim().toLowerCase();
-    if (tg.isNotEmpty) {
-      current.tag = tg.length > 18 ? tg.substring(0, 18) : tg;
+
+    if (isNew) {
+      store.addEntry(current);
+    } else {
+      store.updateEntry(_activeEntry!, current);
     }
-    current.attachments = _pending;
-    final tideLine = _bottle.text.trim();
-    if (tideLine.isNotEmpty) {
-      current.tideLine = tideLine;
-      current.tideAt =
-          DateTime.now().millisecondsSinceEpoch + 14 * 24 * 60 * 60 * 1000;
-    }
+
     if (_transcribing && _pendingAudioPath != null) {
       _voiceTargetEntryTs = current.ts;
       store.beginPendingTranscription(current, _pendingAudioPath!);
-    } else {
-      store.saveEntries();
     }
     store.clearJournalDraft();
 

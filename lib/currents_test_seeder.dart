@@ -144,20 +144,26 @@ class CurrentsTestSeeder {
     // Add a due ParkedWorry to the store (returnAt <= now).
     const worryText =
         'I\'ve been worrying about the upcoming presentation at work. [TEST fixture worry]';
-    store.parkedWorries.add(ParkedWorry(
-      ts: now.subtract(const Duration(days: 2)).millisecondsSinceEpoch,
-      text: worryText,
-      returnAt: now.subtract(const Duration(hours: 1)).millisecondsSinceEpoch,
-    ));
+    store.parkedWorries = [
+      ...store.parkedWorries,
+      ParkedWorry(
+        ts: now.subtract(const Duration(days: 2)).millisecondsSinceEpoch,
+        text: worryText,
+        returnAt: now.subtract(const Duration(hours: 1)).millisecondsSinceEpoch,
+      ),
+    ];
     store.saveParkedWorries();
 
     // Add an open Anchor due today.
-    store.anchors.add(Anchor(
-      setAt: now.subtract(const Duration(hours: 3)).millisecondsSinceEpoch,
-      text: 'a few unhurried minutes outside [TEST fixture anchor]',
-      theme: 'outside',
-      forDay: dayKeyOf(now.millisecondsSinceEpoch),
-    ));
+    store.anchors = [
+      ...store.anchors,
+      Anchor(
+        setAt: now.subtract(const Duration(hours: 3)).millisecondsSinceEpoch,
+        text: 'a few unhurried minutes outside [TEST fixture anchor]',
+        theme: 'outside',
+        forDay: dayKeyOf(now.millisecondsSinceEpoch),
+      ),
+    ];
     store.saveAnchors();
 
     return entries.length;
@@ -170,35 +176,22 @@ class CurrentsTestSeeder {
     if (syntheticTs.isEmpty) return 0;
 
     // Remove entries that are synthetic.
-    store.entries.removeWhere((e) => syntheticTs.contains(e.ts));
+    store.entries = store.entries.where((e) => !syntheticTs.contains(e.ts)).toList();
     store.saveEntries();
 
     // Clear synthetic timestamps.
     store.clearSyntheticTimestamps();
 
     // Also clear parked worries that were generated synthetically.
-    // We'll mark them by matching text patterns.
-    final toRemove = <ParkedWorry>[];
-    for (final w in store.parkedWorries) {
-      if (w.text.contains('[TEST]') || w.text.contains('fixture worry')) {
-        toRemove.add(w);
-      }
-    }
-    for (final w in toRemove) {
-      store.parkedWorries.remove(w);
-    }
+    store.parkedWorries = store.parkedWorries
+        .where((w) => !w.text.contains('[TEST]') && !w.text.contains('fixture worry'))
+        .toList();
     store.saveParkedWorries();
 
     // Also clear synthetic anchors.
-    final anchorsToRemove = <Anchor>[];
-    for (final a in store.anchors) {
-      if (a.text.contains('[TEST]') || a.text.contains('fixture anchor')) {
-        anchorsToRemove.add(a);
-      }
-    }
-    for (final a in anchorsToRemove) {
-      store.anchors.remove(a);
-    }
+    store.anchors = store.anchors
+        .where((a) => !a.text.contains('[TEST]') && !a.text.contains('fixture anchor'))
+        .toList();
     store.saveAnchors();
 
     return syntheticTs.length;
