@@ -5,58 +5,58 @@ void main() {
   group('JournalEntry collection immutability', () {
     test('constructor defensively copies supplied attachments', () {
       final source = <Attachment>[
-        Attachment(name: 'a.jpg', type: 'image/jpeg', size: 1, data: 'x'),
+        const Attachment(name: 'a.jpg', type: 'image/jpeg', size: 1, data: 'x'),
       ];
       final e = JournalEntry(ts: 1, attachments: source);
       // mutating the source list after construction must not alter the model
-      source.add(
-          Attachment(name: 'b.jpg', type: 'image/jpeg', size: 1, data: 'y'));
+      source.add(const Attachment(
+          name: 'b.jpg', type: 'image/jpeg', size: 1, data: 'y'));
       expect(e.attachments.length, 1);
     });
 
     test('constructor defensively copies supplied versions', () {
       final source = <EntryVersion>[
-        EntryVersion(editedAt: 1, text: 'v1', title: 't'),
+        const EntryVersion(editedAt: 1, text: 'v1', title: 't'),
       ];
       final e = JournalEntry(ts: 1, versions: source);
-      source.add(EntryVersion(editedAt: 2, text: 'v2', title: 't'));
+      source.add(const EntryVersion(editedAt: 2, text: 'v2', title: 't'));
       expect(e.versions.length, 1);
     });
 
     test('default empty attachments is immutable', () {
       final e = JournalEntry(ts: 1);
       expect(
-          () => e.attachments
-              .add(Attachment(name: 'a', type: 'image/png', size: 0, data: '')),
+          () =>
+              e.attachments.add(const Attachment(name: 'a', type: 'image/png')),
           throwsUnsupportedError);
     });
 
     test('default empty versions is immutable', () {
       final e = JournalEntry(ts: 1);
       expect(
-          () =>
-              e.versions.add(EntryVersion(editedAt: 1, text: 't', title: 't')),
+          () => e.versions
+              .add(const EntryVersion(editedAt: 1, text: 't', title: 't')),
           throwsUnsupportedError);
     });
 
     test('copyWith defensively copies supplied attachments', () {
       final e = JournalEntry(ts: 1);
       final source = <Attachment>[
-        Attachment(name: 'a.jpg', type: 'image/jpeg', size: 1, data: 'x'),
+        const Attachment(name: 'a.jpg', type: 'image/jpeg', size: 1, data: 'x'),
       ];
       final r = e.copyWith(attachments: source);
-      source.add(
-          Attachment(name: 'b.jpg', type: 'image/jpeg', size: 1, data: 'y'));
+      source.add(const Attachment(
+          name: 'b.jpg', type: 'image/jpeg', size: 1, data: 'y'));
       expect(r.attachments.length, 1);
     });
 
     test('copyWith defensively copies supplied versions', () {
       final e = JournalEntry(ts: 1);
       final source = <EntryVersion>[
-        EntryVersion(editedAt: 1, text: 'v1', title: 't'),
+        const EntryVersion(editedAt: 1, text: 'v1', title: 't'),
       ];
       final r = e.copyWith(versions: source);
-      source.add(EntryVersion(editedAt: 2, text: 'v2', title: 't'));
+      source.add(const EntryVersion(editedAt: 2, text: 'v2', title: 't'));
       expect(r.versions.length, 1);
     });
 
@@ -71,12 +71,12 @@ void main() {
         ],
       })!;
       expect(
-          () => e.attachments
-              .add(Attachment(name: 'a', type: 'image/png', size: 0, data: '')),
+          () =>
+              e.attachments.add(const Attachment(name: 'a', type: 'image/png')),
           throwsUnsupportedError);
       expect(
-          () =>
-              e.versions.add(EntryVersion(editedAt: 1, text: 't', title: 't')),
+          () => e.versions
+              .add(const EntryVersion(editedAt: 1, text: 't', title: 't')),
           throwsUnsupportedError);
     });
   });
@@ -84,19 +84,19 @@ void main() {
   group('JournalDraft collection immutability', () {
     test('constructor defensively copies supplied attachments', () {
       final source = <Attachment>[
-        Attachment(name: 'a.jpg', type: 'image/jpeg', size: 1, data: 'x'),
+        const Attachment(name: 'a.jpg', type: 'image/jpeg', size: 1, data: 'x'),
       ];
       final d = JournalDraft(ts: 1, attachments: source);
-      source.add(
-          Attachment(name: 'b.jpg', type: 'image/jpeg', size: 1, data: 'y'));
+      source.add(const Attachment(
+          name: 'b.jpg', type: 'image/jpeg', size: 1, data: 'y'));
       expect(d.attachments.length, 1);
     });
 
     test('default empty attachments is immutable', () {
       final d = JournalDraft(ts: 1);
       expect(
-          () => d.attachments
-              .add(Attachment(name: 'a', type: 'image/png', size: 0, data: '')),
+          () =>
+              d.attachments.add(const Attachment(name: 'a', type: 'image/png')),
           throwsUnsupportedError);
     });
 
@@ -108,8 +108,8 @@ void main() {
         ],
       })!;
       expect(
-          () => d.attachments
-              .add(Attachment(name: 'a', type: 'image/png', size: 0, data: '')),
+          () =>
+              d.attachments.add(const Attachment(name: 'a', type: 'image/png')),
           throwsUnsupportedError);
     });
   });

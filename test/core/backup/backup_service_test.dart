@@ -3,7 +3,6 @@ import 'package:mentesana_mood_selector/_shared/services/settings_repository.dar
 import 'package:mentesana_mood_selector/app_store.dart';
 import 'package:mentesana_mood_selector/core/backup/backup_service.dart';
 import 'package:mentesana_mood_selector/core/backup/legacy_backup_service.dart';
-import 'package:mentesana_mood_selector/features/journal/domain/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

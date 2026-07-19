@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:mentesana_mood_selector/app_store.dart';
 import 'package:mentesana_mood_selector/features/journal/domain/currents_repository.dart';
-import 'package:mentesana_mood_selector/features/journal/domain/models.dart';
 
 /// In-memory adapter backed by [AppStore] for the three currents
 /// collections. Snapshots returned to callers are always unmodifiable
@@ -41,7 +40,8 @@ class LegacyCurrentsRepository implements CurrentsRepository {
   }
 
   @override
-  TideExperiment? activeExperiment() => _store.activeTideExperiment;
+  Future<TideExperiment?> activeExperiment() async =>
+      _store.activeTideExperiment;
 
   @override
   Future<void> startExperiment(TideExperiment experiment) async =>
@@ -66,7 +66,8 @@ class LegacyCurrentsRepository implements CurrentsRepository {
   }
 
   @override
-  List<ParkedWorry> dueParkedWorries() => _store.dueParkedWorries;
+  Future<List<ParkedWorry>> dueParkedWorries() async =>
+      List<ParkedWorry>.unmodifiable(_store.dueParkedWorries);
 
   @override
   Future<void> parkWorry(String text) async => _store.parkWorry(text);
@@ -86,7 +87,7 @@ class LegacyCurrentsRepository implements CurrentsRepository {
   }
 
   @override
-  Anchor? openAnchor() => _store.openAnchor;
+  Future<Anchor?> openAnchor() async => _store.openAnchor;
 
   @override
   Future<void> setAnchor({required String text, required String theme}) async =>
@@ -100,10 +101,12 @@ class LegacyCurrentsRepository implements CurrentsRepository {
   Future<void> quietAnchorInvites({int days = 3}) async =>
       _store.quietAnchorInvites(days: days);
 
-  void dispose() {
+  Future<void> dispose() async {
     _store.removeListener(_emit);
-    _experimentsController.close();
-    _worriesController.close();
-    _anchorsController.close();
+    await Future.wait<void>([
+      _experimentsController.close(),
+      _worriesController.close(),
+      _anchorsController.close(),
+    ]);
   }
 }

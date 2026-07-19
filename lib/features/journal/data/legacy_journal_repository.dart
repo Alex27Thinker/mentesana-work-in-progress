@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:mentesana_mood_selector/app_store.dart';
 import 'package:mentesana_mood_selector/features/journal/domain/journal_repository.dart';
-import 'package:mentesana_mood_selector/features/journal/domain/models.dart';
 
 /// In-memory adapter backed by the existing [AppStore].
 ///
@@ -88,8 +87,8 @@ class LegacyJournalRepository implements JournalRepository {
     _store.saveEntries();
   }
 
-  void dispose() {
+  Future<void> dispose() async {
     _store.removeListener(_emit);
-    _controller.close();
+    await _controller.close();
   }
 }

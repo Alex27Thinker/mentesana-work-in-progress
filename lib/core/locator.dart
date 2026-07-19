@@ -55,9 +55,11 @@ void configureDependencies() {
   // AppStore during the transition.
   di.registerLazySingleton<JournalRepository>(
     () => LegacyJournalRepository(di<AppStore>()),
+    dispose: (repository) => (repository as LegacyJournalRepository).dispose(),
   );
   di.registerLazySingleton<CurrentsRepository>(
     () => LegacyCurrentsRepository(di<AppStore>()),
+    dispose: (repository) => (repository as LegacyCurrentsRepository).dispose(),
   );
   di.registerLazySingleton<AttachmentStorage>(
     () => const LegacyAttachmentStorage(),

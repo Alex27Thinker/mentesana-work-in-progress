@@ -3,7 +3,6 @@ import 'package:mentesana_mood_selector/_shared/services/settings_repository.dar
 import 'package:mentesana_mood_selector/app_store.dart';
 import 'package:mentesana_mood_selector/features/journal/data/legacy_currents_repository.dart';
 import 'package:mentesana_mood_selector/features/journal/domain/currents_repository.dart';
-import 'package:mentesana_mood_selector/features/journal/domain/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -32,7 +31,7 @@ void main() {
       );
       await repo.startExperiment(e);
       expect((await repo.getExperiments()).length, 1);
-      expect(repo.activeExperiment()?.id, 'e1');
+      expect((await repo.activeExperiment())?.id, 'e1');
     });
 
     test('recordObservation adds a single observation per day', () async {
@@ -80,18 +79,39 @@ void main() {
       expect((await repo.getAnchors()).first.outcome, 'written');
     });
 
+    test('mutations survive AppStore recreation', () async {
+      await repo.setAnchor(text: 'persisted anchor', theme: 'grounding');
+      final prefs = await SharedPreferences.getInstance();
+      final recreated = AppStore.fromRepository(
+        SettingsRepository.createFromPrefs(prefs),
+      );
+      expect(recreated.anchors.single.text, 'persisted anchor');
+    });
+
     test('snapshots are unmodifiable', () async {
       await repo.setAnchor(text: 'walk', theme: 'outdoors');
       final anchors = await repo.getAnchors();
       expect(
-          () => anchors.add(
-              Anchor(setAt: 1, text: 'a', theme: 't', forDay: '2026-01-01')),
+          () => anchors.add(const Anchor(
+              setAt: 1, text: 'a', theme: 't', forDay: '2026-01-01')),
           throwsUnsupportedError);
     });
 
-    test('dueParkedWorries reflects settled flag', () {
+    test('dispose closes active watch streams', () async {
+      final concrete = repo as LegacyCurrentsRepository;
+      var done = false;
+      final sub =
+          concrete.watchExperiments().listen((_) {}, onDone: () => done = true);
+      await Future<void>.delayed(Duration.zero);
+      await concrete.dispose();
+      await Future<void>.delayed(Duration.zero);
+      expect(done, isTrue);
+      await sub.cancel();
+    });
+
+    test('dueParkedWorries reflects settled flag', () async {
       // No worries yet, so empty.
-      expect(repo.dueParkedWorries(), isEmpty);
+      expect(await repo.dueParkedWorries(), isEmpty);
     });
   });
 }

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mentesana_mood_selector/features/journal/domain/models.dart';
 import 'package:mentesana_mood_selector/features/journal/domain/_copy_with_helpers.dart';
+import 'package:mentesana_mood_selector/features/journal/domain/models.dart';
 
 void main() {
   // Sentinel-based copyWith must distinguish:
@@ -173,7 +173,7 @@ void main() {
   });
 
   group('Anchor copyWith nullable semantics', () {
-    final base = Anchor(
+    const base = Anchor(
       setAt: 1,
       text: 'a',
       theme: 't',

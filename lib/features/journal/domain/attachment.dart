@@ -1,5 +1,3 @@
-import '_copy_with_helpers.dart';
-
 class Attachment {
   const Attachment({
     required this.name,
@@ -16,18 +14,16 @@ class Attachment {
   bool get isImage => type.startsWith('image/');
   bool get isAudio => type.startsWith('audio/');
 
-  /// [size] and [data] are non-nullable. They follow standard
-  /// "omitted → preserve" semantics; the sentinel is only needed where
-  /// the caller may want to clear a value explicitly.
+  /// All fields are non-nullable, so ordinary typed copy semantics apply.
   Attachment copyWith({
-    Object? name = unset,
-    Object? type = unset,
+    String? name,
+    String? type,
     int? size,
     String? data,
   }) =>
       Attachment(
-        name: isUnset(name) ? this.name : name! as String,
-        type: isUnset(type) ? this.type : type! as String,
+        name: name ?? this.name,
+        type: type ?? this.type,
         size: size ?? this.size,
         data: data ?? this.data,
       );

@@ -44,10 +44,18 @@ void main() {
     expect(di<BackupService>(), isA<LegacyBackupService>());
   });
 
-  test('AppStore is registered and shared by adapters', () {
+  test('adapters share the registered AppStore instance', () async {
     final store = di<AppStore>();
-    expect(store, isNotNull);
-    final journalRepo = di<JournalRepository>() as LegacyJournalRepository;
-    expect(journalRepo, isNotNull);
+    final journalRepo = di<JournalRepository>();
+    await journalRepo.add(JournalEntry(ts: 77, text: 'shared'));
+    expect(store.findByTs(77)?.text, 'shared');
+  });
+
+  test('reset disposes instantiated repository adapters', () async {
+    di<JournalRepository>();
+    di<CurrentsRepository>();
+    await di.reset();
+    expect(di.isRegistered<JournalRepository>(), isFalse);
+    expect(di.isRegistered<CurrentsRepository>(), isFalse);
   });
 }

@@ -208,10 +208,10 @@ class CurrentsTestSeeder {
 
     // 1. Brooding fixture: why loops + counterfactual.
     const broodingText = '''
-Why do I always end up in the same place? Why can't I just get it right for once? 
-I should have done things differently last week. If only I had known better. 
-I keep going over it and over it, but nothing changes. I feel stuck in this loop. 
-Why does everything feel so hard right now? I can't seem to break out of this pattern. 
+Why do I always end up in the same place? Why can't I just get it right for once?
+I should have done things differently last week. If only I had known better.
+I keep going over it and over it, but nothing changes. I feel stuck in this loop.
+Why does everything feel so hard right now? I can't seem to break out of this pattern.
 It's pointless, really. I'll never figure this out.
 ''';
     final broodingEntry = JournalEntry(
@@ -226,9 +226,9 @@ It's pointless, really. I'll never figure this out.
 
     // 2. Worry fixture: what-if chains.
     const worryText = '''
-What if I don't get the job? What if I'm not good enough for this position? 
-What if they find out I'm not as capable as they think? I keep thinking about it. 
-What if I fail and everyone sees it? What if I can't handle the pressure? 
+What if I don't get the job? What if I'm not good enough for this position?
+What if they find out I'm not as capable as they think? I keep thinking about it.
+What if I fail and everyone sees it? What if I can't handle the pressure?
 I can't stop worrying about what will happen next week. It's consuming me.
 ''';
     final worryEntry = JournalEntry(
@@ -243,9 +243,9 @@ I can't stop worrying about what will happen next week. It's consuming me.
 
     // 3. Self-critique fixture.
     const critiqueText = '''
-I'm such a failure. I can't do anything right. I hate myself for messing this up. 
-My fault, always my fault. There's something wrong with me. I ruin everything. 
-I'm useless, completely useless. I don't know why I even try anymore. 
+I'm such a failure. I can't do anything right. I hate myself for messing this up.
+My fault, always my fault. There's something wrong with me. I ruin everything.
+I'm useless, completely useless. I don't know why I even try anymore.
 I'm pathetic and weak. I'll never be good enough for anyone.
 ''';
     final critiqueEntry = JournalEntry(
@@ -264,8 +264,8 @@ I'm pathetic and weak. I'll never be good enough for anyone.
   /// Create a due ParkedWorry (returnAt <= now).
   static JournalEntry _createParkedWorryFixture(DateTime now) {
     const text = '''
-I've been carrying this worry about the upcoming presentation. 
-What if I forget everything? What if they see how nervous I am? 
+I've been carrying this worry about the upcoming presentation.
+What if I forget everything? What if they see how nervous I am?
 It's been on my mind for days. Letting it go to the tide for now.
 '''; // This is the worry text that gets parked.
 
@@ -286,7 +286,7 @@ It's been on my mind for days. Letting it go to the tide for now.
   /// Create an open Anchor due today.
   static JournalEntry _createAnchorFixture(DateTime now) {
     const text = '''
-Today I want to hold a small anchor: a few unhurried minutes outside. 
+Today I want to hold a small anchor: a few unhurried minutes outside.
 The sea suggests it, and I'm willing to try.
 ''';
     return JournalEntry(

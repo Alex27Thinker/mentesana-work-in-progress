@@ -1,7 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mentesana_mood_selector/analysis_engine.dart';
-import 'package:mentesana_mood_selector/currents_engine.dart';
 import 'package:mentesana_mood_selector/app_store.dart';
+import 'package:mentesana_mood_selector/currents_engine.dart';
+
 import '../../../helpers/fixtures.dart';
 
 void main() {
@@ -30,7 +31,7 @@ void main() {
 
   group('MoodAnalyzer', () {
     test('empty entries produce no-data analysis', () {
-      final analyzer = MoodAnalyzer([]);
+      const analyzer = MoodAnalyzer([]);
       final result = analyzer.analyze();
       expect(result.hasData, isFalse);
       expect(result.count, 0);
@@ -39,9 +40,7 @@ void main() {
 
     test('recent mood entry produces basic analysis', () {
       final ts = now - 3600000;
-      final entries = [
-        fixtureMoodEntry(ts: ts, v: 0.5, a: -0.3, word: 'hopeful')
-      ];
+      final entries = [fixtureMoodEntry(ts: ts)];
       final analyzer = MoodAnalyzer(entries);
       final result = analyzer.analyze();
 
@@ -54,7 +53,7 @@ void main() {
 
   group('TextAnalyzer', () {
     test('empty entries produce no-data analysis', () {
-      final analyzer = TextAnalyzer([]);
+      const analyzer = TextAnalyzer([]);
       final result = analyzer.analyzeEntries();
       expect(result.count, 0);
       expect(result.hasData, isFalse);
@@ -79,7 +78,7 @@ void main() {
 
   group('PromptEngine', () {
     test('empty entries produce basic weekly insight with thin evidence', () {
-      final engine = PromptEngine([]);
+      const engine = PromptEngine([]);
       final insight = engine.generateWeeklyInsight();
       expect(insight.headline, isNotEmpty);
       expect(insight.thin, isTrue);
@@ -105,7 +104,7 @@ void main() {
     });
 
     test('undertowScan detects worry patterns in long brooding text', () {
-      final text =
+      const text =
           'Why does this always happen to me? What if I never figure it out? '
           'I keep asking why and I keep getting nowhere with these thoughts. '
           'What if everything goes wrong next week? Why can I not stop thinking about this?';

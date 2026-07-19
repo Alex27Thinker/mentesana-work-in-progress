@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mentesana_mood_selector/_shared/services/settings_repository.dart';
 import 'package:mentesana_mood_selector/app_store.dart';
-import 'package:mentesana_mood_selector/features/journal/domain/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -130,6 +129,34 @@ void main() {
             store.findByTs(1)!, JournalEntry(ts: 2, text: 'b')),
         throwsStateError,
       );
+    });
+
+    test('rejects a stale old entry instead of overwriting newer state', () {
+      store.addEntry(JournalEntry(ts: 1, text: 'first'));
+      final stale = store.findByTs(1)!;
+      store.updateEntry(stale, stale.copyWith(text: 'newer'));
+      expect(
+        () => store.updateEntry(stale, stale.copyWith(text: 'stale write')),
+        throwsStateError,
+      );
+      expect(store.findByTs(1)!.text, 'newer');
+    });
+
+    test('appendToEntry derives from current state when argument is stale', () {
+      store.addEntry(JournalEntry(ts: 1, text: 'first'));
+      final stale = store.findByTs(1)!;
+      store.updateEntry(stale, stale.copyWith(text: 'newer'));
+      store.appendToEntry(stale, 'addition');
+      expect(store.findByTs(1)!.text, 'newer\n\naddition');
+    });
+
+    test('successful update notifies exactly once', () {
+      store.addEntry(JournalEntry(ts: 1, text: 'a'));
+      var notifications = 0;
+      store.addListener(() => notifications++);
+      final current = store.findByTs(1)!;
+      store.updateEntry(current, current.copyWith(text: 'b'));
+      expect(notifications, 1);
     });
   });
 }

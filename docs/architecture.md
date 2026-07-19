@@ -24,16 +24,16 @@ The repository has:
   the root paths continue to compile.
 - Domain repository interfaces in
   `lib/features/journal/domain/journal_repository.dart` and
-  `lib/currents_repository.dart`. Both are asynchronous
-  interfaces suitable for a future Drift implementation.
+  `lib/features/journal/domain/currents_repository.dart`. Both are
+  asynchronous interfaces suitable for a future Drift implementation.
 - Legacy adapters in
   `lib/features/journal/data/legacy_journal_repository.dart` and
-  `lib/currents_repository.dart` that wrap `AppStore` and expose
-  immutable snapshots. `AppStore` is the single writer.
+  `lib/features/journal/data/legacy_currents_repository.dart` wrap
+  `AppStore` and expose immutable snapshots. `AppStore` is the single writer.
 - `BackupService` and `AttachmentStorage` interfaces with
   legacy adapters in `lib/core/backup/legacy_backup_service.dart`
   and `lib/features/journal/data/legacy_attachment_storage.dart`.
-- `tool/verify.sh` for phase verification, with LF line endings.
+- `tool/verify.sh` for phase verification, stored with LF line endings.
 - Documentation under `docs/` and an agent workflow guide
   (`AGENTS.md`, `.agent/`).
 
@@ -46,8 +46,10 @@ next phase to migrate them:
 - `AppStore` remains a `ChangeNotifier` that owns all journal,
   settings, and currents data. Controllers and services that
   depend on the new interfaces are not yet implemented.
-- The `Lib/analysis_engine.dart` and `lib/text_lexicons.dart`
+- The `lib/analysis_engine.dart` and `lib/text_lexicons.dart`
   barrel re-exports exist as a temporary compatibility layer.
+- Currents repository files remain under the journal feature temporarily; they
+  move to `features/currents/` when that feature is extracted.
 - The `lib/core/sea_manager.dart` and `lib/core/navigation_manager.dart`
   managers are still wired through `get_it` directly.
 

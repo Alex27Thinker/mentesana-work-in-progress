@@ -1,7 +1,7 @@
 import re, sys
 
 # Apply Phase 2 token substitutions to a Dart file.
-# Usage: python _scripts/tokenise.dart lib/some_file.dart
+# Usage: python _scripts/tokenise.py lib/some_file.dart
 # Operates in-place. Only substitutes text-style properties.
 
 def process(path):

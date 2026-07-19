@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mentesana_mood_selector/_shared/services/settings_repository.dart';
 import 'package:mentesana_mood_selector/app_store.dart';
 import 'package:mentesana_mood_selector/features/journal/data/legacy_journal_repository.dart';
-import 'package:mentesana_mood_selector/features/journal/domain/models.dart';
 import 'package:mentesana_mood_selector/features/journal/domain/journal_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -79,6 +78,15 @@ void main() {
       expect(store.entries.first.text, 'only');
     });
 
+    test('mutations survive AppStore recreation', () async {
+      await repo.add(JournalEntry(ts: 42, text: 'persisted'));
+      final prefs = await SharedPreferences.getInstance();
+      final recreated = AppStore.fromRepository(
+        SettingsRepository.createFromPrefs(prefs),
+      );
+      expect(recreated.findByTs(42)?.text, 'persisted');
+    });
+
     test('replaceAll rejects duplicate timestamps', () async {
       expect(
         () => repo.replaceAll([
@@ -87,6 +95,18 @@ void main() {
         ]),
         throwsArgumentError,
       );
+    });
+
+    test('dispose closes active watch streams', () async {
+      final concrete = repo as LegacyJournalRepository;
+      var done = false;
+      final sub =
+          concrete.watchEntries().listen((_) {}, onDone: () => done = true);
+      await Future<void>.delayed(Duration.zero);
+      await concrete.dispose();
+      await Future<void>.delayed(Duration.zero);
+      expect(done, isTrue);
+      await sub.cancel();
     });
 
     test('watchEntries emits initial snapshot and updates on change', () async {

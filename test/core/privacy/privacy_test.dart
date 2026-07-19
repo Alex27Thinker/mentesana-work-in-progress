@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mentesana_mood_selector/_shared/services/settings_repository.dart';
 import 'package:mentesana_mood_selector/analysis_engine.dart';
 import 'package:mentesana_mood_selector/app_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mentesana_mood_selector/_shared/services/settings_repository.dart';
 
 void main() {
   group('Privacy: crisis language', () {

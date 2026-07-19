@@ -4,7 +4,7 @@ import 'package:mentesana_mood_selector/app_store.dart';
 void main() {
   group('Attachment', () {
     test('toJson produces correct map', () {
-      final a = Attachment(
+      const a = Attachment(
           name: 'test.jpg', type: 'image/jpeg', size: 1024, data: 'abc123');
       expect(a.toJson(), {
         'name': 'test.jpg',
@@ -40,9 +40,9 @@ void main() {
     });
 
     test('isImage and isAudio helpers', () {
-      final img = Attachment(name: 'a.png', type: 'image/png', data: '');
-      final aud = Attachment(name: 'a.webm', type: 'audio/webm', data: '');
-      final other = Attachment(name: 'a.txt', type: 'text/plain', data: '');
+      const img = Attachment(name: 'a.png', type: 'image/png');
+      const aud = Attachment(name: 'a.webm', type: 'audio/webm');
+      const other = Attachment(name: 'a.txt', type: 'text/plain');
       expect(img.isImage, isTrue);
       expect(img.isAudio, isFalse);
       expect(aud.isImage, isFalse);
@@ -54,7 +54,7 @@ void main() {
 
   group('EntryVersion', () {
     test('toJson produces correct map', () {
-      final v = EntryVersion(editedAt: 1000, text: 'hello', title: 'My Page');
+      const v = EntryVersion(editedAt: 1000, text: 'hello', title: 'My Page');
       expect(v.toJson(), {
         'editedAt': 1000,
         'text': 'hello',
@@ -103,7 +103,7 @@ void main() {
         prompt: 'How was today?',
         wordCount: 3,
         attachments: [
-          Attachment(name: 'img.jpg', type: 'image/jpeg', data: 'base64')
+          const Attachment(name: 'img.jpg', type: 'image/jpeg', data: 'base64')
         ],
         tideLine: 'evening tide',
         tideAt: 2000,
@@ -115,7 +115,7 @@ void main() {
         afterWord: 'content',
         afterTs: 1600,
         versions: [
-          EntryVersion(editedAt: 900, text: 'first draft', title: 'Today')
+          const EntryVersion(editedAt: 900, text: 'first draft', title: 'Today')
         ],
         pendingTranscription: true,
         pendingAudioPath: '/tmp/audio.webm',
@@ -200,7 +200,7 @@ void main() {
     });
 
     test('capped at 9 words and 84 characters', () {
-      final long = 'one two three four five six seven eight nine ten eleven';
+      const long = 'one two three four five six seven eight nine ten eleven';
       final result = titleFromPage(long);
       expect(result, 'one two three four five six seven eight nine\u2026');
       expect(result.length, lessThanOrEqualTo(84));
@@ -231,12 +231,11 @@ void main() {
         title: 'Draft Title',
         tag: 'work',
         bottle: 'morning',
-        mode: 'free',
         prompt: 'How are you?',
         ts: 5000,
         activeEntryTs: 4000,
         attachments: [
-          Attachment(name: 'img.jpg', type: 'image/jpeg', data: 'base64')
+          const Attachment(name: 'img.jpg', type: 'image/jpeg', data: 'base64')
         ],
         v: 0.3,
         a: -0.1,
@@ -268,7 +267,7 @@ void main() {
 
   group('TideObservation', () {
     test('toJson round-trip', () {
-      final obs = TideObservation(ts: 1000, response: 'did');
+      const obs = TideObservation(ts: 1000, response: 'did');
       final json = obs.toJson();
       final restored = TideObservation.fromJson(json);
       expect(restored, isNotNull);
@@ -299,9 +298,8 @@ void main() {
         action: 'walk 10 min',
         theme: 'daily life',
         startedAt: 1000,
-        durationDays: 7,
         evidenceTs: [1000, 1001],
-        observations: [TideObservation(ts: 2000, response: 'did')],
+        observations: [const TideObservation(ts: 2000, response: 'did')],
         completedAt: 3000,
       );
 
@@ -365,7 +363,7 @@ void main() {
 
   group('ParkedWorry', () {
     test('toJson round-trip', () {
-      final w = ParkedWorry(
+      const w = ParkedWorry(
           ts: 1000, text: 'Worried about work', returnAt: 2000, settled: true);
       final json = w.toJson();
       final restored = ParkedWorry.fromJson(json);
@@ -389,7 +387,7 @@ void main() {
 
   group('Anchor', () {
     test('toJson round-trip', () {
-      final a = Anchor(
+      const a = Anchor(
           setAt: 1000,
           text: 'Deep breath',
           theme: 'calm',
@@ -410,10 +408,10 @@ void main() {
     });
 
     test('isOpen reflects reflection status', () {
-      final open = Anchor(setAt: 1, text: 'a', theme: 'b', forDay: 'c');
+      const open = Anchor(setAt: 1, text: 'a', theme: 'b', forDay: 'c');
       expect(open.isOpen, isTrue);
 
-      final reflected = Anchor(
+      const reflected = Anchor(
           setAt: 1, text: 'a', theme: 'b', forDay: 'c', reflectedAt: 2000);
       expect(reflected.isOpen, isFalse);
     });
@@ -434,10 +432,10 @@ void main() {
       final afternoon = DateTime(2026, 1, 1, 14, 30);
       expect(formatTime(afternoon), '2:30 PM');
 
-      final midnight = DateTime(2026, 1, 1, 0, 0);
+      final midnight = DateTime(2026);
       expect(formatTime(midnight), '12:00 AM');
 
-      final noon = DateTime(2026, 1, 1, 12, 0);
+      final noon = DateTime(2026, 1, 1, 12);
       expect(formatTime(noon), '12:00 PM');
     });
   });

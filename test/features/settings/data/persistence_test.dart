@@ -1,9 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mentesana_mood_selector/app_store.dart';
 import 'package:mentesana_mood_selector/_shared/services/settings_repository.dart';
+import 'package:mentesana_mood_selector/app_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../helpers/fixtures.dart';
 
 void main() {
@@ -35,8 +36,8 @@ void main() {
 
     test('addEntry serializes and deserializes round-trip', () {
       final store = AppStore.fromRepository(repo);
-      final entry = fixtureEntry(
-          ts: 1000, v: 0.5, a: -0.3, word: 'calm', text: 'Hello world');
+      final entry =
+          fixtureEntry(ts: 1000, v: 0.5, a: -0.3, text: 'Hello world');
 
       store.addEntry(entry);
 
@@ -138,7 +139,7 @@ void main() {
 
     test('exportText produces readable format', () {
       final store = AppStore.fromRepository(repo);
-      store.addEntry(fixtureEntry(ts: 1000000, text: 'Beautiful day'));
+      store.addEntry(fixtureEntry(text: 'Beautiful day'));
 
       final text = store.exportText();
       expect(text, contains('Beautiful day'));
@@ -231,8 +232,7 @@ void main() {
       final todayTs =
           DateTime(now.year, now.month, now.day, 12).millisecondsSinceEpoch;
 
-      store.addEntry(
-          fixtureMoodEntry(ts: todayTs, v: 0.5, a: -0.3, word: 'today-mood'));
+      store.addEntry(fixtureMoodEntry(ts: todayTs, word: 'today-mood'));
       store.addEntry(fixtureMoodEntry(ts: 1000, v: 0.1, a: 0.1, word: 'old'));
 
       final latest = store.latestMoodToday();

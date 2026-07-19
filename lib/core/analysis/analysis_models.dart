@@ -1,7 +1,7 @@
 // Mentesana — shared analysis result models.
 // Pure data classes with no UI or persistence dependencies.
-// Maps and lists exposed from these result objects are defensive
-// unmodifiable views so callers cannot mutate analyzer state.
+// Finished statistical result objects expose defensive unmodifiable views.
+// InsightParts is a documented mutable compatibility builder/result.
 
 /// Month labels (short English) shared by SeasonSummary and PromptEngine.
 const kMonthsShortAE = [
@@ -172,7 +172,10 @@ class TextAnalysis {
   final String sentimentLabel;
 }
 
-/// The weekly-insight shape (JS `parts`), plus the AI crisis extension.
+/// Mutable weekly-insight builder/result retained for compatibility with the
+/// prototype's JS-style generation pipeline. Unlike the other analysis result
+/// objects, [PromptEngine] builds this object incrementally. Callers that need
+/// a stable collection snapshot should read [patternsView].
 class InsightParts {
   InsightParts({
     this.headline = '',
@@ -183,12 +186,12 @@ class InsightParts {
     this.crisis = false,
     this.crisisMessage,
     this.fromAI = false,
-  }) : patterns =
-            patterns == null ? <String>[] : List<String>.unmodifiable(patterns);
+  }) : patterns = patterns == null ? <String>[] : List<String>.of(patterns);
 
   String headline;
   String count;
   List<String> patterns;
+  List<String> get patternsView => List<String>.unmodifiable(patterns);
   String question;
   bool thin;
   bool crisis;

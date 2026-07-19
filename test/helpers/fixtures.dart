@@ -38,7 +38,6 @@ JournalEntry fixtureMoodEntry({
     v: v,
     a: a,
     word: word,
-    text: '',
     moodTs: moodTs ?? ts,
   );
 }

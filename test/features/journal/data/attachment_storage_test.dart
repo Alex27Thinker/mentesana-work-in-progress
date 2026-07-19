@@ -40,13 +40,13 @@ void main() {
     });
 
     test('readAttachment returns null for empty data', () async {
-      final a = Attachment(name: 'a.jpg', type: 'image/jpeg');
+      const a = Attachment(name: 'a.jpg', type: 'image/jpeg');
       final r = await storage.readAttachment(a);
       expect(r, isNull);
     });
 
     test('readAttachment returns null for malformed data', () async {
-      final a =
+      const a =
           Attachment(name: 'a.jpg', type: 'image/jpeg', data: 'not-a-data-url');
       final r = await storage.readAttachment(a);
       expect(r, isNull);
@@ -75,7 +75,7 @@ void main() {
     });
 
     test('deleteAttachment is a no-op for legacy embedded storage', () async {
-      final a = Attachment(name: 'a.jpg', type: 'image/jpeg');
+      const a = Attachment(name: 'a.jpg', type: 'image/jpeg');
       // Should not throw.
       await storage.deleteAttachment(a);
     });

@@ -11,9 +11,10 @@ import 'package:flutter/foundation.dart';
 
 import '_shared/services/settings_repository.dart';
 import 'features/journal/domain/models.dart';
-export 'features/journal/domain/models.dart';
 import 'notification_service.dart';
 import 'voice_transcription_service.dart';
+
+export 'features/journal/domain/models.dart';
 
 /// Interface language table — ported verbatim from the prototype's I18N map.
 const kI18n = <String, Map<String, String>>{
@@ -393,13 +394,17 @@ class AppStore extends ChangeNotifier {
   void appendToEntry(JournalEntry e, String addition) {
     final add = addition.trim();
     if (add.isEmpty) return;
-    final newText =
-        e.text.trim().isEmpty ? add : '${e.text.trimRight()}\n\n$add';
+    final current = findByTs(e.ts);
+    if (current == null) {
+      throw StateError('appendToEntry: no entry with ts=${e.ts}');
+    }
+    final newText = current.text.trim().isEmpty
+        ? add
+        : '${current.text.trimRight()}\n\n$add';
     final newCount = newText.trim().isEmpty
         ? 0
         : newText.trim().split(RegExp(r'\s+')).length;
-    _replaceEntry(e, e.copyWith(text: newText, wordCount: newCount));
-    saveEntries();
+    updateEntry(current, current.copyWith(text: newText, wordCount: newCount));
   }
 
   // ---------- i18n ----------
@@ -444,7 +449,14 @@ class AppStore extends ChangeNotifier {
       throw StateError(
           'updateEntry must preserve ts identity (${oldEntry.ts} → ${newEntry.ts})');
     }
-    final replaced = _replaceEntry(oldEntry, newEntry);
+    final current = findByTs(oldEntry.ts);
+    if (current == null) {
+      throw StateError('updateEntry: no entry with ts=${oldEntry.ts}');
+    }
+    if (!identical(current, oldEntry)) {
+      throw StateError('updateEntry: stale entry with ts=${oldEntry.ts}');
+    }
+    final replaced = _replaceEntry(current, newEntry);
     if (!replaced) {
       throw StateError('updateEntry: no entry with ts=${oldEntry.ts}');
     }
@@ -724,8 +736,9 @@ class AppStore extends ChangeNotifier {
     final active = activeTideExperiment;
     if (active != null) {
       tideExperiments = tideExperiments.map((e) {
-        if (e.id == active.id)
+        if (e.id == active.id) {
           return e.copyWith(completedAt: DateTime.now().millisecondsSinceEpoch);
+        }
         return e;
       }).toList();
     }
@@ -736,8 +749,9 @@ class AppStore extends ChangeNotifier {
   void recordTideObservation(String experimentId, String response) {
     if (!const {'did', 'not', 'skipped'}.contains(response)) return;
     tideExperiments = tideExperiments.map((experiment) {
-      if (experiment.id != experimentId || experiment.isComplete)
+      if (experiment.id != experimentId || experiment.isComplete) {
         return experiment;
+      }
       final now = DateTime.now();
       final filtered = experiment.observations.where((observation) {
         final day = DateTime.fromMillisecondsSinceEpoch(observation.ts);
@@ -979,14 +993,21 @@ class AppStore extends ChangeNotifier {
   /// it right away — the entry is safe to leave even though the
   /// transcript has not landed yet.
   void beginPendingTranscription(JournalEntry entry, String audioPath) {
-    final updated =
-        entry.copyWith(pendingTranscription: true, pendingAudioPath: audioPath);
-    if (!entries.any((e) => e.ts == entry.ts)) {
-      entries = [...entries, updated];
-    } else {
-      _replaceEntry(entry, updated);
+    final current = findByTs(entry.ts);
+    if (current == null) {
+      addEntry(entry.copyWith(
+        pendingTranscription: true,
+        pendingAudioPath: audioPath,
+      ));
+      return;
     }
-    saveEntries();
+    updateEntry(
+      current,
+      current.copyWith(
+        pendingTranscription: true,
+        pendingAudioPath: audioPath,
+      ),
+    );
   }
 
   /// Runs [audioPath]'s transcription in the background, independent of
@@ -1030,8 +1051,7 @@ class AppStore extends ChangeNotifier {
             newText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length,
       );
     }
-    _replaceEntry(e, updated);
-    saveEntries();
+    updateEntry(e, updated);
   }
 
   /// Clears the pending flag after a background transcription fails —
@@ -1039,9 +1059,10 @@ class AppStore extends ChangeNotifier {
   void failTranscription(int ts) {
     final e = findByTs(ts);
     if (e == null) return;
-    _replaceEntry(
-        e, e.copyWith(pendingTranscription: false, pendingAudioPath: null));
-    saveEntries();
+    updateEntry(
+      e,
+      e.copyWith(pendingTranscription: false, pendingAudioPath: null),
+    );
   }
 
   static String _appendTranscript(String existing, String transcript) {

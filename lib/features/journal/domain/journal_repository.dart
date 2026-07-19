@@ -33,9 +33,8 @@ abstract interface class JournalRepository {
   /// supplied `ts` exists, or if the entry's `ts` was changed.
   Future<void> update(JournalEntry entry);
 
-  /// Remove the entry with matching `ts`. Throws [StateError] if no
-  /// entry exists. Returns silently if the entry has already been
-  /// removed.
+  /// Remove the entry with matching `ts`. This operation is idempotent:
+  /// it returns successfully when the entry has already been removed.
   Future<void> deleteByTs(int ts);
 
   /// Replace every entry with [entries]. The supplied list must contain
